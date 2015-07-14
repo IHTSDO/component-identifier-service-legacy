@@ -5,7 +5,6 @@
 
 module.exports.geSctid = function geSctid (req, res, next) {
     var token = req.swagger.params.token.value;
-    console.log(token);
     var sctid = req.swagger.params.sctid.value;
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(

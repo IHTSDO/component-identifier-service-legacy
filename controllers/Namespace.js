@@ -5,7 +5,6 @@
 
 module.exports.getNamespace = function getNamespace (req, res, next) {
     var token = req.swagger.params.token.value;
-    console.log(token);
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(
         {
@@ -20,7 +19,6 @@ module.exports.getNamespace = function getNamespace (req, res, next) {
 
 module.exports.getNamespaces = function getNamespaces (req, res, next) {
     var token = req.swagger.params.token.value;
-    console.log(token);
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify([
         {
@@ -42,9 +40,7 @@ module.exports.getNamespaces = function getNamespaces (req, res, next) {
 
 module.exports.createNamespace = function createNamespace (req, res, next) {
     var token = req.swagger.params.token.value;
-    console.log(token);
     var namespaceData = req.swagger.params.namespace.value;
-    console.log(namespaceData);
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(
         {
@@ -59,9 +55,7 @@ module.exports.createNamespace = function createNamespace (req, res, next) {
 
 module.exports.updateNamespace = function updateNamespace (req, res, next) {
     var token = req.swagger.params.token.value;
-    console.log(token);
     var namespaceData = req.swagger.params.namespace.value;
-    console.log(namespaceData);
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(
         {
