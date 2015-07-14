@@ -1,0 +1,265 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Component Identifier Service API",
+        "description": "API for the IHTSDO Component Identifier Service.",
+        "version": "1.0"
+    },
+    "produces": ["application/json"],
+    "host": "localhost:3000",
+    "basePath": "/api",
+    "paths": {
+        "/sct/namespaces/{namespaceId}": {
+            "get": {
+                "x-swagger-router-controller": "Namespace",
+                "operationId": "getNamespace",
+                "tags": ["/namespaces"],
+                "description": "Returns the required namespace object.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "namespaceId",
+                        "in": "path",
+                        "description": "The required namespace id.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Invalid request.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Successful request.",
+                        "schema": {
+                            "$ref": "#/definitions/Namespace"
+                        }
+                    }
+                }
+            }
+        },
+        "/sct/namespaces": {
+            "get": {
+                "x-swagger-router-controller": "Namespace",
+                "operationId": "getNamespaces",
+                "tags": ["/namespaces"],
+                "description": "Returns the list of available namespaces.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Invalid request.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Successful request.",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Namespace"
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "x-swagger-router-controller": "Namespace",
+                "operationId": "updateNamespace",
+                "tags": ["/namespaces"],
+                "description": "Updates a namespace.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "namespace",
+                        "in": "body",
+                        "description": "The updated namespace data.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Namespace"
+                        }
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Invalid request.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Namespace updated.",
+                        "schema": {
+                            "$ref": "#/definitions/Namespace"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "x-swagger-router-controller": "Namespace",
+                "operationId": "createNamespace",
+                "tags": ["/namespaces"],
+                "description": "Creates a new namespace.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "namespace",
+                        "in": "body",
+                        "description": "The new namespace data.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Namespace"
+                        }
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Invalid request.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Namespace created.",
+                        "schema": {
+                            "$ref": "#/definitions/Namespace"
+                        }
+                    }
+                }
+            }
+        },
+        "/sct/ids/{sctid}": {
+            "get": {
+                "x-swagger-router-controller": "Sctid",
+                "operationId": "geSctid",
+                "tags": ["/sctids"],
+                "description": "Returns the required SCTID Record.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "sctid",
+                        "in": "path",
+                        "description": "The required id.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Invalid request.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Successful request.",
+                        "schema": {
+                            "$ref": "#/definitions/SCTIDRecord"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "Namespace": {
+            "properties": {
+                "namespace": {
+                    "type": "integer"
+                },
+                "organizationName": {
+                    "type": "string"
+                },
+                "10": {
+                    "type": "integer"
+                },
+                "11": {
+                    "type": "integer"
+                },
+                "12": {
+                    "type": "integer"
+                }
+            }
+        },
+        "Error": {
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            },
+            "required": ["message"]
+        },
+        "SCTIDRecord" : {
+            "properties": {
+                "sctid": {
+                    "type": "integer"
+                },
+                "sequence": {
+                    "type": "integer"
+                },
+                "namespace": {
+                    "type": "integer"
+                },
+                "partitionId": {
+                    "type": "string"
+                },
+                "checkDigit": {
+                    "type": "integer"
+                },
+                "systemId": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "author": {
+                    "type": "string"
+                },
+                "software": {
+                    "type": "string"
+                },
+                "expirationDate": {
+                    "type": "string"
+                },
+                "comment": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
