@@ -24,7 +24,7 @@ crowd.ping(function (err, res) {
     }
 });
 
-//crowd.user.authenticate('alopez', 'snomed11', function(err, res) {
+//crowd.user.authenticate('greynoso', 'snomed11', function(err, res) {
 //    if(err) {
 //        throw err;
 //    }
@@ -32,7 +32,7 @@ crowd.ping(function (err, res) {
 //        console.log(res);
 //    }
 //});
-
+//
 //crowd.session.create('alopez', 'snomed11', function (err, token) {
 //    if(err) {
 //        throw err;
@@ -42,7 +42,25 @@ crowd.ping(function (err, res) {
 //    }
 //});
 
-crowd.session.authenticate("m4NjGaK4MLIw2uvJsmeW6Q00", '127.0.0.1', function (err, res) {
+//crowd.session.authenticate("ymBPALanrqy8VYIAkL1tQw00", '127.0.0.1', function (err, res) {
+//    if(err) {
+//        throw err;
+//    }
+//    else {
+//        console.log(res);
+//    }
+//});
+
+//crowd.user.groups('greynoso', function (err, res) {
+//    if(err) {
+//        throw err;
+//    }
+//    else {
+//        console.log(res);
+//    }
+//});
+
+crowd.user.find('greynoso', function(err, res) {
     if(err) {
         throw err;
     }

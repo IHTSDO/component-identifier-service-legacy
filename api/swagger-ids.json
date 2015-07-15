@@ -9,6 +9,102 @@
     "host": "107.170.101.181:3000",
     "basePath": "/api",
     "paths": {
+        "/login": {
+            "post": {
+                "x-swagger-router-controller": "Login",
+                "operationId": "login",
+                "tags": ["/authentication"],
+                "description": "Creates a session, obtaining a token for next operations.",
+                "parameters": [
+                    {
+                        "name": "credentials",
+                        "in": "body",
+                        "description": "The user credentials.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Credentials"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Login OK, Token obtained.",
+                        "schema": {
+                            "$ref": "#/definitions/Token"
+                        }
+                    },
+                    "default": {
+                        "description": "Error.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/logout": {
+            "post": {
+                "x-swagger-router-controller": "Login",
+                "operationId": "logout",
+                "tags": ["/authentication"],
+                "description": "Closes a session, identified by the token.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "body",
+                        "description": "The security access token.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Token"
+                        }
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Error.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Session closed."
+                    }
+                }
+            }
+        },
+        "/authenticate": {
+            "post": {
+                "x-swagger-router-controller": "Login",
+                "operationId": "authenticate",
+                "tags": ["/authentication"],
+                "description": "Validates a token, checking if it' assigned to a current session, and retrieves user data.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "body",
+                        "description": "The security access token.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Token"
+                        }
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Error.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Token OK.",
+                        "schema": {
+                            "$ref": "#/definitions/UserData"
+                        }
+                    }
+                }
+            }
+        },
         "/sct/namespaces/{namespaceId}": {
             "get": {
                 "x-swagger-router-controller": "Namespace",
@@ -194,6 +290,46 @@
                     }
                 }
             }
+        },
+        "/sct/ids": {
+            "post": {
+                "x-swagger-router-controller": "Sctid",
+                "operationId": "processSctidRequest",
+                "tags": ["/sctids"],
+                "description": "Receives a request for a SCTID Operation.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "operation",
+                        "in": "body",
+                        "description": "The requested operation.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/SCTIDRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Invalid request.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Operation ready.",
+                        "schema": {
+                            "$ref": "#/definitions/SCTIDRecord"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -257,6 +393,78 @@
                     "type": "string"
                 },
                 "comment": {
+                    "type": "string"
+                }
+            }
+        },
+        "SCTIDRequest" : {
+            "properties" : {
+                "action": {
+                    "type": "string",
+                    "description": "The action requested"
+                },
+                "sctid": {
+                    "type": "integer",
+                    "description": "The SCTID, only necessary to register, release, deprecate, publish"
+                },
+                "namespace": {
+                    "type": "integer",
+                    "description": "The namespace, always mandatory"
+                },
+                "partitionId": {
+                    "type": "string",
+                    "description": "The partitionId, always mandatory. '10' for concepts, '11' for descriptions, '12' for relationships"
+                },
+                "systemId": {
+                    "type": "string",
+                    "description": "The systemId, optional, a reference to an existing ID on the user environment, external to this API"
+                },
+                "software": {
+                    "type": "string",
+                    "description": "The name of the software sending the request, mandatory"
+                },
+                "expirationDate": {
+                    "type": "string",
+                    "description": "The expiration date, only necessary on reserve actions"
+                },
+                "comment": {
+                    "type": "string",
+                    "description": "A comment about the action, optional."
+                }
+            }
+        },
+        "Credentials" : {
+            "properties": {
+                "username": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "Token" : {
+            "properties": {
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "UserData" : {
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "first-name":  {
+                    "type": "string"
+                },
+                "last-name":  {
+                    "type": "string"
+                },
+                "display-name":  {
+                    "type": "string"
+                },
+                "email": {
                     "type": "string"
                 }
             }
