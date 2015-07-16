@@ -5,7 +5,7 @@
 
 var security = require("./../blogic/Security");
 
-module.exports.geSctid = function geSctid (req, res, next) {
+module.exports.getSctid = function getSctid (req, res, next) {
     var token = req.swagger.params.token.value;
     var sctid = req.swagger.params.sctid.value;
     security.authenticate(token, function(err, data) {
@@ -31,7 +31,7 @@ module.exports.geSctid = function geSctid (req, res, next) {
     });
 };
 
-module.exports.geSctidBySystemId = function geSctidBySystemId (req, res, next) {
+module.exports.getSctidBySystemId = function getSctidBySystemId (req, res, next) {
     var token = req.swagger.params.token.value;
     var systemId = req.swagger.params.systemId.value;
     security.authenticate(token, function(err, data) {

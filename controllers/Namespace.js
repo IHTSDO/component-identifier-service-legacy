@@ -113,6 +113,37 @@ module.exports.getPermissions = function getPermissions (req, res, next) {
     });
 };
 
+module.exports.createPermission = function createPermission (req, res, next) {
+    var token = req.swagger.params.token.value;
+    var namespaceId = req.swagger.params.namespaceId.value;
+    var username = req.swagger.params.username.value;
+    security.authenticate(token, function(err, data) {
+        if (err) {
+            return next(err.message);
+        }
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify(
+                {
+                    "namespace": parseInt(namespaceId),
+                    "username": username
+                }
+        ));
+    });
+};
+
+module.exports.deletePermission = function deletePermission (req, res, next) {
+    var token = req.swagger.params.token.value;
+    var namespaceId = req.swagger.params.namespaceId.value;
+    var username = req.swagger.params.username.value;
+    security.authenticate(token, function(err, data) {
+        if (err) {
+            return next(err.message);
+        }
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({}));
+    });
+};
+
 module.exports.updatePartitionSequence = function updatePartitionSequence (req, res, next) {
     var token = req.swagger.params.token.value;
     var partitionId = req.swagger.params.partitionId.value;
