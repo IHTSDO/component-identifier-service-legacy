@@ -13,7 +13,7 @@
             "post": {
                 "x-swagger-router-controller": "Login",
                 "operationId": "login",
-                "tags": ["/authentication"],
+                "tags": ["Authentication"],
                 "description": "Creates a session, obtaining a token for next operations.",
                 "parameters": [
                     {
@@ -46,7 +46,7 @@
             "post": {
                 "x-swagger-router-controller": "Login",
                 "operationId": "logout",
-                "tags": ["/authentication"],
+                "tags": ["Authentication"],
                 "description": "Closes a session, identified by the token.",
                 "parameters": [
                     {
@@ -76,7 +76,7 @@
             "post": {
                 "x-swagger-router-controller": "Login",
                 "operationId": "authenticate",
-                "tags": ["/authentication"],
+                "tags": ["Authentication"],
                 "description": "Validates a token, checking if it' assigned to a current session, and retrieves user data.",
                 "parameters": [
                     {
@@ -109,7 +109,7 @@
             "get": {
                 "x-swagger-router-controller": "Namespace",
                 "operationId": "getPermissions",
-                "tags": ["/authorization"],
+                "tags": ["Authorization"],
                 "description": "Returns list of users with access to this namespace.",
                 "parameters": [
                     {
@@ -147,7 +147,7 @@
             "post": {
                 "x-swagger-router-controller": "Namespace",
                 "operationId": "createPermission",
-                "tags": ["/authorization"],
+                "tags": ["Authorization"],
                 "description": "Creates a permission for this namespace, allowing access for the provided user.",
                 "parameters": [
                     {
@@ -190,7 +190,7 @@
             "delete": {
                 "x-swagger-router-controller": "Namespace",
                 "operationId": "deletePermission",
-                "tags": ["/authorization"],
+                "tags": ["Authorization"],
                 "description": "Deletes a permission for this namespace, removing access for the provided user.",
                 "parameters": [
                     {
@@ -230,7 +230,7 @@
             "get": {
                 "x-swagger-router-controller": "Scheme",
                 "operationId": "getPermissions",
-                "tags": ["/authorization"],
+                "tags": ["Authorization"],
                 "description": "Returns list of users with access to this namespace.",
                 "parameters": [
                     {
@@ -268,7 +268,7 @@
             "post": {
                 "x-swagger-router-controller": "Scheme",
                 "operationId": "createPermission",
-                "tags": ["/authorization"],
+                "tags": ["Authorization"],
                 "description": "Creates a permission for this Scheme, allowing access for the provided user.",
                 "parameters": [
                     {
@@ -311,7 +311,7 @@
             "delete": {
                 "x-swagger-router-controller": "Scheme",
                 "operationId": "deletePermission",
-                "tags": ["/authorization"],
+                "tags": ["Authorization"],
                 "description": "Deletes a permission for this Scheme, removing access for the provided user.",
                 "parameters": [
                     {
@@ -351,7 +351,7 @@
             "get": {
                 "x-swagger-router-controller": "Namespace",
                 "operationId": "getNamespace",
-                "tags": ["/namespaces"],
+                "tags": ["Namespaces"],
                 "description": "Returns the required namespace object.",
                 "parameters": [
                     {
@@ -389,7 +389,7 @@
             "put": {
                 "x-swagger-router-controller": "Namespace",
                 "operationId": "updatePartitionSequence",
-                "tags": ["/namespaces"],
+                "tags": ["Namespaces"],
                 "description": "Updates the partitionId sequence for this namespace.",
                 "parameters": [
                     {
@@ -441,7 +441,7 @@
             "get": {
                 "x-swagger-router-controller": "Namespace",
                 "operationId": "getNamespaces",
-                "tags": ["/namespaces"],
+                "tags": ["Namespaces"],
                 "description": "Returns the list of available namespaces.",
                 "parameters": [
                     {
@@ -473,7 +473,7 @@
             "put": {
                 "x-swagger-router-controller": "Namespace",
                 "operationId": "updateNamespace",
-                "tags": ["/namespaces"],
+                "tags": ["Namespaces"],
                 "description": "Updates a namespace.",
                 "parameters": [
                     {
@@ -511,7 +511,7 @@
             "post": {
                 "x-swagger-router-controller": "Namespace",
                 "operationId": "createNamespace",
-                "tags": ["/namespaces"],
+                "tags": ["Namespaces"],
                 "description": "Creates a new namespace.",
                 "parameters": [
                     {
@@ -551,7 +551,7 @@
             "get": {
                 "x-swagger-router-controller": "Sctid",
                 "operationId": "getSctid",
-                "tags": ["/sctids"],
+                "tags": ["SCTIDS"],
                 "description": "Returns the required SCTID Record.",
                 "parameters": [
                     {
@@ -585,17 +585,24 @@
                 }
             }
         },
-        "/sct/systemids/{systemId}": {
+        "/sct/namespaces/{namespaceId}/systemids/{systemId}": {
             "get": {
                 "x-swagger-router-controller": "Sctid",
                 "operationId": "getSctidBySystemId",
-                "tags": ["/sctids"],
+                "tags": ["SCTIDS"],
                 "description": "Returns the required SCTID Record, identified by the systemId.",
                 "parameters": [
                     {
                         "name": "token",
                         "in": "query",
                         "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "namespaceId",
+                        "in": "path",
+                        "description": "The required namespace that contains the SystemId.",
                         "required": true,
                         "type": "string"
                     },
@@ -627,7 +634,7 @@
             "post": {
                 "x-swagger-router-controller": "Sctid",
                 "operationId": "processSctidRequest",
-                "tags": ["/sctids"],
+                "tags": ["SCTIDS"],
                 "description": "Receives a request for a SCTID Operation.",
                 "parameters": [
                     {
@@ -667,7 +674,7 @@
             "get": {
                 "x-swagger-router-controller": "SctidBulk",
                 "operationId": "getSctids",
-                "tags": ["/sctids"],
+                "tags": ["SCTIDS"],
                 "description": "Returns the required SCTID Records.",
                 "parameters": [
                     {
@@ -706,7 +713,7 @@
             "post": {
                 "x-swagger-router-controller": "SctidBulk",
                 "operationId": "processBulkSctidRequest",
-                "tags": ["/sctids"],
+                "tags": ["SCTIDS"],
                 "description": "Receives a bulk request for multiple SCTID Operations.",
                 "parameters": [
                     {
@@ -749,7 +756,7 @@
             "get": {
                 "x-swagger-router-controller": "Scheme",
                 "operationId": "getSchemes",
-                "tags": ["/schemes"],
+                "tags": ["Schemes"],
                 "description": "Returns available Identifier Schemes.",
                 "parameters": [
                     {
@@ -783,7 +790,7 @@
             "get": {
                 "x-swagger-router-controller": "SchemeId",
                 "operationId": "getSchemeId",
-                "tags": ["/schemeIds"],
+                "tags": ["SchemeIds"],
                 "description": "Returns the required SchemeId Record.",
                 "parameters": [
                     {
@@ -832,7 +839,7 @@
             "get": {
                 "x-swagger-router-controller": "SchemeId",
                 "operationId": "getSchemeIdBySystemId",
-                "tags": ["/schemeIds"],
+                "tags": ["SchemeIds"],
                 "description": "Returns the required SchemeId Record, identified by the systemId.",
                 "parameters": [
                     {
@@ -881,7 +888,7 @@
             "post": {
                 "x-swagger-router-controller": "SchemeId",
                 "operationId": "processSchemeIdRequest",
-                "tags": ["/schemeIds"],
+                "tags": ["SchemeIds"],
                 "description": "Receives a request for a SchemeId Operation.",
                 "parameters": [
                     {
@@ -932,7 +939,7 @@
             "get": {
                 "x-swagger-router-controller": "SchemeIdBulk",
                 "operationId": "getSchemeIds",
-                "tags": ["/schemeIds"],
+                "tags": ["SchemeIds"],
                 "description": "Returns the required SchemeId Records.",
                 "parameters": [
                     {
@@ -982,7 +989,7 @@
             "post": {
                 "x-swagger-router-controller": "SchemeIdBulk",
                 "operationId": "processBulkSchemeIdRequest",
-                "tags": ["/schemeIds"],
+                "tags": ["SchemeIds"],
                 "description": "Receives a bulk request for multiple SchemeId Operations.",
                 "parameters": [
                     {
@@ -1034,6 +1041,16 @@
         }
     },
     "definitions": {
+        "Partition" : {
+            "properties": {
+                "parititonId": {
+                    "type": "string"
+                },
+                "sequence": {
+                    "type": "integer"
+                }
+            }
+        },
         "Namespace": {
             "properties": {
                 "namespace": {
@@ -1045,14 +1062,11 @@
                 "email": {
                     "type": "string"
                 },
-                "10": {
-                    "type": "integer"
-                },
-                "11": {
-                    "type": "integer"
-                },
-                "12": {
-                    "type": "integer"
+                "partitions": {
+                    "type": "array",
+                    "items": {
+                       "$ref": "#/definitions/Partition"
+                    }
                 }
             }
         },

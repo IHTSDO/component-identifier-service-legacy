@@ -17,9 +17,21 @@ module.exports.getNamespace = function getNamespace (req, res, next) {
             {
                 "namespace": parseInt(namespaceId),
                 "organizationName": "Uruguay NRC",
-                "conceptsSequence": 1276351,
-                "descriptionsSequence": 78271,
-                "relationshipsSequence": 736287
+                "email": "nrc@uruguay.org",
+                "partitions": [
+                    {
+                        "partitionId": "10",
+                        "sequence": 23121
+                    },
+                    {
+                        "partitionId": "11",
+                        "sequence": 1233
+                    },
+                    {
+                        "partitionId": "12",
+                        "sequence": 876
+                    }
+                ]
             }
         ));
     });
@@ -36,16 +48,40 @@ module.exports.getNamespaces = function getNamespaces (req, res, next) {
             {
                 "namespace": 10000171,
                 "organizationName": "Uruguay NRC",
-                "conceptsSequence": 1276351,
-                "descriptionsSequence": 78271,
-                "relationshipsSequence": 736287
+                "email": "nrc@uruguay.org",
+                "partitions": [
+                    {
+                        "partitionId": "10",
+                        "sequence": 23121
+                    },
+                    {
+                        "partitionId": "11",
+                        "sequence": 1233
+                    },
+                    {
+                        "partitionId": "12",
+                        "sequence": 876
+                    }
+                ]
             },
             {
                 "namespace": 10000041,
                 "organizationName": "Norway NRC",
-                "conceptsSequence": 1232,
-                "descriptionsSequence": 432,
-                "relationshipsSequence": 3222
+                "email": "nrc@norway.org",
+                "partitions": [
+                    {
+                        "partitionId": "10",
+                        "sequence": 23121
+                    },
+                    {
+                        "partitionId": "11",
+                        "sequence": 1233
+                    },
+                    {
+                        "partitionId": "12",
+                        "sequence": 876
+                    }
+                ]
             }
         ]));
     });
@@ -63,9 +99,21 @@ module.exports.createNamespace = function createNamespace (req, res, next) {
             {
                 "namespace": 10000171,
                 "organizationName": "Uruguay NRC",
-                "conceptsSequence": 1276351,
-                "descriptionsSequence": 78271,
-                "relationshipsSequence": 736287
+                "email": "nrc@uruguay.org",
+                "partitions": [
+                    {
+                        "partitionId": "10",
+                        "sequence": 23121
+                    },
+                    {
+                        "partitionId": "11",
+                        "sequence": 1233
+                    },
+                    {
+                        "partitionId": "12",
+                        "sequence": 876
+                    }
+                ]
             }
         ));
     });
@@ -83,9 +131,21 @@ module.exports.updateNamespace = function updateNamespace (req, res, next) {
             {
                 "namespace": 10000171,
                 "organizationName": "Uruguay NRC",
-                "conceptsSequence": 1276351,
-                "descriptionsSequence": 78271,
-                "relationshipsSequence": 736287
+                "email": "nrc@uruguay.org",
+                "partitions": [
+                    {
+                        "partitionId": "10",
+                        "sequence": 23121
+                    },
+                    {
+                        "partitionId": "11",
+                        "sequence": 1233
+                    },
+                    {
+                        "partitionId": "12",
+                        "sequence": 876
+                    }
+                ]
             }
         ));
     });
@@ -158,9 +218,21 @@ module.exports.updatePartitionSequence = function updatePartitionSequence (req, 
             {
                 "namespace": parseInt(namespaceId),
                 "organizationName": "Uruguay NRC",
-                "conceptsSequence": parseInt(value),
-                "descriptionsSequence": partitionId,
-                "relationshipsSequence": parseInt(value)
+                "email": "nrc@uruguay.org",
+                "partitions": [
+                    {
+                        "partitionId": "10",
+                        "sequence": 23121
+                    },
+                    {
+                        "partitionId": "11",
+                        "sequence": 1233
+                    },
+                    {
+                        "partitionId": "12",
+                        "sequence": 876
+                    }
+                ]
             }
         ));
     });
