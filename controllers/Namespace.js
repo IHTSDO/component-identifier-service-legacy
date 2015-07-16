@@ -7,6 +7,7 @@ var security = require("./Security");
 
 module.exports.getNamespace = function getNamespace (req, res, next) {
     var token = req.swagger.params.token.value;
+    var namespaceId = req.swagger.params.namespaceId.value;
     security.authenticate(token, function(err, data) {
         if (err) {
             return next(err.message);
@@ -14,7 +15,7 @@ module.exports.getNamespace = function getNamespace (req, res, next) {
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify(
             {
-                "namespace": 10000171,
+                "namespace": parseInt(namespaceId),
                 "organizationName": "Uruguay NRC",
                 "conceptsSequence": 1276351,
                 "descriptionsSequence": 78271,

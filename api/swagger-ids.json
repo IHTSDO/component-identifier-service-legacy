@@ -6,7 +6,7 @@
         "version": "1.0"
     },
     "produces": ["application/json"],
-    "host": "107.170.101.181:3000",
+    "host": "localhost:3000",
     "basePath": "/api",
     "paths": {
         "/login": {
@@ -339,6 +339,9 @@
                     "type": "integer"
                 },
                 "organizationName": {
+                    "type": "string"
+                },
+                "email": {
                     "type": "string"
                 },
                 "10": {
