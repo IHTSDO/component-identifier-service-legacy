@@ -381,6 +381,44 @@
                 }
             }
         },
+        "/sct/systemids/{systemId}": {
+            "get": {
+                "x-swagger-router-controller": "Sctid",
+                "operationId": "geSctidBySystemId",
+                "tags": ["/sctids"],
+                "description": "Returns the required SCTID Record, identified by the systemId.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "systemId",
+                        "in": "path",
+                        "description": "The required id.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Invalid request.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Successful request.",
+                        "schema": {
+                            "$ref": "#/definitions/SCTIDRecord"
+                        }
+                    }
+                }
+            }
+        },
         "/sct/ids": {
             "post": {
                 "x-swagger-router-controller": "Sctid",
@@ -421,6 +459,7 @@
                 }
             }
         },
+
         "/sct/ids/bulk": {
             "get": {
                 "x-swagger-router-controller": "SctidBulk",

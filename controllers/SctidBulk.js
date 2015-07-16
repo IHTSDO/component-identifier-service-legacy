@@ -120,3 +120,15 @@ generator.publish = function(operation, callback) {
     sctidRecordMock.status = "published";
     callback(null, [sctidRecordMock]);
 };
+
+generator.getBySctid = function(operation, callback) {
+    // TODO: Gets by SCTID
+    sctidRecordMock.status = "published";
+    callback(null, [sctidRecordMock]);
+};
+
+generator.getBySystemId = function(operation, callback) {
+    // TODO: Gets by SystemId
+    sctidRecordMock.status = "published";
+    callback(null, [sctidRecordMock]);
+};

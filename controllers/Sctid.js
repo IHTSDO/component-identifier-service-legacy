@@ -31,6 +31,32 @@ module.exports.geSctid = function geSctid (req, res, next) {
     });
 };
 
+module.exports.geSctidBySystemId = function geSctidBySystemId (req, res, next) {
+    var token = req.swagger.params.token.value;
+    var systemId = req.swagger.params.systemId.value;
+    security.authenticate(token, function(err, data) {
+        if (err) {
+            return next(err.message);
+        }
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify(
+            {
+                "sctid": 890213710099282,
+                "sequence": 557,
+                "namespace": 1000179,
+                "partitionId": 10,
+                "checkDigit": 7,
+                "systemId": systemId,
+                "status": "Assigned", // Assigned, Free, Reserved, Locked, Deprecated
+                "author": "alopez",
+                "software": "termSpace",
+                "expirationDate": "2015/08/29 18:02:32 UTC",
+                "comment": "Batch request for July release 2015"
+            }
+        ));
+    });
+};
+
 module.exports.processSctidRequest = function processSctidRequest (req, res, next) {
     var token = req.swagger.params.token.value;
     var operation = req.swagger.params.operation.value;
