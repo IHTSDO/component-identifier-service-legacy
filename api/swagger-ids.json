@@ -594,10 +594,41 @@
             },
             "required": ["message"]
         },
+        "SchemeIdRecord" : {
+            "properties": {
+                "schemeId": {
+                    "type": "string"
+                },
+                "sequence": {
+                    "type": "integer"
+                },
+                "checkDigit": {
+                    "type": "integer"
+                },
+                "systemId": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "author": {
+                    "type": "string"
+                },
+                "software": {
+                    "type": "string"
+                },
+                "expirationDate": {
+                    "type": "string"
+                },
+                "comment": {
+                    "type": "string"
+                }
+            }
+        },
         "SCTIDRecord" : {
             "properties": {
                 "sctid": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "sequence": {
                     "type": "integer"
@@ -646,7 +677,7 @@
                     ]
                 },
                 "sctid": {
-                    "type": "integer",
+                    "type": "string",
                     "description": "The SCTID, only necessary to register, release, deprecate, publish"
                 },
                 "namespace": {
@@ -697,7 +728,7 @@
                     "description": "The SCTIDs, only necessary to register, release, deprecate, publish",
                     "type": "array",
                     "items": {
-                        "type": "integer"
+                        "type": "string"
                     }
                 },
                 "namespace": {

@@ -15,10 +15,10 @@ module.exports.geSctid = function geSctid (req, res, next) {
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify(
             {
-                "sctid": parseInt(sctid),
+                "sctid": sctid,
                 "sequence": 557,
                 "namespace": 1000179,
-                "partitionId": 10,
+                "partitionId": "10",
                 "checkDigit": 7,
                 "systemId": "780ffeb2-aafa-4042-a643-228ec38afc80",
                 "status": "Assigned", // Assigned, Free, Reserved, Locked, Deprecated
@@ -41,10 +41,10 @@ module.exports.geSctidBySystemId = function geSctidBySystemId (req, res, next) {
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify(
             {
-                "sctid": 890213710099282,
+                "sctid": "890213710099282",
                 "sequence": 557,
                 "namespace": 1000179,
-                "partitionId": 10,
+                "partitionId": "10",
                 "checkDigit": 7,
                 "systemId": systemId,
                 "status": "Assigned", // Assigned, Free, Reserved, Locked, Deprecated
@@ -80,10 +80,10 @@ module.exports.processSctidRequest = function processSctidRequest (req, res, nex
 };
 
 var sctidRecordMock = {
-    "sctid": 0,
+    "sctid": "0",
     "sequence": 557,
     "namespace": 1000179,
-    "partitionId": 10,
+    "partitionId": "10",
     "checkDigit": 7,
     "systemId": "780ffeb2-aafa-4042-a643-228ec38afc80",
     "status": "assigned", // assigned, available, reserved, registered, deprecated, published

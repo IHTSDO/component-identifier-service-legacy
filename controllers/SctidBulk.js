@@ -17,10 +17,10 @@ module.exports.geSctids = function geSctids (req, res, next) {
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify([
                 {
-                    "sctid": parseInt(sctidsArray[0]),
+                    "sctid": sctidsArray[0],
                     "sequence": 557,
                     "namespace": 1000179,
-                    "partitionId": 10,
+                    "partitionId": "10",
                     "checkDigit": 7,
                     "systemId": "780ffeb2-aafa-4042-a643-228ec38afc80",
                     "status": "Assigned", // Assigned, Free, Reserved, Locked, Deprecated
@@ -30,10 +30,10 @@ module.exports.geSctids = function geSctids (req, res, next) {
                     "comment": "Batch request for July release 2015"
                 },
                 {
-                    "sctid": parseInt(sctidsArray[1]),
+                    "sctid": sctidsArray[1],
                     "sequence": 557,
                     "namespace": 1000179,
-                    "partitionId": 10,
+                    "partitionId": "10",
                     "checkDigit": 7,
                     "systemId": "780ffeb2-aafa-4042-a643-228ec38afc80",
                     "status": "Assigned", // Assigned, Free, Reserved, Locked, Deprecated
@@ -70,10 +70,10 @@ module.exports.processBulkSctidRequest = function processBulkSctidRequest (req, 
 };
 
 var sctidRecordMock = {
-    "sctid": 0,
+    "sctid": "0",
     "sequence": 557,
     "namespace": 1000179,
-    "partitionId": 10,
+    "partitionId": "10",
     "checkDigit": 7,
     "systemId": "780ffeb2-aafa-4042-a643-228ec38afc80",
     "status": "assigned", // assigned, available, reserved, registered, deprecated, published
