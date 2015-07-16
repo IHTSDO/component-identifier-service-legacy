@@ -777,7 +777,7 @@
             "get": {
                 "x-swagger-router-controller": "SchemeIdBulk",
                 "operationId": "getSchemeIds",
-                "tags": ["/sctids"],
+                "tags": ["/schemeIds"],
                 "description": "Returns the required SchemeId Records.",
                 "parameters": [
                     {
@@ -827,7 +827,7 @@
             "post": {
                 "x-swagger-router-controller": "SchemeIdBulk",
                 "operationId": "processBulkSchemeIdRequest",
-                "tags": ["/sctids"],
+                "tags": ["/schemeIds"],
                 "description": "Receives a bulk request for multiple SchemeId Operations.",
                 "parameters": [
                     {
@@ -1014,7 +1014,9 @@
                         "register",
                         "release",
                         "publish",
-                        "deprecate"
+                        "deprecate",
+                        "getBySchemeId",
+                        "getBySystemId"
                     ]
                 },
                 "scheme": {
@@ -1145,7 +1147,9 @@
                         "register",
                         "release",
                         "publish",
-                        "deprecate"
+                        "deprecate",
+                        "getBySctid",
+                        "getBySystemId"
                     ]
                 },
                 "quantity": {

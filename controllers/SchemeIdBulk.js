@@ -9,7 +9,7 @@ module.exports.getSchemeIds = function getSchemeIds (req, res, next) {
     var token = req.swagger.params.token.value;
     var schemeName = req.swagger.params.schemeName.value;
     var schemeIds = req.swagger.params.schemeIds.value;
-    var schemeIdsArray = sctids.replace(/ /g,"").split(",");
+    var schemeIdsArray = schemeIds.replace(/ /g,"").split(",");
     security.authenticate(token, function(err, data) {
         if (err) {
             return next(err.message);
@@ -61,7 +61,7 @@ module.exports.processBulkSchemeIdRequest = function processBulkSchemeIdRequest 
 
 var schemeIdRecordMock = {
     "scheme": "",
-    "schemeId": "0",
+    "schemeId": "A666.2",
     "sequence": 557,
     "checkDigit": 7,
     "systemId": "780ffeb2-aafa-4042-a643-228ec38afc80",
@@ -78,84 +78,96 @@ generator["CTV3ID"] = {};
 
 generator["SNOMEDID"].generate = function(operation, callback) {
     // TODO: Generates SNOMEDID
-    schemeIdRecordMock.schemeId = operation.sctid;
     schemeIdRecordMock.status = "assigned";
     callback(null, [schemeIdRecordMock]);
 };
 
 generator["SNOMEDID"].register = function(operation, callback) {
     // TODO: Registers SNOMEDID
-    schemeIdRecordMock.schemeId = operation.sctid;
     schemeIdRecordMock.status = "registered";
     callback(null, [schemeIdRecordMock]);
 };
 
 generator["SNOMEDID"].reserve = function(operation, callback) {
     // TODO: Reserves SNOMEDID
-    schemeIdRecordMock.schemeId = operation.sctid;
     schemeIdRecordMock.status = "reserved";
     callback(null, [schemeIdRecordMock]);
 };
 
 generator["SNOMEDID"].deprecate = function(operation, callback) {
     // TODO: Deprecates SNOMEDID
-    schemeIdRecordMock.schemeId = operation.sctid;
     schemeIdRecordMock.status = "deprecated";
     callback(null, [schemeIdRecordMock]);
 };
 
 generator["SNOMEDID"].release = function(operation, callback) {
     // TODO: Releases SNOMEDID
-    schemeIdRecordMock.schemeId = operation.sctid;
     schemeIdRecordMock.status = "available";
     callback(null, [schemeIdRecordMock]);
 };
 
 generator["SNOMEDID"].publish = function(operation, callback) {
     // TODO: Publishes SNOMEDID
-    schemeIdRecordMock.schemeId = operation.sctid;
+    schemeIdRecordMock.status = "published";
+    callback(null, [schemeIdRecordMock]);
+};
+
+generator["SNOMEDID"].getBySchemeId = function(operation, callback) {
+    // TODO: gets SNOMEDID
+    schemeIdRecordMock.status = "published";
+    callback(null, [schemeIdRecordMock]);
+};
+
+generator["SNOMEDID"].getBySystemId = function(operation, callback) {
+    // TODO: gets SNOMEDID
     schemeIdRecordMock.status = "published";
     callback(null, [schemeIdRecordMock]);
 };
 
 generator["CTV3ID"].generate = function(operation, callback) {
     // TODO: Generates CTV3ID
-    schemeIdRecordMock.schemeId = operation.sctid;
     schemeIdRecordMock.status = "assigned";
     callback(null, [schemeIdRecordMock]);
 };
 
 generator["CTV3ID"].register = function(operation, callback) {
     // TODO: Registers CTV3ID
-    schemeIdRecordMock.schemeId = operation.sctid;
     schemeIdRecordMock.status = "registered";
     callback(null, [schemeIdRecordMock]);
 };
 
 generator["CTV3ID"].reserve = function(operation, callback) {
     // TODO: Reserves CTV3ID
-    schemeIdRecordMock.schemeId = operation.sctid;
     schemeIdRecordMock.status = "reserved";
     callback(null, [schemeIdRecordMock]);
 };
 
 generator["CTV3ID"].deprecate = function(operation, callback) {
     // TODO: Deprecates CTV3ID
-    schemeIdRecordMock.schemeId = operation.sctid;
     schemeIdRecordMock.status = "deprecated";
     callback(null, [schemeIdRecordMock]);
 };
 
 generator["CTV3ID"].release = function(operation, callback) {
     // TODO: Releases CTV3ID
-    schemeIdRecordMock.schemeId = operation.sctid;
     schemeIdRecordMock.status = "available";
     callback(null, [schemeIdRecordMock]);
 };
 
 generator["CTV3ID"].publish = function(operation, callback) {
     // TODO: Publishes CTV3ID
-    schemeIdRecordMock.schemeId = operation.sctid;
+    schemeIdRecordMock.status = "published";
+    callback(null, [schemeIdRecordMock]);
+};
+
+generator["CTV3ID"].getBySchemeId = function(operation, callback) {
+    // TODO: gets CTV3ID
+    schemeIdRecordMock.status = "published";
+    callback(null, [schemeIdRecordMock]);
+};
+
+generator["CTV3ID"].getBySystemId = function(operation, callback) {
+    // TODO: gets CTV3ID
     schemeIdRecordMock.status = "published";
     callback(null, [schemeIdRecordMock]);
 };
