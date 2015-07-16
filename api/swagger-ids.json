@@ -226,6 +226,127 @@
                 }
             }
         },
+        "/schemes/{schemeName}/permissions": {
+            "get": {
+                "x-swagger-router-controller": "Scheme",
+                "operationId": "getPermissions",
+                "tags": ["/authorization"],
+                "description": "Returns list of users with access to this namespace.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "schemeName",
+                        "in": "path",
+                        "description": "The required Scheme name.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Invalid request.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Successful request.",
+                        "schema": {
+                            "$ref": "#/definitions/SchemePermission"
+                        }
+                    }
+                }
+            }
+        },
+        "/schemes/{schemeName}/permissions/{username}": {
+            "post": {
+                "x-swagger-router-controller": "Scheme",
+                "operationId": "createPermission",
+                "tags": ["/authorization"],
+                "description": "Creates a permission for this Scheme, allowing access for the provided user.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "schemeName",
+                        "in": "path",
+                        "description": "The required Scheme name.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "username",
+                        "in": "path",
+                        "description": "The username.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Invalid request.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Successful request.",
+                        "schema": {
+                            "$ref": "#/definitions/SchemePermission"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "x-swagger-router-controller": "Scheme",
+                "operationId": "deletePermission",
+                "tags": ["/authorization"],
+                "description": "Deletes a permission for this Scheme, removing access for the provided user.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "schemeName",
+                        "in": "path",
+                        "description": "The required scheme name.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "username",
+                        "in": "path",
+                        "description": "The username.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Invalid request.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {}
+                }
+            }
+        },
         "/sct/namespaces/{namespaceId}": {
             "get": {
                 "x-swagger-router-controller": "Namespace",
@@ -624,6 +745,40 @@
                 }
             }
         },
+        "/schemes": {
+            "get": {
+                "x-swagger-router-controller": "Scheme",
+                "operationId": "getSchemes",
+                "tags": ["/schemes"],
+                "description": "Returns available Identifier Schemes.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Invalid request.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Successful request.",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Scheme"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/scheme/{schemeName}/ids/{schemeId}": {
             "get": {
                 "x-swagger-router-controller": "SchemeId",
@@ -928,6 +1083,13 @@
                 }
             },
             "required": ["message"]
+        },
+        "Scheme": {
+            "properties": {
+                "name": {
+                    "type": "string"
+                }
+            }
         },
         "SchemeIdRecord" : {
             "properties": {
