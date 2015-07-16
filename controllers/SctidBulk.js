@@ -5,11 +5,10 @@
 
 var security = require("./../blogic/Security");
 
-module.exports.geSctids = function geSctids (req, res, next) {
+module.exports.getSctids = function getSctids (req, res, next) {
     var token = req.swagger.params.token.value;
     var sctids = req.swagger.params.sctids.value;
     var sctidsArray = sctids.replace(/ /g,"").split(",");
-    console.log("sctidsArray", sctidsArray);
     security.authenticate(token, function(err, data) {
         if (err) {
             return next(err.message);

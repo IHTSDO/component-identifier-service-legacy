@@ -545,9 +545,9 @@
         "/sct/ids/bulk": {
             "get": {
                 "x-swagger-router-controller": "SctidBulk",
-                "operationId": "geSctids",
+                "operationId": "getSctids",
                 "tags": ["/sctids"],
-                "description": "Returns the required SCTID Record.",
+                "description": "Returns the required SCTID Records.",
                 "parameters": [
                     {
                         "name": "token",
@@ -727,7 +727,7 @@
                 "x-swagger-router-controller": "SchemeId",
                 "operationId": "processSchemeIdRequest",
                 "tags": ["/schemeIds"],
-                "description": "Receives a request for a SCTID Operation.",
+                "description": "Receives a request for a SchemeId Operation.",
                 "parameters": [
                     {
                         "name": "token",
@@ -768,6 +768,110 @@
                         "description": "Operation ready.",
                         "schema": {
                             "$ref": "#/definitions/SchemeIdRecord"
+                        }
+                    }
+                }
+            }
+        },
+        "/scheme/{schemeName}/bulk": {
+            "get": {
+                "x-swagger-router-controller": "SchemeIdBulk",
+                "operationId": "getSchemeIds",
+                "tags": ["/sctids"],
+                "description": "Returns the required SchemeId Records.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "schemeName",
+                        "in": "path",
+                        "description": "The Scheme Name.",
+                        "required": true,
+                        "type": "string",
+                        "enum": [
+                            "SNOMEDID",
+                            "CTV3ID"
+                        ]
+                    },
+                    {
+                        "name": "schemeIds",
+                        "in": "query",
+                        "description": "The required schemeIds list, separated with commas (,).",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Invalid request.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Successful request.",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/SchemeIdRecord"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "x-swagger-router-controller": "SchemeIdBulk",
+                "operationId": "processBulkSchemeIdRequest",
+                "tags": ["/sctids"],
+                "description": "Receives a bulk request for multiple SchemeId Operations.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "schemeName",
+                        "in": "path",
+                        "description": "The Scheme Name.",
+                        "required": true,
+                        "type": "string",
+                        "enum": [
+                            "SNOMEDID",
+                            "CTV3ID"
+                        ]
+                    },
+                    {
+                        "name": "operation",
+                        "in": "body",
+                        "description": "The requested operation.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/SchemeIdBulkRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Invalid request.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Operation ready.",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/SchemeIdRecord"
+                            }
                         }
                     }
                 }
