@@ -420,6 +420,88 @@
                     }
                 }
             }
+        },
+        "/sct/ids/bulk": {
+            "get": {
+                "x-swagger-router-controller": "SctidBulk",
+                "operationId": "geSctids",
+                "tags": ["/sctids"],
+                "description": "Returns the required SCTID Record.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "sctids",
+                        "in": "query",
+                        "description": "The required sctids list, separated with commas (,).",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Invalid request.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Successful request.",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/SCTIDRecord"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "x-swagger-router-controller": "SctidBulk",
+                "operationId": "processBulkSctidRequest",
+                "tags": ["/sctids"],
+                "description": "Receives a bulk request for multiple SCTID Operations.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "operation",
+                        "in": "body",
+                        "description": "The requested operation.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/SCTIDBulkRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Invalid request.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Operation ready.",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/SCTIDRecord"
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -539,6 +621,60 @@
                 "systemId": {
                     "type": "string",
                     "description": "The systemId, optional, a reference to an existing ID on the user environment, external to this API"
+                },
+                "software": {
+                    "type": "string",
+                    "description": "The name of the software sending the request, mandatory"
+                },
+                "expirationDate": {
+                    "type": "string",
+                    "description": "The expiration date, only necessary on reserve actions"
+                },
+                "comment": {
+                    "type": "string",
+                    "description": "A comment about the action, optional."
+                }
+            }
+        },
+        "SCTIDBulkRequest" : {
+            "properties" : {
+                "action": {
+                    "type": "string",
+                    "description": "The action requested",
+                    "enum" : [
+                        "generate",
+                        "reserve",
+                        "register",
+                        "release",
+                        "publish",
+                        "deprecate"
+                    ]
+                },
+                "quantity": {
+                    "type": "integer",
+                    "description": "Number of actions to be performed"
+                },
+                "sctids": {
+                    "description": "The SCTIDs, only necessary to register, release, deprecate, publish",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "namespace": {
+                    "type": "integer",
+                    "description": "The namespace, always mandatory"
+                },
+                "partitionId": {
+                    "type": "string",
+                    "description": "The partitionId, always mandatory. '10' for concepts, '11' for descriptions, '12' for relationships"
+                },
+                "systemId": {
+                    "description": "The systemIds, optional, a reference to an existing ID on the user environment, external to this API",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "software": {
                     "type": "string",
