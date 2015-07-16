@@ -3,7 +3,7 @@
  */
 'use strict';
 
-var security = require("./Security");
+var security = require("./../blogic/Security");
 
 module.exports.geSctid = function geSctid (req, res, next) {
     var token = req.swagger.params.token.value;

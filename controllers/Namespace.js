@@ -3,7 +3,7 @@
  */
 'use strict';
 
-var security = require("./Security");
+var security = require("./../blogic/Security");
 
 module.exports.getNamespace = function getNamespace (req, res, next) {
     var token = req.swagger.params.token.value;

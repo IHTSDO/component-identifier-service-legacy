@@ -3,7 +3,7 @@
  */
 'use strict';
 
-var security = require("./Security");
+var security = require("./../blogic/Security");
 
 var usersCache = {};
 
