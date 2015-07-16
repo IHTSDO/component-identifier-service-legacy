@@ -143,6 +143,96 @@
                 }
             }
         },
+        "/sct/namespaces/{namespaceId}/permissions": {
+            "get": {
+                "x-swagger-router-controller": "Namespace",
+                "operationId": "getPermissions",
+                "tags": ["/namespaces"],
+                "description": "Returns list of users with access to this namespace.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "namespaceId",
+                        "in": "path",
+                        "description": "The required namespace id.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Invalid request.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Successful request.",
+                        "schema": {
+                            "$ref": "#/definitions/NamespacePermission"
+                        }
+                    }
+                }
+            }
+        },
+        "/sct/namespaces/{namespaceId}/partition/{partitionId}": {
+            "put": {
+                "x-swagger-router-controller": "Namespace",
+                "operationId": "updatePartitionSequence",
+                "tags": ["/namespaces"],
+                "description": "Updates the partitionId sequence for this namespace.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "namespaceId",
+                        "in": "path",
+                        "description": "The required namespace id.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "partitionId",
+                        "in": "path",
+                        "description": "The required namespace id.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "value",
+                        "in": "query",
+                        "description": "The next value in the sequence.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Invalid request.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Successful request.",
+                        "schema": {
+                            "$ref": "#/definitions/Namespace"
+                        }
+                    }
+                }
+            }
+        },
         "/sct/namespaces": {
             "get": {
                 "x-swagger-router-controller": "Namespace",
@@ -355,6 +445,26 @@
                 }
             }
         },
+        "NamespacePermission": {
+            "properties": {
+                "namespace": {
+                    "type": "integer"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "SchemePermission": {
+            "properties": {
+                "scheme": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
         "Error": {
             "properties": {
                 "message": {
@@ -404,7 +514,15 @@
             "properties" : {
                 "action": {
                     "type": "string",
-                    "description": "The action requested"
+                    "description": "The action requested",
+                    "enum" : [
+                        "generate",
+                        "reserve",
+                        "register",
+                        "release",
+                        "publish",
+                        "deprecate"
+                    ]
                 },
                 "sctid": {
                     "type": "integer",

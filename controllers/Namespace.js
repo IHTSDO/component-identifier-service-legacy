@@ -90,3 +90,47 @@ module.exports.updateNamespace = function updateNamespace (req, res, next) {
         ));
     });
 };
+
+module.exports.getPermissions = function getPermissions (req, res, next) {
+    var token = req.swagger.params.token.value;
+    var namespaceId = req.swagger.params.namespaceId.value;
+    security.authenticate(token, function(err, data) {
+        if (err) {
+            return next(err.message);
+        }
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify([
+                {
+                    "namespace": parseInt(namespaceId),
+                    "username": "alopez"
+                },
+                {
+                    "namespace": parseInt(namespaceId),
+                    "username": "greynoso"
+                }
+            ]
+        ));
+    });
+};
+
+module.exports.updatePartitionSequence = function updatePartitionSequence (req, res, next) {
+    var token = req.swagger.params.token.value;
+    var partitionId = req.swagger.params.partitionId.value;
+    var namespaceId = req.swagger.params.namespaceId.value;
+    var value = req.swagger.params.value.value;
+    security.authenticate(token, function(err, data) {
+        if (err) {
+            return next(err.message);
+        }
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify(
+            {
+                "namespace": parseInt(namespaceId),
+                "organizationName": "Uruguay NRC",
+                "conceptsSequence": parseInt(value),
+                "descriptionsSequence": partitionId,
+                "relationshipsSequence": parseInt(value)
+            }
+        ));
+    });
+};
