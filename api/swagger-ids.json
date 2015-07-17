@@ -105,6 +105,47 @@
                 }
             }
         },
+        "/user/{username}/groups/": {
+            "get": {
+                "x-swagger-router-controller": "Login",
+                "operationId": "getGroups",
+                "tags": ["Authorization"],
+                "description": "Retrieves groups for the user.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "username",
+                        "in": "path",
+                        "description": "The username.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Error.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Groups list.",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/sct/namespaces/{namespaceId}/permissions": {
             "get": {
                 "x-swagger-router-controller": "Namespace",
