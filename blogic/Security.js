@@ -63,3 +63,13 @@ module.exports.findUser = function findUser (username, callback) {
         }
     });
 };
+
+module.exports.getGroups = function getGroups (username, callback) {
+    crowd.user.groups(username, function(err, res) {
+        if(err) {
+            callback(err);
+        } else {
+            callback(null, res);
+        }
+    });
+};

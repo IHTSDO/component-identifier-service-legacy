@@ -56,3 +56,21 @@ module.exports.authenticate = function authenticate (req, res, next) {
         }
     });
 };
+
+module.exports.getGroups = function getGroups (req, res, next) {
+    var token = req.swagger.params.token.value;
+    var username = req.swagger.params.username.value;
+    security.destroySession(token.token, function(err, data) {
+        if (err) {
+            return next(err.message);
+        }
+        security.getGroups(username, function(err2, groups) {
+            if (err2) {
+                return next(err2.message);
+            } else {
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify(groups));
+            }
+        });
+    });
+};
