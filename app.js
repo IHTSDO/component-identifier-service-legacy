@@ -3,6 +3,7 @@
 var app = require('connect')();
 var http = require('http');
 var swaggerTools = require('swagger-tools');
+var serveStatic = require('serve-static');
 
 var serverPort = 3000;
 
@@ -28,6 +29,8 @@ swaggerTools.initializeMiddleware(swaggerDoc, function (middleware) {
 
     // Serve the Swagger documents and Swagger UI
     app.use(middleware.swaggerUi());
+
+    app.use(serveStatic('public'));
 
     // Start the server
     http.createServer(app).listen(serverPort, function () {
