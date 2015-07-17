@@ -9,14 +9,10 @@ var usersCache = {};
 
 module.exports.login = function login (req, res, next) {
     var credentials = req.swagger.params.credentials.value;
-    console.log("Login");
-    console.log(credentials);
     security.createSession(credentials.username, credentials.password, function(err, data) {
         if (err) {
-            console.log("err", err);
             return next(err.message);
         }
-        console.log(data);
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify({"token":data}));
     });
@@ -60,7 +56,7 @@ module.exports.authenticate = function authenticate (req, res, next) {
 module.exports.getGroups = function getGroups (req, res, next) {
     var token = req.swagger.params.token.value;
     var username = req.swagger.params.username.value;
-    security.destroySession(token.token, function(err, data) {
+    security.authenticate(token, function(err, data) {
         if (err) {
             return next(err.message);
         }
