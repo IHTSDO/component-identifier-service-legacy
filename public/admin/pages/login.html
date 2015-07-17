@@ -29,10 +29,52 @@
         <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
+    <script type="text/javascript">
+        function start() {
+            $("#login-button").unbind();
+            $("#login-button").click(function(e){
+                readLoginForm();
+            });
+
+            $("#username").keyup(function (e) {
+                if (e.keyCode === 13) {
+                    $("#password").focus();
+                }
+            });
+
+            $("#password").keyup(function (e) {
+                if (e.keyCode === 13) {
+                    readLoginForm();
+                }
+            });
+
+        }
+
+        function readLoginForm() {
+            var credUsername = $("#username").val();
+            var credPassword = $("#password").val();
+            var rememberMe = $("#rememberMe").is(':checked');
+            if (!credUsername || !credPassword) {
+                $.notify("Login information incomplete", "error");
+                $("#loginForm").addClass('has-error');
+            } else {
+                var credentials = {
+                    username: credUsername,
+                    password: credPassword
+                };
+                loginWithCredentials(credentials, function() {
+                    var parameters = new QueryString();
+                    if (parameters.return)
+                        parameters.return = "index.html";
+                    window.location.assign(parameters.return);
+                }, rememberMe);
+            }
+        }
+    </script>
 
 </head>
 
-<body>
+<body onLoad="start();">
 
     <div class="container">
         <div class="row">
@@ -45,18 +87,18 @@
                         <form role="form">
                             <fieldset>
                                 <div class="form-group">
-                                    <input class="form-control" placeholder="E-mail" name="email" type="email" autofocus>
+                                    <input id="username" class="form-control" placeholder="Username" name="user" type="text" autofocus>
                                 </div>
                                 <div class="form-group">
-                                    <input class="form-control" placeholder="Password" name="password" type="password" value="">
+                                    <input id="password" class="form-control" placeholder="Password" name="password" type="password" value="">
                                 </div>
                                 <div class="checkbox">
                                     <label>
-                                        <input name="remember" type="checkbox" value="Remember Me">Remember Me
+                                        <input id="rememberMe" name="remember" type="checkbox" value="Remember Me">Remember Me
                                     </label>
                                 </div>
                                 <!-- Change this to a button or input when using this as a form -->
-                                <a href="index.html" class="btn btn-lg btn-success btn-block">Login</a>
+                                <a href="javascript:void(0);" id="login-button" class="btn btn-lg btn-success btn-block">Login</a>
                             </fieldset>
                         </form>
                     </div>
@@ -76,7 +118,9 @@
 
     <!-- Custom Theme JavaScript -->
     <script src="../dist/js/sb-admin-2.js"></script>
-
+    <script src="../js/authentication.js"></script>
+    <script src="../js/notify.js"></script>
+    <script src="../js/variables.js"></script>
 </body>
 
 </html>

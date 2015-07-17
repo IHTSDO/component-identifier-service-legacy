@@ -9,7 +9,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>SB Admin 2 - Bootstrap Admin Theme</title>
+    <title>Component Identifier Service</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="../bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -35,10 +35,43 @@
         <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
+    <script type="text/javascript">
+        function start() {
+            ensureAuthenticated("index.html", function(credentials){
+                setupDashboard(credentials);
+            });
+        };
+        function setupDashboard(credentials){
+            $("#username-label").html(credentials.username);
+//            var iconData = new Identicon(CryptoJS.MD5(credentials.username).toString(), 20).toString();
+            $("#user-avatar").html('<img src="http://robohash.org/' + credentials.username + '?size=20x20&bgset=bg1" alt="User Avatar" class="img-circle" />');
+            // $("#user-avatar").html('<img src="data:image/png;base64,' + iconData + '" alt="User Avatar" class="img-circle" />');
 
+            $("#viewProfileButton").unbind();
+            $("#viewProfileButton").click(function(){
+                var user = {};
+                $.each(options.users, function(i, field){
+                    if (field.username == options.username)
+                        user = field;
+                });
+                $("#user-profile-modal").modal("show");
+                var context = {
+                    user: user
+                };
+                $("#user-profile-body").html(JST["views/v2Home/userProfile.hbs"](context));
+            });
+
+            $("#logoutButton").unbind();
+            $("#logoutButton").click(function (event) {
+                logout();
+            });
+//            startTermSpace();
+        }
+
+    </script>
 </head>
 
-<body>
+<body onLoad="start();">
 
     <div id="wrapper">
 
@@ -248,19 +281,34 @@
                 <!-- /.dropdown -->
                 <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                        <i class="fa fa-user fa-fw"></i>  <i class="fa fa-caret-down"></i>
+                        <span id="user-avatar"><i class="fa fa-user fa-fw"></i></span>
+                        <style></style><span id="username-label"></span> <i class="fa fa-caret-down"></i>
                     </a>
                     <ul class="dropdown-menu dropdown-user">
-                        <li><a href="#"><i class="fa fa-user fa-fw"></i> User Profile</a>
+                        <li>
+                            <a href="javascript:void(0);" id="viewProfileButton"><i class="fa fa-fw fa-user"></i> View profile</a>
                         </li>
-                        <li><a href="#"><i class="fa fa-gear fa-fw"></i> Settings</a>
-                        </li>
-                        <li class="divider"></li>
-                        <li><a href="login.html"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
+                        <li>
+                            <a href="javascript:void(0);" id="logoutButton"><i class="fa fa-fw fa-power-off"></i> Log Out</a>
                         </li>
                     </ul>
                     <!-- /.dropdown-user -->
                 </li>
+                <!--<li class="dropdown">-->
+                    <!--<a class="dropdown-toggle" data-toggle="dropdown" href="#">-->
+                        <!--<i class="fa fa-user fa-fw"></i>  <i class="fa fa-caret-down"></i>-->
+                    <!--</a>-->
+                    <!--<ul class="dropdown-menu dropdown-user">-->
+                        <!--<li><a href="#"><i class="fa fa-user fa-fw"></i> User Profile</a>-->
+                        <!--</li>-->
+                        <!--<li><a href="#"><i class="fa fa-gear fa-fw"></i> Settings</a>-->
+                        <!--</li>-->
+                        <!--<li class="divider"></li>-->
+                        <!--<li><a href="login.html"><i class="fa fa-sign-out fa-fw"></i> Logout</a>-->
+                        <!--</li>-->
+                    <!--</ul>-->
+                    <!--&lt;!&ndash; /.dropdown-user &ndash;&gt;-->
+                <!--</li>-->
                 <!-- /.dropdown -->
             </ul>
             <!-- /.navbar-top-links -->
@@ -935,7 +983,9 @@
 
     <!-- Custom Theme JavaScript -->
     <script src="../dist/js/sb-admin-2.js"></script>
-
+    <script src="../js/authentication.js"></script>
+    <script src="../js/notify.js"></script>
+    <script src="../js/variables.js"></script>
 </body>
 
 </html>
