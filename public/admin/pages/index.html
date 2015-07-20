@@ -119,12 +119,32 @@
                                     $("#addPermission-namespace").disableTextSelect();
                                     $("#addPermission-namespace").click(function(){
                                         var addHtml = '<li class="list-group-item">';
-                                        addHtml+= '<select class="form-control" style="width: 60%;display: inline-block;">';
-                                        options.users.forEach(function(user){
-                                            addHtml+= '<option value="' +  user + '">' + user + '</option>';
+                                        addHtml+= '<input id="add-permission-value" type="text" class="form-control" style="width: 60%;display: inline-block;">';
+//                                        options.users.forEach(function(user){
+//                                            addHtml+= '<option value="' +  user + '">' + user + '</option>';
+//                                        });
+                                        addHtml+= '<button id="add-permission-ok-namespace" class="btn btn-success btn-sm glyphicon glyphicon-ok disabled" style=""></button>';
+                                        addHtml+= '<button id="add-permission-remove-namespace" class="btn btn-danger btn-sm glyphicon glyphicon-remove" style=""></button>';
+                                        addHtml+= '</li>';
+                                        $("#namespace-permissions-configure").find("ul").first().append(addHtml);
+                                        $("#addPermission-namespace").hide();
+                                        $("#add-permission-ok-namespace").unbind();
+                                        $("#add-permission-ok-namespace").disableTextSelect();
+                                        $("#add-permission-ok-namespace").click(function(){
+                                            $.post().done(function(result){
+
+                                            }).fail(function(){
+
+                                            });
+                                            result.push($.trim($("#add-permission-value").val()));
+                                            loadPermissionsHtml(result);
                                         });
-                                        addHtml+= '</select></li>';
-                                        addHtml+= '<button class="btn btn-success btn-sm glyphicon glyphicon-plus" style="padding: 0px;"></button>'
+
+                                        $("#add-permission-remove-namespace").unbind();
+                                        $("#add-permission-remove-namespace").disableTextSelect();
+                                        $("#add-permission-remove-namespace").click(function(){
+                                            loadPermissionsHtml(result);
+                                        });
                                     });
                                 }else
                                     $("#namespace-permissions-configure").find(".btn").hide();
