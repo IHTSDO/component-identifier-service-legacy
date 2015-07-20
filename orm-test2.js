@@ -16,6 +16,7 @@ orm.connect("mysql://root@localhost/idtest1", function(err, db) {
         persist: true
     });
 
+
     var SCTIDRecord = db.define("sctid_record", {
         sctid: String,
         sequence: Number,
