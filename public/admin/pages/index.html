@@ -78,11 +78,65 @@
             setClicks();
         }
         function setClicks(){
+            var schemesCall = null, namespacesCall = null;
             $("#configure-namespaces").unbind();
             $("#configure-namespaces").click(function(){
                 var permissionsCall = null;
+                function loadPermissions(id){
+                    $("#namespace-permissions-configure").html('<div class="text-center"><i class="fa fa-spinner fa-spin fa-2x"></i></div>');
+                    if (permissionsCall != null)
+                        permissionsCall.abort();
+                    permissionsCall = $.get("/api/sct/namespaces/" + id + "/permissions?token=" + options.token).done(function(result){
+                        function loadPermissionsHtml(result){
+                            $.get("../views/namespace/permissions.hbs").then(function(src){
+                                var context = {
+                                    permissions: result
+                                };
+                                var template = Handlebars.compile(src);
+                                $("#namespace-permissions-configure").html(template(context));
+                                if (options.adminUser || options.managerUser){
+                                    $("#namespace-permissions-configure").find(".remove-permission").unbind();
+                                    $("#namespace-permissions-configure").find(".remove-permission").disableTextSelect();
+                                    $("#namespace-permissions-configure").find(".remove-permission").click(function(e){
+                                        var username = $(e.target).closest("li").attr("data-username"), auxArray = [];
+                                        $.ajax({
+                                            type: "DELETE",
+                                            url: "/api/sct/namespaces/" + id + "/permissions/" + username + "?token=" + options.token
+                                        }).done(function(res){
+                                            console.log(res);
+                                            result.forEach(function(item){
+                                                if (item.username != username)
+                                                    auxArray.push(item);
+                                            });
+                                            loadPermissionsHtml(auxArray);
+                                        }).fail(function(err){
+                                            console.log(err.message);
+                                        });
+
+                                    });
+
+                                    $("#addPermission-namespace").unbind();
+                                    $("#addPermission-namespace").disableTextSelect();
+                                    $("#addPermission-namespace").click(function(){
+                                        var addHtml = '<li class="list-group-item">';
+                                        addHtml+= '<select class="form-control" style="width: 60%;display: inline-block;">';
+                                        options.users.forEach(function(user){
+                                            addHtml+= '<option value="' +  user + '">' + user + '</option>';
+                                        });
+                                        addHtml+= '</select></li>';
+                                        addHtml+= '<button class="btn btn-success btn-sm glyphicon glyphicon-plus" style="padding: 0px;"></button>'
+                                    });
+                                }else
+                                    $("#namespace-permissions-configure").find(".btn").hide();
+                            });
+                        }
+                        loadPermissionsHtml(result);
+                    });
+                }
                 $("#page-wrapper").html('<br><br><br><br><div class="text-center"><i class="fa fa-spinner fa-spin fa-4x"></i></div>');
-                $.get("/api/sct/namespaces?token=" + options.token).done(function(result){
+                if (namespacesCall != null)
+                    namespacesCall.abort();
+                namespacesCall = $.get("/api/sct/namespaces?token=" + options.token).done(function(result){
                     $.get("../views/namespace/main.hbs").then(function(src){
                         var template = Handlebars.compile(src);
                         $("#page-wrapper").html(template());
@@ -106,19 +160,13 @@
                                         item: namespace
                                     };
                                     template = Handlebars.compile(src);
-                                    //namespace-details
                                     $("#namespace-details").html(template(context));
-                                });
-                                if (permissionsCall != null)
-                                    permissionsCall.abort();
-                                permissionsCall = $.get("/api/sct/namespaces/" + id + "/permissions?token=" + options.token).done(function(scheme){
-                                    console.log(scheme);
+                                    loadPermissions(id);
                                 });
                             });
                             $("#namespace-list").find(".item-link").first().click();
                         });
                     });
-                    console.log(result);
                 }).fail(function(err){
                     console.log(err);
                 });
@@ -138,21 +186,29 @@
             $("#configure-schemes").unbind();
             $("#configure-schemes").click(function(){
                 var permissionsCall = null;
-                function checkPermissions(id, callback){
+                function loadPermissions(id){
+                    $("#scheme-details").html('<div class="text-center"><i class="fa fa-spinner fa-spin fa-2x"></i></div>');
                     if (permissionsCall != null)
                         permissionsCall.abort();
                     permissionsCall = $.get("/api/schemes/" + id + "/permissions?token=" + options.token).done(function(result){
-                        var permissions = false;
-                        result.forEach(function(perm){
-                            if (perm.username == options.username)
-                                permissions = perm;
+//                        var permissions = false;
+//                        result.forEach(function(perm){
+//                            if (perm.username == options.username)
+//                                permissions = perm;
+//                        });
+                        $.get("../views/schemes/permissions.hbs").then(function(src){
+                            var context = {
+                                permissions: result
+                            };
+                            var template = Handlebars.compile(src);
+                            $("#scheme-details").html(template(context));
                         });
-                        callback(permissions);
                     });
                 }
                 $("#page-wrapper").html('<br><br><br><br><div class="text-center"><i class="fa fa-spinner fa-spin fa-4x"></i></div>');
-                $.get("/api/schemes?token=" + options.token).done(function(result){
-                    console.log(result);
+                if (schemesCall != null)
+                    schemesCall.abort();
+                schemesCall = $.get("/api/schemes?token=" + options.token).done(function(result){
                     $.get("../views/schemes/main.hbs").then(function(src){
                         var template = Handlebars.compile(src);
                         $("#page-wrapper").html(template());
@@ -166,9 +222,7 @@
                             $("#scheme-list").find(".item-link").disableTextSelect();
                             $("#scheme-list").find(".item-link").click(function(e){
                                 var id = $(e.target).attr("data-id");
-                                checkPermissions(id, function(permissions){
-                                    console.log(permissions);
-                                });
+                                loadPermissions(id);
 //                                        $("#scheme-details").html("<div class="text-center"><i class="fa fa-spinner fa-spin fa-4x"></i></div>");
 //                                    $.get("../views/schemes/details.hbs").then(function(src){
 //                                        var context = {

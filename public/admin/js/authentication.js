@@ -11,24 +11,33 @@ function ensureAuthenticated (origin, callback) {
         loadLogin(origin);
     } else {
         $.post("/api/authenticate", {token: credentials.token}).done(function (data) {
-            $.get("/api/user/" + credentials.username + "/groups/?token=" + credentials.token).done(function(result){
+            $.get("/api/users/" + credentials.username + "/groups/?token=" + credentials.token).done(function(result){
                 console.log(result);
-                var admin = false, canEnter = false;
+                var admin = false, canEnter = false, manager = false;
                 result.forEach(function(field){
-                    if (field == "component-identifier-service-admin"){
-                        canEnter = true;
-                        admin = true;
-                    }if (field == "component-identifier-service-consumer" || field == "component-identifier-service-manager")
-                        canEnter = true;
+                    switch (field){
+                        case "component-identifier-service-admin":
+                            canEnter = true;
+                            admin = true;
+                            break;
+                        case "component-identifier-service-manager":
+                            canEnter = true;
+                            manager = true;
+                            break;
+                        case "component-identifier-service-consumer":
+                            canEnter = true;
+                            break;
+                    }
                 });
                 if (canEnter){
-                    console.log(data);
+//                    console.log(data);
                     //credentials.username = data.username;
                     options.token = credentials.token;
                     options.username = credentials.username;
                     options.email = credentials.email;
                     options.jiraUser = credentials.jira;
                     options.adminUser = admin;
+                    options.managerUser = manager;
                     callback(credentials);
                 }else
                     loadLogin(origin);
