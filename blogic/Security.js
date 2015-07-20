@@ -103,3 +103,25 @@ module.exports.removeMember = function removeMember (username, groupName, callba
         }
     });
 };
+
+module.exports.allUsers = function allUsers (callback) {
+    crowd.search('user', '', function (err, res) {
+        if(err) {
+            throw err;
+        }
+        else {
+            callback(null, res);
+        }
+    });
+};
+
+module.exports.searchUsers = function searchUsers (searchString, callback) {
+    crowd.search('user', 'name="' + searchString + '*"', function (err, res) {
+        if(err) {
+            throw err;
+        }
+        else {
+            callback(null, res);
+        }
+    });
+};

@@ -105,6 +105,47 @@
                 }
             }
         },
+        "/users": {
+            "get": {
+                "x-swagger-router-controller": "Login",
+                "operationId": "getUsers",
+                "tags": ["Authorization"],
+                "description": "Retrieves all users.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "searchString",
+                        "in": "query",
+                        "description": "The search string.",
+                        "required": false,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Error.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Users list.",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/users/{username}/groups/": {
             "get": {
                 "x-swagger-router-controller": "Login",
