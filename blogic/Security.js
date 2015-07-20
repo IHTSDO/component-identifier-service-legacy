@@ -15,14 +15,14 @@ var options = {
 
 var crowd = new AtlassianCrowd(options);
 
-crowd.ping(function (err, res) {
-    if(err) {
-        throw err;
-    }
-    else {
-        console.log(res)
-    }
-});
+//crowd.ping(function (err, res) {
+//    if(err) {
+//        throw err;
+//    }
+//    else {
+//        console.log(res)
+//    }
+//});
 
 module.exports.createSession = function createSession (username, password, callback) {
     crowd.session.create(username, password, function (err, token) {

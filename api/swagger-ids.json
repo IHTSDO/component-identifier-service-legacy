@@ -1003,6 +1003,44 @@
                 }
             }
         },
+        "/schemes/{schemeName}": {
+            "get": {
+                "x-swagger-router-controller": "Scheme",
+                "operationId": "getScheme",
+                "tags": ["Schemes"],
+                "description": "Returns available Identifier Schemes.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "schemeName",
+                        "in": "path",
+                        "description": "The Scheme Name.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Invalid request.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Successful request.",
+                        "schema": {
+                            "$ref": "#/definitions/Scheme"
+                        }
+                    }
+                }
+            }
+        },
         "/scheme/{schemeName}/ids/{schemeId}": {
             "get": {
                 "x-swagger-router-controller": "SchemeId",

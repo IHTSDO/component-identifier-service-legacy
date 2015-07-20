@@ -51,14 +51,14 @@ crowd.ping(function (err, res) {
 //    }
 //});
 
-//crowd.user.groups('greynoso', function (err, res) {
-//    if(err) {
-//        throw err;
-//    }
-//    else {
-//        console.log(res);
-//    }
-//});
+crowd.user.groups('greynoso', function (err, res) {
+    if(err) {
+        throw err;
+    }
+    else {
+        console.log(res);
+    }
+});
 
 //crowd.user.find('greynoso', function(err, res) {
 //    if(err) {
@@ -87,11 +87,11 @@ crowd.ping(function (err, res) {
 //    }
 //});
 
-crowd.search('user', '', function (err, res) {
-    if(err) {
-        throw err;
-    }
-    else {
-        console.log(res);
-    }
-});
+//crowd.search('user', '', function (err, res) {
+//    if(err) {
+//        throw err;
+//    }
+//    else {
+//        console.log(res);
+//    }
+//});

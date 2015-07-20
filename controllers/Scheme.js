@@ -23,6 +23,30 @@ module.exports.getSchemes = function getSchemes (req, res, next) {
     });
 };
 
+module.exports.getScheme = function getScheme (req, res, next) {
+    var token = req.swagger.params.token.value;
+    var schemeName = req.swagger.params.schemeName.value;
+    security.authenticate(token, function(err, data) {
+        if (err) {
+            return next(err.message);
+        }
+        res.setHeader('Content-Type', 'application/json');
+        var result = {};
+        if (schemeName == "SNOMEDID") {
+            result = {
+                "name": "SNOMEDID",
+                "description": "Generation of legacy SNOMED IDs, used in versions of SNOMED prior to SNOMED CT."
+            }
+        } else if (schemeName == "CTV3ID") {
+            result = {
+                "name": "CTV3ID",
+                "description": "Generation of legacy CTV3 IDs, used in the Read Codes Terminology."
+            }
+        }
+        res.end(JSON.stringify(result));
+    });
+};
+
 module.exports.createNamespace = function createNamespace (req, res, next) {
     var token = req.swagger.params.token.value;
     var namespaceData = req.swagger.params.namespace.value;
