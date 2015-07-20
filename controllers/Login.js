@@ -70,3 +70,59 @@ module.exports.getGroups = function getGroups (req, res, next) {
         });
     });
 };
+
+module.exports.getGroupUsers = function getGroups (req, res, next) {
+    var token = req.swagger.params.token.value;
+    var groupName = req.swagger.params.groupName.value;
+    security.authenticate(token, function(err, data) {
+        if (err) {
+            return next(err.message);
+        }
+        security.getGroupUsers(groupName, function(err2, members) {
+            if (err2) {
+                return next(err2.message);
+            } else {
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify(members));
+            }
+        });
+    });
+};
+
+module.exports.addMember = function getGroups (req, res, next) {
+    var token = req.swagger.params.token.value;
+    var username = req.swagger.params.username.value;
+    var groupName = req.swagger.params.groupName.value;
+    security.authenticate(token, function(err, data) {
+        if (err) {
+            return next(err.message);
+        }
+        security.addMember(username, groupName, function(err2, data) {
+            if (err2) {
+                return next(err2.message);
+            } else {
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify({}));
+            }
+        });
+    });
+};
+
+module.exports.removeMember = function getGroups (req, res, next) {
+    var token = req.swagger.params.token.value;
+    var username = req.swagger.params.username.value;
+    var groupName = req.swagger.params.groupName.value;
+    security.authenticate(token, function(err, data) {
+        if (err) {
+            return next(err.message);
+        }
+        security.removeMember(username, groupName, function(err2, data) {
+            if (err2) {
+                return next(err2.message);
+            } else {
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify({}));
+            }
+        });
+    });
+};
