@@ -33,6 +33,7 @@ module.exports.getSctid = function getSctid (req, res, next) {
 
 module.exports.getSctidBySystemId = function getSctidBySystemId (req, res, next) {
     var token = req.swagger.params.token.value;
+    var namespaceId = req.swagger.params.namespaceId.value;
     var systemId = req.swagger.params.systemId.value;
     security.authenticate(token, function(err, data) {
         if (err) {
@@ -43,7 +44,7 @@ module.exports.getSctidBySystemId = function getSctidBySystemId (req, res, next)
             {
                 "sctid": "890213710099282",
                 "sequence": 557,
-                "namespace": 1000179,
+                "namespace": namespaceId,
                 "partitionId": "10",
                 "checkDigit": 7,
                 "systemId": systemId,

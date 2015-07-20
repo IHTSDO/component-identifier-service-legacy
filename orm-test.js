@@ -2,7 +2,7 @@
  * Created by alo on 7/7/15.
  */
 var orm = require("orm");
-orm.connect("mysql://root@localhost/test", function(err, db) {
+orm.connect("mysql://root:root@localhost/test", function(err, db) {
     if (err) throw err;
 
     var Person = db.define("person", {
