@@ -105,7 +105,48 @@
                 }
             }
         },
-        "/user/{username}/groups/": {
+        "/users": {
+            "get": {
+                "x-swagger-router-controller": "Login",
+                "operationId": "getUsers",
+                "tags": ["Authorization"],
+                "description": "Retrieves all users.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "searchString",
+                        "in": "query",
+                        "description": "The search string.",
+                        "required": false,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Error.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Users list.",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{username}/groups/": {
             "get": {
                 "x-swagger-router-controller": "Login",
                 "operationId": "getGroups",
@@ -136,6 +177,141 @@
                     },
                     "200": {
                         "description": "Groups list.",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{username}/groups/{groupName}": {
+            "post": {
+                "x-swagger-router-controller": "Login",
+                "operationId": "addMember",
+                "tags": ["Authorization"],
+                "description": "Adds a User to a Group.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "username",
+                        "in": "path",
+                        "description": "The username.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "groupName",
+                        "in": "path",
+                        "description": "The Group Name.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Error.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Groups list.",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "x-swagger-router-controller": "Login",
+                "operationId": "removeMember",
+                "tags": ["Authorization"],
+                "description": "Removes a user from a Group.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "username",
+                        "in": "path",
+                        "description": "The username.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "groupName",
+                        "in": "path",
+                        "description": "The Group Name.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Error.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Groups list.",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/groups/{groupName}/users": {
+            "get": {
+                "x-swagger-router-controller": "Login",
+                "operationId": "getGroupUsers",
+                "tags": ["Authorization"],
+                "description": "Retrieves groups for the user.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "groupName",
+                        "in": "path",
+                        "description": "The Group Name.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Error.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Users list.",
                         "schema": {
                             "type": "array",
                             "items": {

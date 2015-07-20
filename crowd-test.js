@@ -69,7 +69,25 @@ crowd.ping(function (err, res) {
 //    }
 //});
 
-crowd.user.groups('greynoso', function (err, res) {
+//crowd.user.groups('greynoso', function (err, res) {
+//    if(err) {
+//        throw err;
+//    }
+//    else {
+//        console.log(res);
+//    }
+//});
+
+//crowd.groups.directmembers('component-identifier-service-admin', function (err, res) {
+//    if(err) {
+//        throw err;
+//    }
+//    else {
+//        console.log(res);
+//    }
+//});
+
+crowd.search('user', '', function (err, res) {
     if(err) {
         throw err;
     }

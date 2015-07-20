@@ -70,3 +70,96 @@ module.exports.getGroups = function getGroups (req, res, next) {
         });
     });
 };
+
+module.exports.getGroupUsers = function getGroupUsers (req, res, next) {
+    var token = req.swagger.params.token.value;
+    var groupName = req.swagger.params.groupName.value;
+    security.authenticate(token, function(err, data) {
+        if (err) {
+            return next(err.message);
+        }
+        security.getGroupUsers(groupName, function(err2, members) {
+            if (err2) {
+                return next(err2.message);
+            } else {
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify(members));
+            }
+        });
+    });
+};
+
+module.exports.addMember = function addMember (req, res, next) {
+    var token = req.swagger.params.token.value;
+    var username = req.swagger.params.username.value;
+    var groupName = req.swagger.params.groupName.value;
+    security.authenticate(token, function(err, data) {
+        if (err) {
+            return next(err.message);
+        }
+        security.addMember(username, groupName, function(err2, data) {
+            if (err2) {
+                return next(err2.message);
+            } else {
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify({}));
+            }
+        });
+    });
+};
+
+module.exports.removeMember = function removeMember (req, res, next) {
+    var token = req.swagger.params.token.value;
+    var username = req.swagger.params.username.value;
+    var groupName = req.swagger.params.groupName.value;
+    security.authenticate(token, function(err, data) {
+        if (err) {
+            return next(err.message);
+        }
+        security.removeMember(username, groupName, function(err2, data) {
+            if (err2) {
+                return next(err2.message);
+            } else {
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify({}));
+            }
+        });
+    });
+};
+
+module.exports.getUsers = function getUsers (req, res, next) {
+    var token = req.swagger.params.token.value;
+    security.authenticate(token, function(err, data) {
+        if (err) {
+            return next(err.message);
+        }
+        if (req.swagger.params.searchString.value && req.swagger.params.searchString.value.length > 0) {
+            var searchString = req.swagger.params.searchString.value;
+            security.searchUsers(searchString, function(err2, data2) {
+                if (err2) {
+                    return next(err2.message);
+                } else {
+                    res.setHeader('Content-Type', 'application/json');
+                    var users = [];
+                    for (var userObj in data2.users) {
+                        users.push(data2.users[userObj].name);
+                    }
+                    res.end(JSON.stringify(users));
+                }
+            });
+        } else {
+            security.allUsers(function(err2, data2) {
+                if (err2) {
+                    return next(err2.message);
+                } else {
+                    res.setHeader('Content-Type', 'application/json');
+                    var users = [];
+                    for (var userObj in data2.users) {
+                        users.push(data2.users[userObj].name);
+                    }
+                    res.end(JSON.stringify(users));
+                }
+            });
+        }
+    });
+};

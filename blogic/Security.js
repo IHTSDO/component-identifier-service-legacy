@@ -73,3 +73,55 @@ module.exports.getGroups = function getGroups (username, callback) {
         }
     });
 };
+
+module.exports.getGroupUsers = function getGroupUsers (groupName, callback) {
+    crowd.groups.directmembers(groupName, function(err, res) {
+        if(err) {
+            callback(err);
+        } else {
+            callback(null, res);
+        }
+    });
+};
+
+module.exports.addMember = function addMember (username, groupName, callback) {
+    crowd.groups.addmember(username, groupName, function(err, res) {
+        if(err) {
+            callback(err);
+        } else {
+            callback(null, {});
+        }
+    });
+};
+
+module.exports.removeMember = function removeMember (username, groupName, callback) {
+    crowd.groups.removemember(username, groupName, function(err, res) {
+        if(err) {
+            callback(err);
+        } else {
+            callback(null, {});
+        }
+    });
+};
+
+module.exports.allUsers = function allUsers (callback) {
+    crowd.search('user', '', function (err, res) {
+        if(err) {
+            throw err;
+        }
+        else {
+            callback(null, res);
+        }
+    });
+};
+
+module.exports.searchUsers = function searchUsers (searchString, callback) {
+    crowd.search('user', 'name="' + searchString + '*"', function (err, res) {
+        if(err) {
+            throw err;
+        }
+        else {
+            callback(null, res);
+        }
+    });
+};
