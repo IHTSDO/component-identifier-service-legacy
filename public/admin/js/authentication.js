@@ -11,13 +11,30 @@ function ensureAuthenticated (origin, callback) {
         loadLogin(origin);
     } else {
         $.post("/api/authenticate", {token: credentials.token}).done(function (data) {
-            //credentials.username = data.username;
-            options.token = credentials.token;
-            options.username = credentials.username;
-            options.email = credentials.email;
-            options.jiraUser = credentials.jira;
-            options.adminUser = data.admin;
-            callback(credentials);
+            $.get("/api/user/" + credentials.username + "/groups/?token=" + credentials.token).done(function(result){
+                console.log(result);
+                var admin = false, canEnter = false;
+                result.forEach(function(field){
+                    if (field == "component-identifier-service-admin"){
+                        canEnter = true;
+                        admin = true;
+                    }if (field == "component-identifier-service-consumer" || field == "component-identifier-service-manager")
+                        canEnter = true;
+                });
+                if (canEnter){
+                    console.log(data);
+                    //credentials.username = data.username;
+                    options.token = credentials.token;
+                    options.username = credentials.username;
+                    options.email = credentials.email;
+                    options.jiraUser = credentials.jira;
+                    options.adminUser = admin;
+                    callback(credentials);
+                }else
+                    loadLogin(origin);
+            }).fail(function(){
+
+            });
         }).fail(function () {
             loadLogin(origin);
         });
