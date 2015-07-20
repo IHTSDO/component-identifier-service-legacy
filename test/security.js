@@ -46,8 +46,6 @@ describe('Users', function() {
                 done();
             });
         });
-    });
-    describe('#addMember()', function () {
         it('should have one more user in the group', function (done) {
             security.getGroupUsers("termMed", function(err, users) {
                 if (err) throw err;
@@ -64,8 +62,7 @@ describe('Users', function() {
                 done();
             });
         });
-    });
-    describe('#removeMember()', function () {
+
         it('should have one user less in the group', function (done) {
             security.getGroupUsers("termMed", function(err, users) {
                 if (err) throw err;
