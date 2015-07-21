@@ -1,0 +1,50 @@
+<p>Namespace:
+    {{#if edit}}
+        <input id="edit-namespace-value" value="{{item.namespace}}" placeholder="namespace" type="text">
+        <button id="save-button-namespace" class="pull-right btn btn-success" type="button">Save</button>
+        <button id="cancel-button-namespace" class="pull-right btn btn-danger" style="margin-right: 10px;" type="button">Cancel</button>
+        <button id="close-button-namespace" class="pull-right btn btn-warning" style="margin-right: 10px;" type="button">Close edition</button>
+    {{else}}
+        {{item.namespace}}
+        <button id="edit-button-namespace" class="pull-right btn btn-default" type="button">Edit</button>
+    {{/if}}
+</p>
+<p>Email:
+    {{#if edit}}
+        <input id="edit-namespace-email" value="{{item.email}}" placeholder="email" type="text">
+    {{else}}
+        {{item.email}}
+    {{/if}}
+</p>
+<p>Organization Name:
+    {{#if edit}}
+        <input id="edit-namespace-organizationName" value="{{item.organizationName}}" placeholder="Organization Name" type="text">
+    {{else}}
+        {{item.organizationName}}
+    {{/if}}
+</p>
+<table class="table table-bordered table-hover">
+    <thead>
+    <tr>
+        <th class="text-center" colspan="2">Partitions</th>
+    </tr>
+    <tr>
+        <th>Partition</th>
+        <th>Sequence</th>
+    </tr>
+    </thead>
+    <tbody>
+    {{#each item.partitions}}
+        <tr>
+            <td>{{partitionId}}</td>
+            <td data-id="{{partitionId}}" data-value="{{sequence}}">{{sequence}}
+                {{#if ../edit}}
+                    <button class="btn btn-link glyphicon glyphicon-pencil pull-right editSequence" style="padding: 0px; text-decoration: inherit;" type="button"></button>
+                {{/if}}
+            </td>
+        </tr>
+    {{/each}}
+    </tbody>
+</table>
+<br>
+<div id="namespace-permissions-configure"></div>

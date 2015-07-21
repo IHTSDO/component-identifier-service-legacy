@@ -6,17 +6,19 @@ function ensureAuthenticated (origin, callback) {
         credentials.username = cookie.username;
         credentials.email = cookie.email;
         credentials.jira = cookie.jira;
+        credentials.adminUser = cookie.adminUser;
+        credentials.managerUser = cookie.managerUser;
     }
     if (!credentials.token) {
         loadLogin(origin);
     } else {
         $.post("/api/authenticate", {token: credentials.token}).done(function (data) {
-            //credentials.username = data.username;
             options.token = credentials.token;
             options.username = credentials.username;
             options.email = credentials.email;
             options.jiraUser = credentials.jira;
-            options.adminUser = data.admin;
+            options.adminUser = credentials.adminUser;
+            options.managerUser = credentials.managerUser;
             callback(credentials);
         }).fail(function () {
             loadLogin(origin);
@@ -62,8 +64,8 @@ function loginWithCredentials(credentials, callback, rememberMe) {
         var email = data.email;
         var cookieJson = {
             token: token,
-            username: credentials.username
-//            email: email
+            username: credentials.username,
+            email: email
         };
         if (data.jira && data.jira.username){
             cookieJson.jira = {
@@ -71,13 +73,39 @@ function loginWithCredentials(credentials, callback, rememberMe) {
                 password: data.jira.password
             };
         }
-        cookieJson = JSON.stringify(cookieJson);
-        $.notify("Authorized!", "success");
-        var days = 7;
-        if (rememberMe)
-            days = 90;
-        createCookie("ts-author",cookieJson,days);
-        callback();
+        $.get("/api/users/" + credentials.username + "/groups/?token=" + token).done(function(result){
+            var admin = false, canEnter = false, manager = false;
+            result.forEach(function(field){
+                switch (field){
+                    case "component-identifier-service-admin":
+                        canEnter = true;
+                        admin = true;
+                        break;
+                    case "component-identifier-service-manager":
+                        canEnter = true;
+                        manager = true;
+                        break;
+                    case "component-identifier-service-consumer":
+                        canEnter = true;
+                        break;
+                }
+            });
+            if (canEnter){
+                cookieJson.adminUser = admin;
+                cookieJson.managerUser = manager;
+                cookieJson = JSON.stringify(cookieJson);
+                $.notify("Authorized!", "success");
+                var days = 7;
+                if (rememberMe)
+                    days = 90;
+                createCookie("ts-author",cookieJson,days);
+                callback();
+            }else
+                loadLogin(origin);
+        }).fail(function(){
+            $.notify("Not authorized", "error");
+        });
+
     }).fail(function (e) {
         $.notify("Not authorized", "error");
 //        $("#forget-password-button").show();

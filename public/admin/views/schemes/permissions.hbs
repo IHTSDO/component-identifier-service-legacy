@@ -1,0 +1,12 @@
+<ul class="list-group">
+    <li class="list-group-item text-center">
+        <h4 style="display: inline-block; margin: 0px;">Users allowed to operate this scheme</h4>
+        <span id="addPermission-scheme" class="btn btn-link glyphicon glyphicon-plus pull-right" style="text-decoration: inherit; padding: 0px;"></span>
+    </li>
+    {{#each permissions}}
+        <li data-username="{{username}}" class="list-group-item">
+            {{username}}
+            <span class="btn btn-link glyphicon glyphicon-remove pull-right remove-scheme" style="text-decoration: inherit; padding: 0px;"></span>
+        </li>
+    {{/each}}
+</ul>
