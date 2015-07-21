@@ -33,15 +33,22 @@ var namespaceRecord={name: "namespace",
     fields: {
         namespace: { type: 'integer', key: true },
         organizationName: String,
-        email: String,
+        email: String
+    }
+};
+
+var partitionRecord={name: "partition",
+    fields: {
+        namespace: { type: 'integer', key: true },
         partitionId: { type: 'text', key: true },
         sequence: Number
     }
 };
 
+
 var model={
     sctIdTable:sctIdRecord,
-    namespaceTable:namespaceRecord
+    namespace:namespaceRecord
 };
 
 module.exports.mUse=mUse;

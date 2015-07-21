@@ -17,7 +17,7 @@ var dbDefine=function(db, callback ){
 
         var model = dbmodel.model;
         for (var table in dbmodel.model) {
-            console.log("table:" + table);
+//            console.log("table:" + table);
             if (dbmodel.model.hasOwnProperty(table)) {
                 if (dbmodel.model[table].features) {
                     var record = db.define(dbmodel.model[table].name,
@@ -30,7 +30,7 @@ var dbDefine=function(db, callback ){
                         dbmodel.model[table].fields
                     );
                 }
-                console.log("table in model:" + table);
+//                console.log("table in model:" + table);
                 model[table] = record;
             }
         }
@@ -66,7 +66,7 @@ var getDB=function (callback ) {
             callback(err, null, null);
         }
         if (gModel){
-            console.log("Usign model from cache");
+           console.log("Usign model from cache");
             callback(null, gdb, gModel);
         }else {
             dbDefine(db, function (err, dbr, model) {
@@ -74,10 +74,14 @@ var getDB=function (callback ) {
                 if (err) {
                     callback(err, null, null);
                 } else {
-                    console.log("Initializing model");
+                    dbr.sync(function (err) {
+                        if (err) throw err;
+
+                   console.log("Initializing model");
                     gModel = model;
                     gdb = dbr;
                     callback(null, dbr, model);
+                    });
                 }
             });
         }

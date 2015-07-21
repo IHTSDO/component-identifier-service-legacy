@@ -59,16 +59,20 @@
 
             $("#viewProfileButton").unbind();
             $("#viewProfileButton").click(function(){
-                var user = {};
-                $.each(options.users, function(i, field){
-                    if (field.username == options.username)
-                        user = field;
-                });
-                $("#user-profile-modal").modal("show");
-                var context = {
-                    user: user
+                var user = {
+                    username : options.username,
+                    email: options.email,
+                    jira: options.jiraUser
                 };
-                $("#user-profile-body").html(JST["views/v2Home/userProfile.hbs"](context));
+                $("#user-profile-modal").modal("show");
+                $.get("../views/home/profile.hbs").then(function(src){
+                    var context = {
+                        user: user
+                    };
+                    var template = Handlebars.compile(src);
+                    $("#user-profile-body").html(template(context));
+                });
+//                $("#user-profile-body").html(JST["views/v2Home/userProfile.hbs"](context));
             });
 
             $("#logoutButton").unbind();
@@ -131,13 +135,13 @@
                                         $("#add-permission-ok-namespace").unbind();
                                         $("#add-permission-ok-namespace").disableTextSelect();
                                         $("#add-permission-ok-namespace").click(function(){
-                                            $.post().done(function(result){
-
-                                            }).fail(function(){
-
+                                            var selectedUsername;
+                                            $.post("/api/sct/namespaces/" + id + "/permissions/" + selectedUsername + "?token=" + options.token).done(function(result){
+                                                result.push(selectedUsername);
+                                                loadPermissionsHtml(result);
+                                            }).fail(function(err){
+                                                console.log(err);
                                             });
-                                            result.push($.trim($("#add-permission-value").val()));
-                                            loadPermissionsHtml(result);
                                         });
 
                                         $("#add-permission-remove-namespace").unbind();
@@ -165,6 +169,82 @@
                                 items: result
                             };
                             template = Handlebars.compile(src);
+                            function loadNamespace(namespace, edit){
+                                $.get("../views/namespace/details.hbs").then(function(src){
+                                    var context = {
+                                        item: namespace,
+                                        edit: edit
+                                    };
+                                    template = Handlebars.compile(src);
+                                    $("#namespace-details").html(template(context));
+                                    loadPermissions(namespace.namespace);
+                                    $("#edit-button-namespace").unbind();
+                                    $("#edit-button-namespace").disableTextSelect();
+                                    $("#edit-button-namespace").click(function(){
+                                        loadNamespace(namespace, true);
+                                    });
+                                    $("#save-button-namespace").unbind();
+                                    $("#save-button-namespace").disableTextSelect();
+                                    $("#save-button-namespace").click(function(){
+                                        var namespace = {
+                                            organizationName: $.trim($("#edit-namespace-organizationName").val()),
+                                            namespace: $.trim($("#edit-namespace-value").val()),
+                                            email: $.trim($("#edit-namespace-email").val())
+                                        };
+                                        console.log(namespace);
+                                    });
+                                    $("#cancel-button-namespace").unbind();
+                                    $("#cancel-button-namespace").disableTextSelect();
+                                    $("#cancel-button-namespace").click(function(){
+                                        loadNamespace(namespace, true);
+                                    });
+                                    $("#close-button-namespace").unbind();
+                                    $("#close-button-namespace").disableTextSelect();
+                                    $("#close-button-namespace").click(function(){
+                                        loadNamespace(namespace, false);
+                                    });
+                                    function bindSequencesClick(){
+                                        $("#namespace-details").find(".saveSequence").unbind();
+                                        $("#namespace-details").find(".saveSequence").disableTextSelect();
+                                        $("#namespace-details").find(".saveSequence").click(function(e){
+                                            var partitionId = $(e.target).closest("td").attr("data-id");
+                                            var sequence = $(e.target).closest("td").find("input").first().val();
+                                            $(e.target).closest("td").attr("data-value", sequence);
+                                            $.ajax({
+                                                type: "PUT",
+                                                url: "/api/sct/namespaces/" + namespace.namespace + "/partition/" + partitionId + "?token=" + options.token + "&value=" + sequence
+                                            }).done(function(res){
+                                                var newHtml = sequence + '<button class="btn btn-link glyphicon glyphicon-pencil pull-right editSequence" style="padding: 0px; text-decoration: inherit;" type="button"></button>';
+                                                $(e.target).closest("td").html(newHtml);
+                                                bindSequencesClick();
+                                            }).fail(function(err){
+                                                console.log(err.message);
+                                            });
+                                        });
+
+                                        $("#namespace-details").find(".cancelSequence").unbind();
+                                        $("#namespace-details").find(".cancelSequence").disableTextSelect();
+                                        $("#namespace-details").find(".cancelSequence").click(function(e){
+                                            var sequence = $(e.target).closest("td").attr("data-value");
+                                            var newHtml = sequence + '<button class="btn btn-link glyphicon glyphicon-pencil pull-right editSequence" style="padding: 0px; text-decoration: inherit;" type="button"></button>';
+                                            $(e.target).closest("td").html(newHtml);
+                                            bindSequencesClick();
+                                        });
+
+                                        $("#namespace-details").find(".editSequence").unbind();
+                                        $("#namespace-details").find(".editSequence").disableTextSelect();
+                                        $("#namespace-details").find(".editSequence").click(function(e){
+                                            var sequence = $(e.target).closest("td").attr("data-value");
+                                            var newHtml = "<input type='text' value='" + sequence + "'>";
+                                            newHtml+= '<button type="button" class="btn btn-success btn-sm pull-right glyphicon glyphicon-ok saveSequence"></button>';
+                                            newHtml+= '<button type="button" class="btn btn-danger btn-sm pull-right glyphicon glyphicon-remove cancelSequence" style="margin-right: 5px;"></button>';
+                                            $(e.target).closest("td").html(newHtml);
+                                            bindSequencesClick();
+                                        });
+                                    }
+                                    bindSequencesClick();
+                                });
+                            }
                             $("#namespace-list").html(template(context));
                             $("#namespace-list").find(".item-link").unbind();
                             $("#namespace-list").find(".item-link").disableTextSelect();
@@ -175,14 +255,7 @@
                                     if (item.namespace == id)
                                         namespace = item;
                                 });
-                                $.get("../views/namespace/details.hbs").then(function(src){
-                                    var context = {
-                                        item: namespace
-                                    };
-                                    template = Handlebars.compile(src);
-                                    $("#namespace-details").html(template(context));
-                                    loadPermissions(id);
-                                });
+                                loadNamespace(namespace, false);
                             });
                             $("#namespace-list").find(".item-link").first().click();
                         });
@@ -211,18 +284,70 @@
                     if (permissionsCall != null)
                         permissionsCall.abort();
                     permissionsCall = $.get("/api/schemes/" + id + "/permissions?token=" + options.token).done(function(result){
-//                        var permissions = false;
-//                        result.forEach(function(perm){
-//                            if (perm.username == options.username)
-//                                permissions = perm;
-//                        });
-                        $.get("../views/schemes/permissions.hbs").then(function(src){
-                            var context = {
-                                permissions: result
-                            };
-                            var template = Handlebars.compile(src);
-                            $("#scheme-details").html(template(context));
-                        });
+                        function loadPermissionsHtml(result){
+                            $.get("../views/schemes/permissions.hbs").then(function(src){
+                                var context = {
+                                    permissions: result
+                                };
+                                var template = Handlebars.compile(src);
+                                $("#scheme-details").html(template(context));
+                                if (options.adminUser || options.managerUser){
+                                    $("#scheme-details").find(".remove-scheme").unbind();
+                                    $("#scheme-details").find(".remove-scheme").disableTextSelect();
+                                    $("#scheme-details").find(".remove-scheme").click(function(e){
+                                        var username = $(e.target).closest("li").attr("data-username"), auxArray = [];
+                                        $.ajax({
+                                            type: "DELETE",
+                                            url: "/api/schemes/" + id + "/permissions/" + username + "?token=" + options.token
+                                        }).done(function(res){
+                                            console.log(res);
+                                            result.forEach(function(item){
+                                                if (item.username != username)
+                                                    auxArray.push(item);
+                                            });
+                                            loadPermissionsHtml(auxArray);
+                                        }).fail(function(err){
+                                            console.log(err.message);
+                                        });
+
+                                    });
+
+                                    $("#addPermission-scheme").unbind();
+                                    $("#addPermission-scheme").disableTextSelect();
+                                    $("#addPermission-scheme").click(function(){
+                                        var addHtml = '<li class="list-group-item">';
+                                        addHtml+= '<input id="add-permission-value" type="text" class="form-control" style="width: 60%;display: inline-block;">';
+//                                        options.users.forEach(function(user){
+//                                            addHtml+= '<option value="' +  user + '">' + user + '</option>';
+//                                        });
+                                        addHtml+= '<button id="add-permission-ok-scheme" class="btn btn-success btn-sm glyphicon glyphicon-ok disabled" style=""></button>';
+                                        addHtml+= '<button id="add-permission-remove-scheme" class="btn btn-danger btn-sm glyphicon glyphicon-remove" style=""></button>';
+                                        addHtml+= '</li>';
+                                        $("#scheme-details").find("ul").first().append(addHtml);
+                                        $("#addPermission-scheme").hide();
+                                        $("#add-permission-ok-scheme").unbind();
+                                        $("#add-permission-ok-scheme").disableTextSelect();
+                                        $("#add-permission-ok-scheme").click(function(){
+                                            var selectedUsername;
+                                            $.post("/api/schemes/" + id + "/permissions/" + selectedUsername + "?token=" + options.token).done(function(result){
+                                                result.push(selectedUsername);
+                                                loadPermissionsHtml(result);
+                                            }).fail(function(err){
+                                                console.log(err);
+                                            });
+                                        });
+
+                                        $("#add-permission-remove-scheme").unbind();
+                                        $("#add-permission-remove-scheme").disableTextSelect();
+                                        $("#add-permission-remove-scheme").click(function(){
+                                            loadPermissionsHtml(result);
+                                        });
+                                    });
+                                }else
+                                    $("#scheme-details").find(".btn").hide();
+                            });
+                        }
+                        loadPermissionsHtml(result);
                     });
                 }
                 $("#page-wrapper").html('<br><br><br><br><div class="text-center"><i class="fa fa-spinner fa-spin fa-4x"></i></div>');
@@ -1240,6 +1365,23 @@
 
     </div>
     <!-- /#wrapper -->
+
+    <!--User Profile Modal-->
+    <div class="modal fade" id="user-profile-modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title">Profile</h4>
+                </div>
+                <div class="modal-body" id="user-profile-body">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
 
     <!-- jQuery -->
     <script src="../bower_components/jquery/dist/jquery.min.js"></script>
