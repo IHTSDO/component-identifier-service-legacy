@@ -1604,12 +1604,12 @@
                 }
             }
         },
-        "/scheme/{schemeName}/ids": {
+        "/scheme/{schemeName}/generate": {
             "post": {
                 "x-swagger-router-controller": "SchemeId",
-                "operationId": "processSchemeIdRequest",
+                "operationId": "generateSchemeId",
                 "tags": ["SchemeIds"],
-                "description": "Receives a request for a SchemeId Operation.",
+                "description": "Receives a request for a Generating a new SchemeId.",
                 "parameters": [
                     {
                         "name": "token",
@@ -1630,12 +1630,267 @@
                         ]
                     },
                     {
-                        "name": "operation",
+                        "name": "generationMetadata",
                         "in": "body",
                         "description": "The requested operation.",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/SchemeIdRequest"
+                            "$ref": "#/definitions/SchemeIdGenerationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Invalid request.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Operation ready.",
+                        "schema": {
+                            "$ref": "#/definitions/SchemeIdRecord"
+                        }
+                    }
+                }
+            }
+        },
+        "/scheme/{schemeName}/register": {
+            "post": {
+                "x-swagger-router-controller": "SchemeId",
+                "operationId": "registerSchemeId",
+                "tags": ["SchemeIds"],
+                "description": "Receives a request for a registering existing SchemeIds.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "schemeName",
+                        "in": "path",
+                        "description": "The Scheme Name.",
+                        "required": true,
+                        "type": "string",
+                        "enum": [
+                            "SNOMEDID",
+                            "CTV3ID"
+                        ]
+                    },
+                    {
+                        "name": "registrationMetadata",
+                        "in": "body",
+                        "description": "The requested operation.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/SchemeIdRegistrationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Invalid request.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Operation ready.",
+                        "schema": {
+                            "$ref": "#/definitions/SchemeIdRecord"
+                        }
+                    }
+                }
+            }
+        },
+        "/scheme/{schemeName}/reserve": {
+            "post": {
+                "x-swagger-router-controller": "SchemeId",
+                "operationId": "reserveSchemeId",
+                "tags": ["SchemeIds"],
+                "description": "Receives a request for a reserving a SchemeId.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "schemeName",
+                        "in": "path",
+                        "description": "The Scheme Name.",
+                        "required": true,
+                        "type": "string",
+                        "enum": [
+                            "SNOMEDID",
+                            "CTV3ID"
+                        ]
+                    },
+                    {
+                        "name": "reservationMetadata",
+                        "in": "body",
+                        "description": "The requested operation.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/SchemeIdReservationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Invalid request.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Operation ready.",
+                        "schema": {
+                            "$ref": "#/definitions/SchemeIdRecord"
+                        }
+                    }
+                }
+            }
+        },
+        "/scheme/{schemeName}/deprecate": {
+            "put": {
+                "x-swagger-router-controller": "SchemeId",
+                "operationId": "deprecateSchemeId",
+                "tags": ["SchemeIds"],
+                "description": "Receives a request for deprecating a SchemeId.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "schemeName",
+                        "in": "path",
+                        "description": "The Scheme Name.",
+                        "required": true,
+                        "type": "string",
+                        "enum": [
+                            "SNOMEDID",
+                            "CTV3ID"
+                        ]
+                    },
+                    {
+                        "name": "deprecationMetadata",
+                        "in": "body",
+                        "description": "The requested operation.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/SchemeIdUpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Invalid request.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Operation ready.",
+                        "schema": {
+                            "$ref": "#/definitions/SchemeIdRecord"
+                        }
+                    }
+                }
+            }
+        },
+        "/scheme/{schemeName}/release": {
+            "put": {
+                "x-swagger-router-controller": "SchemeId",
+                "operationId": "releaseSchemeId",
+                "tags": ["SchemeIds"],
+                "description": "Receives a request for releasing a SchemeId.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "schemeName",
+                        "in": "path",
+                        "description": "The Scheme Name.",
+                        "required": true,
+                        "type": "string",
+                        "enum": [
+                            "SNOMEDID",
+                            "CTV3ID"
+                        ]
+                    },
+                    {
+                        "name": "releaseMetadata",
+                        "in": "body",
+                        "description": "The requested operation.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/SchemeIdUpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Invalid request.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Operation ready.",
+                        "schema": {
+                            "$ref": "#/definitions/SchemeIdRecord"
+                        }
+                    }
+                }
+            }
+        },
+        "/scheme/{schemeName}/publish": {
+            "put": {
+                "x-swagger-router-controller": "SchemeId",
+                "operationId": "publishSchemeId",
+                "tags": ["SchemeIds"],
+                "description": "Receives a request for publishing a SchemeId.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "schemeName",
+                        "in": "path",
+                        "description": "The Scheme Name.",
+                        "required": true,
+                        "type": "string",
+                        "enum": [
+                            "SNOMEDID",
+                            "CTV3ID"
+                        ]
+                    },
+                    {
+                        "name": "publicationMetadata",
+                        "in": "body",
+                        "description": "The requested operation.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/SchemeIdUpdateRequest"
                         }
                     }
                 ],
@@ -1659,7 +1914,7 @@
             "get": {
                 "x-swagger-router-controller": "SchemeIdBulk",
                 "operationId": "getSchemeIds",
-                "tags": ["SchemeIds"],
+                "tags": ["SchemeIds - Bulk Operations"],
                 "description": "Returns the required SchemeId Records.",
                 "parameters": [
                     {
@@ -1705,12 +1960,14 @@
                         }
                     }
                 }
-            },
+            }
+        },
+        "/scheme/{schemeName}/bulk/generate": {
             "post": {
                 "x-swagger-router-controller": "SchemeIdBulk",
-                "operationId": "processBulkSchemeIdRequest",
-                "tags": ["SchemeIds"],
-                "description": "Receives a bulk request for multiple SchemeId Operations.",
+                "operationId": "generateSchemeIds",
+                "tags": ["SchemeIds - Bulk Operations"],
+                "description": "Receives a request for a Generating a new SchemeId.",
                 "parameters": [
                     {
                         "name": "token",
@@ -1731,12 +1988,282 @@
                         ]
                     },
                     {
-                        "name": "operation",
+                        "name": "generationMetadata",
                         "in": "body",
                         "description": "The requested operation.",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/SchemeIdBulkRequest"
+                            "$ref": "#/definitions/SchemeIdBulkGenerationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Invalid request.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Operation ready.",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/SchemeIdRecord"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/scheme/{schemeName}/bulk/register": {
+            "post": {
+                "x-swagger-router-controller": "SchemeIdBulk",
+                "operationId": "registerSchemeIds",
+                "tags": ["SchemeIds - Bulk Operations"],
+                "description": "Receives a request for a registering existing SchemeIds.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "schemeName",
+                        "in": "path",
+                        "description": "The Scheme Name.",
+                        "required": true,
+                        "type": "string",
+                        "enum": [
+                            "SNOMEDID",
+                            "CTV3ID"
+                        ]
+                    },
+                    {
+                        "name": "registrationMetadata",
+                        "in": "body",
+                        "description": "The requested operation.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/SchemeIdBulkRegistrationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Invalid request.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Operation ready.",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/SchemeIdRecord"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/scheme/{schemeName}/bulk/reserve": {
+            "post": {
+                "x-swagger-router-controller": "SchemeIdBulk",
+                "operationId": "reserveSchemeIds",
+                "tags": ["SchemeIds - Bulk Operations"],
+                "description": "Receives a request for a reserving a SchemeId.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "schemeName",
+                        "in": "path",
+                        "description": "The Scheme Name.",
+                        "required": true,
+                        "type": "string",
+                        "enum": [
+                            "SNOMEDID",
+                            "CTV3ID"
+                        ]
+                    },
+                    {
+                        "name": "reservationMetadata",
+                        "in": "body",
+                        "description": "The requested operation.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/SchemeIdBulkReservationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Invalid request.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Operation ready.",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/SchemeIdRecord"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/scheme/{schemeName}/bulk/deprecate": {
+            "put": {
+                "x-swagger-router-controller": "SchemeIdBulk",
+                "operationId": "deprecateSchemeIds",
+                "tags": ["SchemeIds - Bulk Operations"],
+                "description": "Receives a request for deprecating a SchemeId.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "schemeName",
+                        "in": "path",
+                        "description": "The Scheme Name.",
+                        "required": true,
+                        "type": "string",
+                        "enum": [
+                            "SNOMEDID",
+                            "CTV3ID"
+                        ]
+                    },
+                    {
+                        "name": "deprecationMetadata",
+                        "in": "body",
+                        "description": "The requested operation.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/SchemeIdBulkUpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Invalid request.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Operation ready.",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/SchemeIdRecord"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/scheme/{schemeName}/bulk/release": {
+            "put": {
+                "x-swagger-router-controller": "SchemeIdBulk",
+                "operationId": "releaseSchemeIds",
+                "tags": ["SchemeIds - Bulk Operations"],
+                "description": "Receives a request for releasing a SchemeId.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "schemeName",
+                        "in": "path",
+                        "description": "The Scheme Name.",
+                        "required": true,
+                        "type": "string",
+                        "enum": [
+                            "SNOMEDID",
+                            "CTV3ID"
+                        ]
+                    },
+                    {
+                        "name": "releaseMetadata",
+                        "in": "body",
+                        "description": "The requested operation.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/SchemeIdBulkUpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Invalid request.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Operation ready.",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/SchemeIdRecord"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/scheme/{schemeName}/bulk/publish": {
+            "put": {
+                "x-swagger-router-controller": "SchemeIdBulk",
+                "operationId": "publishSchemeIds",
+                "tags": ["SchemeIds - Bulk Operations"],
+                "description": "Receives a request for publishing a SchemeId.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "schemeName",
+                        "in": "path",
+                        "description": "The Scheme Name.",
+                        "required": true,
+                        "type": "string",
+                        "enum": [
+                            "SNOMEDID",
+                            "CTV3ID"
+                        ]
+                    },
+                    {
+                        "name": "publicationMetadata",
+                        "in": "body",
+                        "description": "The requested operation.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/SchemeIdBulkUpdateRequest"
                         }
                     }
                 ],
@@ -1859,31 +2386,55 @@
                 }
             }
         },
-        "SchemeIdRequest" : {
+        "SchemeIdGenerationRequest" : {
             "properties" : {
-                "action": {
+                "scheme": {
                     "type": "string",
-                    "description": "The action requested",
-                    "enum" : [
-                        "generate",
-                        "reserve",
-                        "register",
-                        "release",
-                        "publish",
-                        "deprecate"
-                    ]
+                    "description": "The Scheme used for operation"
                 },
+                "systemId": {
+                    "type": "string",
+                    "description": "The systemId, optional, a reference to an existing ID on the user environment, external to this API"
+                },
+                "software": {
+                    "type": "string",
+                    "description": "The name of the software sending the request, mandatory"
+                },
+                "comment": {
+                    "type": "string",
+                    "description": "A comment about the action, optional."
+                }
+            }
+        },
+        "SchemeIdRegistrationRequest" : {
+            "properties" : {
                 "scheme": {
                     "type": "string",
                     "description": "The Scheme used for operation"
                 },
                 "schemeId": {
                     "type": "string",
-                    "description": "The Scheme Identifier, only necessary to register, release, deprecate, publish"
+                    "description": "The Scheme Identifier"
                 },
                 "systemId": {
                     "type": "string",
                     "description": "The systemId, optional, a reference to an existing ID on the user environment, external to this API"
+                },
+                "software": {
+                    "type": "string",
+                    "description": "The name of the software sending the request, mandatory"
+                },
+                "comment": {
+                    "type": "string",
+                    "description": "A comment about the action, optional."
+                }
+            }
+        },
+        "SchemeIdReservationRequest" : {
+            "properties" : {
+                "scheme": {
+                    "type": "string",
+                    "description": "The Scheme used for operation"
                 },
                 "software": {
                     "type": "string",
@@ -1899,22 +2450,28 @@
                 }
             }
         },
-        "SchemeIdBulkRequest" : {
+        "SchemeIdUpdateRequest" : {
             "properties" : {
-                "action": {
+                "schemeId": {
                     "type": "string",
-                    "description": "The action requested",
-                    "enum" : [
-                        "generate",
-                        "reserve",
-                        "register",
-                        "release",
-                        "publish",
-                        "deprecate",
-                        "getBySchemeId",
-                        "getBySystemId"
-                    ]
+                    "description": "The Scheme Identifier"
                 },
+                "scheme": {
+                    "type": "string",
+                    "description": "The Scheme used for operation"
+                },
+                "software": {
+                    "type": "string",
+                    "description": "The name of the software sending the request, mandatory"
+                },
+                "comment": {
+                    "type": "string",
+                    "description": "A comment about the action, optional."
+                }
+            }
+        },
+        "SchemeIdBulkGenerationRequest" : {
+            "properties" : {
                 "scheme": {
                     "type": "string",
                     "description": "The Scheme used for operation"
@@ -1923,19 +2480,65 @@
                     "type": "integer",
                     "description": "Number of actions to be performed"
                 },
-                "schemeIds": {
-                    "description": "The Scheme identifiers, only necessary to register, release, deprecate, publish",
+                "systemIds": {
                     "type": "array",
                     "items": {
                         "type": "string"
-                    }
+                    },
+                    "description": "The systemIds, optional, a reference to an existing ID on the user environment, external to this API"
+                },
+                "software": {
+                    "type": "string",
+                    "description": "The name of the software sending the request, mandatory"
+                },
+                "comment": {
+                    "type": "string",
+                    "description": "A comment about the action, optional."
+                }
+            }
+        },
+        "SchemeRegistrationRecord": {
+            "properties": {
+                "schemeId": {
+                    "type": "string"
                 },
                 "systemId": {
-                    "description": "The systemIds, optional, a reference to an existing ID on the user environment, external to this API",
+                    "type": "string"
+                }
+            }
+        },
+        "SchemeIdBulkRegistrationRequest" : {
+            "properties" : {
+                "scheme": {
+                    "type": "string",
+                    "description": "The Scheme used for operation"
+                },
+                "records": {
+                    "description": "The list of ids pairs to register",
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "$ref": "#/definitions/SchemeRegistrationRecord"
                     }
+                },
+                "software": {
+                    "type": "string",
+                    "description": "The name of the software sending the request, mandatory"
+                },
+                "comment": {
+                    "type": "string",
+                    "description": "A comment about the action, optional."
+                }
+            }
+        },
+        "SchemeIdBulkReservationRequest" : {
+            "properties" : {
+                "quantity": {
+                    "type": "integer",
+                    "description": "Number of actions to be performed"
+                },
+                "scheme": {
+                    "type": "string",
+                    "description": "The Scheme used for operation"
                 },
                 "software": {
                     "type": "string",
@@ -1944,6 +2547,28 @@
                 "expirationDate": {
                     "type": "string",
                     "description": "The expiration date, only necessary on reserve actions"
+                },
+                "comment": {
+                    "type": "string",
+                    "description": "A comment about the action, optional."
+                }
+            }
+        },
+        "SchemeIdBulkUpdateRequest" : {
+            "properties" : {
+                "schemeIds": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "scheme": {
+                    "type": "string",
+                    "description": "The Scheme used for operation"
+                },
+                "software": {
+                    "type": "string",
+                    "description": "The name of the software sending the request, mandatory"
                 },
                 "comment": {
                     "type": "string",
