@@ -4,13 +4,22 @@
 'use strict';
 
 var security = require("./../blogic/Security");
+var scheme = require("../blogic/SchemeDataManager");
 
 module.exports.getSchemes = function getSchemes (req, res, next) {
     var token = req.swagger.params.token.value;
     security.authenticate(token, function(err, data) {
         if (err) {
             return next(err.message);
-        }
+        }else{
+//            namespace.getNamespace(namespaceId, function(err, namespaces) {
+//                if (err)
+//                    return next(err.message);
+//                else{
+//                    res.setHeader('Content-Type', 'application/json');
+//                    res.end(JSON.stringify(namespaces[0]));
+//                }
+//            });
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify([
             {
@@ -20,6 +29,7 @@ module.exports.getSchemes = function getSchemes (req, res, next) {
                 "name": "CTV3ID"
             }
         ]));
+        }
     });
 };
 
@@ -47,43 +57,22 @@ module.exports.getScheme = function getScheme (req, res, next) {
     });
 };
 
-module.exports.createNamespace = function createNamespace (req, res, next) {
+module.exports.getSchemesForUser = function getSchemesForUser(req, res, next){
     var token = req.swagger.params.token.value;
-    var namespaceData = req.swagger.params.namespace.value;
+    var username = req.swagger.params.username.value;
     security.authenticate(token, function(err, data) {
         if (err) {
             return next(err.message);
+        }else{
+            scheme.getSchemesForUser(username, function (err, schemes){
+                if (err) {
+                    return next(err.message);
+                }else{
+                    res.setHeader('Content-Type', 'application/json');
+                    res.end(JSON.stringify(schemes));
+                }
+            });
         }
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(
-            {
-                "namespace": 10000171,
-                "organizationName": "Uruguay NRC",
-                "conceptsSequence": 1276351,
-                "descriptionsSequence": 78271,
-                "relationshipsSequence": 736287
-            }
-        ));
-    });
-};
-
-module.exports.updateNamespace = function updateNamespace (req, res, next) {
-    var token = req.swagger.params.token.value;
-    var namespaceData = req.swagger.params.namespace.value;
-    security.authenticate(token, function(err, data) {
-        if (err) {
-            return next(err.message);
-        }
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(
-            {
-                "namespace": 10000171,
-                "organizationName": "Uruguay NRC",
-                "conceptsSequence": 1276351,
-                "descriptionsSequence": 78271,
-                "relationshipsSequence": 736287
-            }
-        ));
     });
 };
 
@@ -93,19 +82,16 @@ module.exports.getPermissions = function getPermissions (req, res, next) {
     security.authenticate(token, function(err, data) {
         if (err) {
             return next(err.message);
-        }
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify([
-                {
-                    "scheme": schemeName,
-                    "username": "alopez"
-                },
-                {
-                    "scheme": schemeName,
-                    "username": "greynoso"
+        }else{
+            scheme.getPermissions(schemeName, function(err, schemes){
+                if (err)
+                    return next(err.message);
+                else{
+                    res.setHeader('Content-Type', 'application/json');
+                    res.end(JSON.stringify(schemes));
                 }
-            ]
-        ));
+            });
+        }
     });
 };
 
@@ -113,17 +99,20 @@ module.exports.createPermission = function createPermission (req, res, next) {
     var token = req.swagger.params.token.value;
     var schemeName = req.swagger.params.schemeName.value;
     var username = req.swagger.params.username.value;
+    var role = req.swagger.params.role.value;
     security.authenticate(token, function(err, data) {
         if (err) {
             return next(err.message);
-        }
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(
-                {
-                    "scheme": schemeName,
-                    "username": username
+        }else{
+            scheme.createPermission({scheme: schemeName, username: username, role: role}, function(err){
+                if (err)
+                    return next(err.message);
+                else{
+                    res.setHeader('Content-Type', 'application/json');
+                    res.end(JSON.stringify({message: "success"}));
                 }
-        ));
+            });
+        }
     });
 };
 
@@ -134,8 +123,15 @@ module.exports.deletePermission = function deletePermission (req, res, next) {
     security.authenticate(token, function(err, data) {
         if (err) {
             return next(err.message);
+        }else{
+            scheme.deletePermission(schemeName, username, function(err){
+                if (err)
+                    return next(err.message);
+                else{
+                    res.setHeader('Content-Type', 'application/json');
+                    res.end(JSON.stringify({message: "success"}));
+                }
+            });
         }
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify({}));
     });
 };

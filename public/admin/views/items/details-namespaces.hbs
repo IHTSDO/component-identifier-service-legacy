@@ -1,12 +1,16 @@
 <p>Namespace:
     {{#if edit}}
-        <input id="edit-namespace-value" value="{{item.namespace}}" placeholder="namespace" type="text">
-        <button id="save-button-namespace" class="pull-right btn btn-success" type="button">Save</button>
-        <button id="cancel-button-namespace" class="pull-right btn btn-danger" style="margin-right: 10px;" type="button">Cancel</button>
-        <button id="close-button-namespace" class="pull-right btn btn-warning" style="margin-right: 10px;" type="button">Close edition</button>
+        {{#if item.new}}
+            <input id="edit-namespace-value" value="{{item.namespace}}" placeholder="namespace" type="text">
+        {{else}}
+            {{item.namespace}}
+        {{/if}}
+        <button id="save-button-namespaces" class="pull-right btn btn-success" type="button">Save</button>
+        <button id="cancel-button-namespaces" class="pull-right btn btn-danger" style="margin-right: 10px;" type="button">Cancel</button>
+        <button id="close-button-namespaces" class="pull-right btn btn-warning" style="margin-right: 10px;" type="button">Close edition</button>
     {{else}}
         {{item.namespace}}
-        <button id="edit-button-namespace" class="pull-right btn btn-default" type="button">Edit</button>
+        <button id="edit-button-namespaces" class="pull-right btn btn-default" type="button">Edit</button>
     {{/if}}
 </p>
 <p>Email:
@@ -21,6 +25,7 @@
         <input id="edit-namespace-organizationName" value="{{item.organizationName}}" placeholder="Organization Name" type="text">
     {{else}}
         {{item.organizationName}}
+        <button id="delete-button-namespaces" style="margin-bottom: 10px;" class="pull-right btn btn-default" type="button">Delete this namespace</button>
     {{/if}}
 </p>
 <table class="table table-bordered table-hover">
@@ -47,4 +52,4 @@
     </tbody>
 </table>
 <br>
-<div id="namespace-permissions-configure"></div>
+<div id="namespaces-permissions-configure"></div>

@@ -36,6 +36,27 @@
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
     <script type="text/javascript">
+        function loadUsers(){
+            var users = [];
+            var adminCall = $.get("/api/groups/component-identifier-service-admin/users?token=" + options.token).done(function(res){
+                $.merge(users, res);
+            }).fail(function(err){
+                adminCall = null;
+                console.log(err.message);
+            });
+
+            var consumerCall = $.get("/api/groups/component-identifier-service-user/users?token=" + options.token).done(function(res){
+                $.merge(users, res);
+            }).fail(function(err){
+                consumerCall = null;
+                console.log(err.message);
+            });
+
+            $.when(adminCall, consumerCall).done(function(){
+                options.users = users;
+                console.log("users:", users);
+            });
+        }
         function start() {
             $(function() {
                 $.extend($.fn.disableTextSelect = function() {
@@ -52,6 +73,7 @@
             });
         };
         function setupDashboard(credentials){
+            loadUsers();
             $("#username-label").html(credentials.username);
 //            var iconData = new Identicon(CryptoJS.MD5(credentials.username).toString(), 20).toString();
             $("#user-avatar").html('<img src="http://robohash.org/' + credentials.username + '?size=20x20&bgset=bg1" alt="User Avatar" class="img-circle" />');
@@ -82,187 +104,413 @@
             setClicks();
         }
         function setClicks(){
-            var schemesCall = null, namespacesCall = null;
-            $("#configure-namespaces").unbind();
-            $("#configure-namespaces").click(function(){
-                var permissionsCall = null;
-                function loadPermissions(id){
-                    $("#namespace-permissions-configure").html('<div class="text-center"><i class="fa fa-spinner fa-spin fa-2x"></i></div>');
-                    if (permissionsCall != null)
-                        permissionsCall.abort();
-                    permissionsCall = $.get("/api/sct/namespaces/" + id + "/permissions?token=" + options.token).done(function(result){
+            var itemsCall = null;
+            function loadItems(typeSelected, getUrl, primaryKey, firstClick){
+                function loadPermissions(id, edit){
+                    $("#" + typeSelected + "-permissions-configure").html('<div class="text-center"><i class="fa fa-spinner fa-spin fa-2x"></i></div>');
+                    if (itemsCall != null)
+                        itemsCall.abort();
+                    itemsCall = $.get(getUrl + "/" + id + "/permissions?token=" + options.token).done(function(result){
                         function loadPermissionsHtml(result){
-                            $.get("../views/namespace/permissions.hbs").then(function(src){
-                                var context = {
-                                    permissions: result
+                            $.get("../views/items/permissions.hbs").then(function(src){
+                                var managerUser = false, context = {
+                                    permissions: result,
+                                    edit: edit,
+                                    type: typeSelected.substr(0, typeSelected.length - 1),
+                                    typeId: typeSelected
                                 };
+                                result.forEach(function(permission){
+                                    if (permission.username == options.username && permission.role == "manager")
+                                        managerUser = true;
+                                });
                                 var template = Handlebars.compile(src);
-                                $("#namespace-permissions-configure").html(template(context));
-                                if (options.adminUser || options.managerUser){
-                                    $("#namespace-permissions-configure").find(".remove-permission").unbind();
-                                    $("#namespace-permissions-configure").find(".remove-permission").disableTextSelect();
-                                    $("#namespace-permissions-configure").find(".remove-permission").click(function(e){
+                                $("#" + typeSelected + "-permissions-configure").html(template(context));
+                                if (options.adminUser || managerUser){
+                                    $("#edit-button-" + typeSelected).show();
+                                    $("#" + typeSelected + "-permissions-configure").find(".remove-permission").unbind();
+                                    $("#" + typeSelected + "-permissions-configure").find(".remove-permission").disableTextSelect();
+                                    $("#" + typeSelected + "-permissions-configure").find(".remove-permission").click(function(e){
                                         var username = $(e.target).closest("li").attr("data-username"), auxArray = [];
+                                        $("#item-" + typeSelected + "-details").find(".btn").addClass("disabled");
                                         $.ajax({
                                             type: "DELETE",
-                                            url: "/api/sct/namespaces/" + id + "/permissions/" + username + "?token=" + options.token
+                                            url: getUrl + "/" + id + "/permissions/" + username + "?token=" + options.token
                                         }).done(function(res){
-                                            console.log(res);
+                                            $("#item-" + typeSelected + "-details").find(".btn").removeClass("disabled");
+//                                                console.log(res);
                                             result.forEach(function(item){
                                                 if (item.username != username)
                                                     auxArray.push(item);
                                             });
                                             loadPermissionsHtml(auxArray);
+                                            $.notify("Removed!", "success");
                                         }).fail(function(err){
+                                            $.notify("Failed!", "error");
+                                            $("#item-" + typeSelected + "-details").find(".btn").removeClass("disabled");
                                             console.log(err.message);
                                         });
-
                                     });
 
-                                    $("#addPermission-namespace").unbind();
-                                    $("#addPermission-namespace").disableTextSelect();
-                                    $("#addPermission-namespace").click(function(){
-                                        var addHtml = '<li class="list-group-item">';
-                                        addHtml+= '<input id="add-permission-value" type="text" class="form-control" style="width: 60%;display: inline-block;">';
-//                                        options.users.forEach(function(user){
-//                                            addHtml+= '<option value="' +  user + '">' + user + '</option>';
-//                                        });
-                                        addHtml+= '<button id="add-permission-ok-namespace" class="btn btn-success btn-sm glyphicon glyphicon-ok disabled" style=""></button>';
-                                        addHtml+= '<button id="add-permission-remove-namespace" class="btn btn-danger btn-sm glyphicon glyphicon-remove" style=""></button>';
+                                    $("#addPermission-" + typeSelected).unbind();
+                                    $("#addPermission-" + typeSelected).disableTextSelect();
+                                    $("#addPermission-" + typeSelected).click(function(){
+                                        var addHtml = "";
+                                        addHtml = '<li class="list-group-item">';
+                                        addHtml+= '<div class="row">';
+                                        addHtml+= '<div class="col-md-5 form-group">';
+                                        addHtml+= '<label for="add-permission-value">User:</label>';
+                                        addHtml+= '<select id="add-permission-value" class="form-control" style="">';
+                                        options.users.forEach(function(user){
+                                            addHtml+= '<option value="' +  user + '">' + user + '</option>';
+                                        });
+                                        addHtml+= '</select>';
+                                        addHtml+= '</div>';
+                                        addHtml+= '<div class="col-md-5 form-group">';
+                                        addHtml+= '<label for="add-permission-value-role">Role:</label>';
+                                        addHtml+= '<select id="add-permission-value-role" class="form-control" style="">';
+                                        addHtml+= '<option value="user">user</option>';
+                                        addHtml+= '<option value="manager">manager</option>';
+                                        addHtml+= '</select>';
+                                        addHtml+= '</div>';
+                                        addHtml+= '<div class="col-md-2 form-group">';
+                                        addHtml+= '<button id="add-permission-ok-' + typeSelected + '" class="btn btn-success btn-sm glyphicon glyphicon-ok pull-right" style=""></button>';
+                                        addHtml+= '<button id="add-permission-remove-' + typeSelected + '" class="btn btn-danger btn-sm glyphicon glyphicon-remove pull-right" style="margin-right: 10px;"></button>';
+                                        addHtml+= '</div>';
+                                        addHtml+= '</div>';
                                         addHtml+= '</li>';
-                                        $("#namespace-permissions-configure").find("ul").first().append(addHtml);
-                                        $("#addPermission-namespace").hide();
-                                        $("#add-permission-ok-namespace").unbind();
-                                        $("#add-permission-ok-namespace").disableTextSelect();
-                                        $("#add-permission-ok-namespace").click(function(){
-                                            var selectedUsername;
-                                            $.post("/api/sct/namespaces/" + id + "/permissions/" + selectedUsername + "?token=" + options.token).done(function(result){
-                                                result.push(selectedUsername);
+                                        $("#" + typeSelected + "-permissions-configure").find("ul").first().append(addHtml);
+                                        $("#addPermission-" + typeSelected).hide();
+                                        $("#add-permission-ok-" + typeSelected).unbind();
+                                        $("#add-permission-ok-" + typeSelected).disableTextSelect();
+                                        $("#add-permission-ok-" + typeSelected).click(function(){
+                                            var selectedUsername = $("#add-permission-value").val();
+                                            var selectedRole = $("#add-permission-value-role").val();
+                                            $("#item-" + typeSelected + "-details").find(".btn").addClass("disabled");
+                                            $.post(getUrl + "/" + id + "/permissions/" + selectedUsername + "?token=" + options.token + "&role=" + selectedRole).done(function(res){
+                                                $("#item-" + typeSelected + "-details").find(".btn").removeClass("disabled");
+                                                result.push({username: selectedUsername, role: selectedRole, namespace: id});
                                                 loadPermissionsHtml(result);
+                                                $.notify("Success", "success");
                                             }).fail(function(err){
+                                                $("#item-" + typeSelected + "-details").find(".btn").removeClass("disabled");
+                                                $.notify("Failed", "error");
                                                 console.log(err);
                                             });
                                         });
 
-                                        $("#add-permission-remove-namespace").unbind();
-                                        $("#add-permission-remove-namespace").disableTextSelect();
-                                        $("#add-permission-remove-namespace").click(function(){
+                                        $("#add-permission-remove-" + typeSelected).unbind();
+                                        $("#add-permission-remove-" + typeSelected).disableTextSelect();
+                                        $("#add-permission-remove-" + typeSelected).click(function(){
                                             loadPermissionsHtml(result);
                                         });
                                     });
-                                }else
-                                    $("#namespace-permissions-configure").find(".btn").hide();
+                                }else{
+                                    $("#edit-button-" + typeSelected).remove();
+                                    $("#" + typeSelected + "-permissions-configure").find(".btn").hide();
+                                }
                             });
                         }
                         loadPermissionsHtml(result);
                     });
                 }
                 $("#page-wrapper").html('<br><br><br><br><div class="text-center"><i class="fa fa-spinner fa-spin fa-4x"></i></div>');
-                if (namespacesCall != null)
-                    namespacesCall.abort();
-                namespacesCall = $.get("/api/sct/namespaces?token=" + options.token).done(function(result){
-                    $.get("../views/namespace/main.hbs").then(function(src){
+                if (itemsCall != null)
+                    itemsCall.abort();
+                var itemsUrl = "/api/users/" + options.username + "/" + typeSelected + "/?token=" + options.token;
+                if (options.adminUser)
+                    itemsUrl = getUrl + "?token=" + options.token;
+                itemsCall = $.get(itemsUrl).done(function(result){
+                    itemsCall = null;
+                    $.get("../views/items/main.hbs").then(function(src){
                         var template = Handlebars.compile(src);
-                        $("#page-wrapper").html(template());
-                        $.get("../views/namespace/list.hbs").then(function(src){
+                        $("#page-wrapper").html(template({typeH: typeSelected.charAt(0).toUpperCase() + typeSelected.slice(1), type: typeSelected}));
+                        $.get("../views/items/list-" + typeSelected + ".hbs").then(function(src){
                             var context = {
-                                items: result
+                                items: result,
+                                type: typeSelected
                             };
                             template = Handlebars.compile(src);
-                            function loadNamespace(namespace, edit){
-                                $.get("../views/namespace/details.hbs").then(function(src){
+                            function loadItem(itemLoaded, edit){
+                                $.get("../views/items/details-" + typeSelected + ".hbs").then(function(src){
                                     var context = {
-                                        item: namespace,
+                                        item: itemLoaded,
                                         edit: edit
                                     };
                                     template = Handlebars.compile(src);
-                                    $("#namespace-details").html(template(context));
-                                    loadPermissions(namespace.namespace);
-                                    $("#edit-button-namespace").unbind();
-                                    $("#edit-button-namespace").disableTextSelect();
-                                    $("#edit-button-namespace").click(function(){
-                                        loadNamespace(namespace, true);
+                                    $("#item-" + typeSelected + "-details").html(template(context));
+                                    if (!itemLoaded.new)
+                                        loadPermissions(itemLoaded[primaryKey], edit);
+                                    if (!options.adminUser)
+                                        $("#edit-button-" + typeSelected).hide();
+                                    $("#edit-button-" + typeSelected).unbind();
+                                    $("#edit-button-" + typeSelected).disableTextSelect();
+                                    $("#edit-button-" + typeSelected).click(function(){
+                                        loadItem(itemLoaded, true);
                                     });
-                                    $("#save-button-namespace").unbind();
-                                    $("#save-button-namespace").disableTextSelect();
-                                    $("#save-button-namespace").click(function(){
-                                        var namespace = {
+
+                                    if (!options.adminUser)
+                                        $("#delete-button-" + typeSelected).remove();
+                                    $("#delete-button-" + typeSelected).unbind();
+                                    $("#delete-button-" + typeSelected).disableTextSelect();
+                                    $("#delete-button-" + typeSelected).click(function(){
+                                        if (confirm("Are you sure that you wanna delete this namespace?")){
+                                            $("#item-" + typeSelected + "-details").find(".btn").addClass("disabled");
+                                            $.ajax({
+                                                type: "DELETE",
+                                                url: getUrl + "/" + itemLoaded[primaryKey] + "?token=" + options.token
+                                            }).done(function(res){
+                                                $.notify("Deleted!", "success");
+                                                loadItems(typeSelected, getUrl, primaryKey);
+                                            }).fail(function(err){
+                                                $.notify("Failed!", "error");
+                                                $("#item-" + typeSelected + "-details").find(".btn").removeClass("disabled");
+                                            });
+                                        }
+                                    });
+
+                                    $("#save-button-" + typeSelected).unbind();
+                                    $("#save-button-" + typeSelected).disableTextSelect();
+                                    $("#save-button-" + typeSelected).click(function(){
+                                        $("#item-" + typeSelected + "-details").find(".btn").addClass("disabled");
+                                        var namespaceEdit = {
+                                            namespace: itemLoaded.namespace,
                                             organizationName: $.trim($("#edit-namespace-organizationName").val()),
-                                            namespace: $.trim($("#edit-namespace-value").val()),
                                             email: $.trim($("#edit-namespace-email").val())
                                         };
-                                        console.log(namespace);
-                                    });
-                                    $("#cancel-button-namespace").unbind();
-                                    $("#cancel-button-namespace").disableTextSelect();
-                                    $("#cancel-button-namespace").click(function(){
-                                        loadNamespace(namespace, true);
-                                    });
-                                    $("#close-button-namespace").unbind();
-                                    $("#close-button-namespace").disableTextSelect();
-                                    $("#close-button-namespace").click(function(){
-                                        loadNamespace(namespace, false);
-                                    });
-                                    function bindSequencesClick(){
-                                        $("#namespace-details").find(".saveSequence").unbind();
-                                        $("#namespace-details").find(".saveSequence").disableTextSelect();
-                                        $("#namespace-details").find(".saveSequence").click(function(e){
-                                            var partitionId = $(e.target).closest("td").attr("data-id");
-                                            var sequence = $(e.target).closest("td").find("input").first().val();
-                                            $(e.target).closest("td").attr("data-value", sequence);
+                                        if (itemLoaded.new){
+                                            namespaceEdit["namespace"] = parseInt($.trim($("#edit-namespace-value").val()));
+                                            if (isNaN(namespaceEdit.namespace)){
+                                                $.notify("Invalid namespace", 'error');
+                                                return 0;
+                                            }
+                                            namespaceEdit.partitions = [];
+                                            $.each($("#item-" + typeSelected + "-details").find("tbody").first().find("tr"), function (i, field){
+                                                var partition = $($(field).find("td")[1]).attr("data-id");
+                                                var value = parseInt($($(field).find("td")[1]).attr("data-value"));
+                                                namespaceEdit.partitions.push({
+                                                    namespace: namespaceEdit.namespace,
+                                                    partitionId: partition,
+                                                    sequence: value
+                                                });
+                                            });
+                                        }
+//                                        console.log(namespaceEdit);
+                                        if (itemLoaded.new){
+                                            $.ajax({
+                                                type: "POST",
+                                                url: "/api/sct/namespaces?token=" + options.token,
+                                                contentType: 'application/json',
+                                                data: JSON.stringify(namespaceEdit)
+                                            }).done(function(res){
+                                                itemLoaded = namespaceEdit;
+                                                $.notify("Created!", "success");
+                                                $("#item-" + typeSelected + "-details").find(".btn").removeClass("disabled");
+                                                loadItems(typeSelected, getUrl, primaryKey, namespaceEdit[primaryKey]);
+                                            }).fail(function(err){
+                                                $.notify("Failed!", "error");
+                                                $("#item-" + typeSelected + "-details").find(".btn").removeClass("disabled");
+                                            });
+                                        }else{
                                             $.ajax({
                                                 type: "PUT",
-                                                url: "/api/sct/namespaces/" + namespace.namespace + "/partition/" + partitionId + "?token=" + options.token + "&value=" + sequence
+                                                url: "/api/sct/namespaces?token=" + options.token,
+                                                contentType: 'application/json',
+                                                data: JSON.stringify(namespaceEdit)
                                             }).done(function(res){
+                                                itemLoaded.email = namespaceEdit.email;
+                                                itemLoaded.organizationName = namespaceEdit.organizationName;
+                                                $.notify("Saved!", "success");
+                                                $("#item-" + typeSelected + "-details").find(".btn").removeClass("disabled");
+                                            }).fail(function(err){
+                                                $.notify("Failed!", "error");
+                                                $("#item-" + typeSelected + "-details").find(".btn").removeClass("disabled");
+                                            });
+                                        }
+                                    });
+
+                                    $("#cancel-button-" + typeSelected).unbind();
+                                    $("#cancel-button-" + typeSelected).disableTextSelect();
+                                    $("#cancel-button-" + typeSelected).click(function(){
+                                        loadItem(itemLoaded, true);
+                                    });
+                                    $("#close-button-" + typeSelected).unbind();
+                                    $("#close-button-" + typeSelected).disableTextSelect();
+                                    $("#close-button-" + typeSelected).click(function(){
+                                        if (itemLoaded.new){
+                                            if ($("#item-" + typeSelected + "-list").find(".item-link").first()[0])
+                                                $("#item-" + typeSelected + "-list").find(".item-link").first().click();
+                                            else
+                                                $("#item-" + typeSelected + "-details").html("");
+                                        }else
+                                            loadItem(itemLoaded, false);
+                                    });
+                                    function bindSequencesClick(){
+                                        $("#item-" + typeSelected + "-details").find(".inpSequence").unbind();
+                                        $("#item-" + typeSelected + "-details").find(".inpSequence").keyup(function(e){
+                                            if (e.keyCode == 13){
+                                                var partitionId = $(e.target).closest("td").attr("data-id");
+                                                var sequence = parseInt($.trim($(e.target).closest("td").find("input").first().val()));
+                                                $(e.target).closest("td").find(".inpSequence").first().attr("disabled", true);
+                                                if (isNaN(sequence)){
+                                                    $.notify("Invalid sequence", 'error');
+                                                    $(e.target).closest("td").find(".inpSequence").first().attr("disabled", false);
+                                                    return 0;
+                                                }
+                                                $("#item-" + typeSelected + "-details").find(".btn").addClass("disabled");
+                                                if (itemLoaded.new){
+                                                    $(e.target).closest("td").attr("data-value", sequence);
+                                                    var newHtml = sequence + '<button class="btn btn-link glyphicon glyphicon-pencil pull-right editSequence" style="padding: 0px; text-decoration: inherit;" type="button"></button>';
+                                                    $(e.target).closest("td").html(newHtml);
+                                                    bindSequencesClick();
+                                                }else{
+                                                    $.ajax({
+                                                        type: "PUT",
+                                                        url: getUrl + "/" + itemLoaded.namespace + "/partition/" + partitionId + "?token=" + options.token + "&value=" + sequence
+                                                    }).done(function(res){
+                                                        itemLoaded.partitions.forEach(function(partition){
+                                                            if (partition.partitionId == partitionId)
+                                                                partition.sequence = sequence;
+                                                        });
+                                                        $.notify("Saved", "success");
+                                                        $(e.target).closest("td").attr("data-value", sequence);
+                                                        var newHtml = sequence + '<button class="btn btn-link glyphicon glyphicon-pencil pull-right editSequence" style="padding: 0px; text-decoration: inherit;" type="button"></button>';
+                                                        $(e.target).closest("td").html(newHtml);
+                                                        $("#item-" + typeSelected + "-details").find(".btn").removeClass("disabled");
+                                                        bindSequencesClick();
+                                                    }).fail(function(err){
+                                                        $.notify("Failed", "error");
+                                                        $("#item-" + typeSelected + "-details").find(".btn").removeClass("disabled");
+                                                        $(e.target).closest("td").find(".inpSequence").first().attr("disabled", false);
+                                                        console.log(err.message);
+                                                    });
+                                                }
+                                            }
+                                        });
+
+                                        $("#item-" + typeSelected + "-details").find(".saveSequence").unbind();
+                                        $("#item-" + typeSelected + "-details").find(".saveSequence").disableTextSelect();
+                                        $("#item-" + typeSelected + "-details").find(".saveSequence").click(function(e){
+                                            var partitionId = $(e.target).closest("td").attr("data-id");
+                                            var sequence = parseInt($.trim($(e.target).closest("td").find("input").first().val()));
+                                            $(e.target).closest("td").find(".inpSequence").first().attr("disabled", true);
+                                            if (isNaN(sequence)){
+                                                $.notify("Invalid sequence", 'error');
+                                                $(e.target).closest("td").find(".inpSequence").first().attr("disabled", false);
+                                                return 0;
+                                            }
+                                            $("#item-" + typeSelected + "-details").find(".btn").addClass("disabled");
+                                            if (itemLoaded.new){
+                                                $(e.target).closest("td").attr("data-value", sequence);
                                                 var newHtml = sequence + '<button class="btn btn-link glyphicon glyphicon-pencil pull-right editSequence" style="padding: 0px; text-decoration: inherit;" type="button"></button>';
                                                 $(e.target).closest("td").html(newHtml);
                                                 bindSequencesClick();
-                                            }).fail(function(err){
-                                                console.log(err.message);
-                                            });
+                                            }else{
+                                                $.ajax({
+                                                    type: "PUT",
+                                                    url: getUrl + "/" + itemLoaded.namespace + "/partition/" + partitionId + "?token=" + options.token + "&value=" + sequence
+                                                }).done(function(res){
+                                                    itemLoaded.partitions.forEach(function(partition){
+                                                        if (partition.partitionId == partitionId)
+                                                            partition.sequence = sequence;
+                                                    });
+                                                    $.notify("Saved", "success");
+                                                    $(e.target).closest("td").attr("data-value", sequence);
+                                                    var newHtml = sequence + '<button class="btn btn-link glyphicon glyphicon-pencil pull-right editSequence" style="padding: 0px; text-decoration: inherit;" type="button"></button>';
+                                                    $(e.target).closest("td").html(newHtml);
+                                                    $("#item-" + typeSelected + "-details").find(".btn").removeClass("disabled");
+                                                    bindSequencesClick();
+                                                }).fail(function(err){
+                                                    $.notify("Failed", "error");
+                                                    $("#item-" + typeSelected + "-details").find(".btn").removeClass("disabled");
+                                                    $(e.target).closest("td").find(".inpSequence").first().attr("disabled", false);
+                                                    console.log(err.message);
+                                                });
+                                            }
                                         });
 
-                                        $("#namespace-details").find(".cancelSequence").unbind();
-                                        $("#namespace-details").find(".cancelSequence").disableTextSelect();
-                                        $("#namespace-details").find(".cancelSequence").click(function(e){
+                                        $("#item-" + typeSelected + "-details").find(".cancelSequence").unbind();
+                                        $("#item-" + typeSelected + "-details").find(".cancelSequence").disableTextSelect();
+                                        $("#item-" + typeSelected + "-details").find(".cancelSequence").click(function(e){
                                             var sequence = $(e.target).closest("td").attr("data-value");
                                             var newHtml = sequence + '<button class="btn btn-link glyphicon glyphicon-pencil pull-right editSequence" style="padding: 0px; text-decoration: inherit;" type="button"></button>';
                                             $(e.target).closest("td").html(newHtml);
                                             bindSequencesClick();
                                         });
 
-                                        $("#namespace-details").find(".editSequence").unbind();
-                                        $("#namespace-details").find(".editSequence").disableTextSelect();
-                                        $("#namespace-details").find(".editSequence").click(function(e){
+                                        $("#item-" + typeSelected + "-details").find(".editSequence").unbind();
+                                        $("#item-" + typeSelected + "-details").find(".editSequence").disableTextSelect();
+                                        $("#item-" + typeSelected + "-details").find(".editSequence").click(function(e){
                                             var sequence = $(e.target).closest("td").attr("data-value");
-                                            var newHtml = "<input type='text' value='" + sequence + "'>";
+                                            var newHtml = "<input class='inpSequence' type='text' value='" + sequence + "'>";
                                             newHtml+= '<button type="button" class="btn btn-success btn-sm pull-right glyphicon glyphicon-ok saveSequence"></button>';
                                             newHtml+= '<button type="button" class="btn btn-danger btn-sm pull-right glyphicon glyphicon-remove cancelSequence" style="margin-right: 5px;"></button>';
                                             $(e.target).closest("td").html(newHtml);
                                             bindSequencesClick();
+                                            $("#item-" + typeSelected + "-details").find(".inpSequence").first().focus();
                                         });
                                     }
                                     bindSequencesClick();
                                 });
                             }
-                            $("#namespace-list").html(template(context));
-                            $("#namespace-list").find(".item-link").unbind();
-                            $("#namespace-list").find(".item-link").disableTextSelect();
-                            $("#namespace-list").find(".item-link").click(function(e){
-                                var id = $(e.target).attr("data-id");
-                                var namespace = {};
-                                result.forEach(function(item){
-                                    if (item.namespace == id)
-                                        namespace = item;
-                                });
-                                loadNamespace(namespace, false);
+                            $("#item-" + typeSelected + "-list").html(template(context));
+
+                            if (!options.adminUser || typeSelected != "namespaces")
+                                $("#create-new-" + typeSelected).closest("li").remove();
+                            $("#create-new-" + typeSelected).unbind();
+                            $("#create-new-" + typeSelected).disableTextSelect();
+                            $("#create-new-" + typeSelected).click(function(){
+                                var obj = {
+                                    namespace: "",
+                                    email: "",
+                                    partitions: [{
+                                        partitionId: "10",
+                                        sequence: 0
+                                    },{
+                                        partitionId: "11",
+                                        sequence: 0
+                                    },{
+                                        partitionId: "12",
+                                        sequence: 0
+                                    }],
+                                    organizationName: ""
+                                };
+                                if (typeSelected == "schemes"){
+                                    obj = {
+                                        name: "",
+                                        description: ""
+                                    };
+                                }
+                                obj.new = true;
+                                loadItem(obj, true);
                             });
-                            $("#namespace-list").find(".item-link").first().click();
+
+                            $("#item-" + typeSelected + "-list").find(".item-link").unbind();
+                            $("#item-" + typeSelected + "-list").find(".item-link").disableTextSelect();
+                            $("#item-" + typeSelected + "-list").find(".item-link").click(function(e){
+                                var id = $(e.target).attr("data-id");
+                                $("#item-" + typeSelected + "-details").html('<div class="text-center"><i class="fa fa-spinner fa-spin fa-2x"></i></div>');
+                                if (itemsCall != null)
+                                    itemsCall.abort();
+                                itemsCall = $.get(getUrl + "/" + id + "?token=" + options.token).done(function(result){
+                                    itemsCall = null;
+                                    loadItem(result, false);
+                                }).fail(function(err){
+                                    console.log(err);
+                                });
+                            });
+                            if (!firstClick)
+                                $("#item-" + typeSelected + "-list").find(".item-link").first().click();
+                            else
+                                $("#item-" + typeSelected + "-list").find(".item-link[data-id='" + firstClick + "']").first().click();
                         });
                     });
                 }).fail(function(err){
                     console.log(err);
                 });
+            }
+            $("#configure-namespaces").unbind();
+            $("#configure-namespaces").click(function(){
+                loadItems("namespaces", "/api/sct/namespaces", "namespace");
             });
 
             $("#snomed-generate-ids").unbind();
@@ -278,113 +526,7 @@
 
             $("#configure-schemes").unbind();
             $("#configure-schemes").click(function(){
-                var permissionsCall = null;
-                function loadPermissions(id){
-                    $("#scheme-details").html('<div class="text-center"><i class="fa fa-spinner fa-spin fa-2x"></i></div>');
-                    if (permissionsCall != null)
-                        permissionsCall.abort();
-                    permissionsCall = $.get("/api/schemes/" + id + "/permissions?token=" + options.token).done(function(result){
-                        function loadPermissionsHtml(result){
-                            $.get("../views/schemes/permissions.hbs").then(function(src){
-                                var context = {
-                                    permissions: result
-                                };
-                                var template = Handlebars.compile(src);
-                                $("#scheme-details").html(template(context));
-                                if (options.adminUser || options.managerUser){
-                                    $("#scheme-details").find(".remove-scheme").unbind();
-                                    $("#scheme-details").find(".remove-scheme").disableTextSelect();
-                                    $("#scheme-details").find(".remove-scheme").click(function(e){
-                                        var username = $(e.target).closest("li").attr("data-username"), auxArray = [];
-                                        $.ajax({
-                                            type: "DELETE",
-                                            url: "/api/schemes/" + id + "/permissions/" + username + "?token=" + options.token
-                                        }).done(function(res){
-                                            console.log(res);
-                                            result.forEach(function(item){
-                                                if (item.username != username)
-                                                    auxArray.push(item);
-                                            });
-                                            loadPermissionsHtml(auxArray);
-                                        }).fail(function(err){
-                                            console.log(err.message);
-                                        });
-
-                                    });
-
-                                    $("#addPermission-scheme").unbind();
-                                    $("#addPermission-scheme").disableTextSelect();
-                                    $("#addPermission-scheme").click(function(){
-                                        var addHtml = '<li class="list-group-item">';
-                                        addHtml+= '<input id="add-permission-value" type="text" class="form-control" style="width: 60%;display: inline-block;">';
-//                                        options.users.forEach(function(user){
-//                                            addHtml+= '<option value="' +  user + '">' + user + '</option>';
-//                                        });
-                                        addHtml+= '<button id="add-permission-ok-scheme" class="btn btn-success btn-sm glyphicon glyphicon-ok disabled" style=""></button>';
-                                        addHtml+= '<button id="add-permission-remove-scheme" class="btn btn-danger btn-sm glyphicon glyphicon-remove" style=""></button>';
-                                        addHtml+= '</li>';
-                                        $("#scheme-details").find("ul").first().append(addHtml);
-                                        $("#addPermission-scheme").hide();
-                                        $("#add-permission-ok-scheme").unbind();
-                                        $("#add-permission-ok-scheme").disableTextSelect();
-                                        $("#add-permission-ok-scheme").click(function(){
-                                            var selectedUsername;
-                                            $.post("/api/schemes/" + id + "/permissions/" + selectedUsername + "?token=" + options.token).done(function(result){
-                                                result.push(selectedUsername);
-                                                loadPermissionsHtml(result);
-                                            }).fail(function(err){
-                                                console.log(err);
-                                            });
-                                        });
-
-                                        $("#add-permission-remove-scheme").unbind();
-                                        $("#add-permission-remove-scheme").disableTextSelect();
-                                        $("#add-permission-remove-scheme").click(function(){
-                                            loadPermissionsHtml(result);
-                                        });
-                                    });
-                                }else
-                                    $("#scheme-details").find(".btn").hide();
-                            });
-                        }
-                        loadPermissionsHtml(result);
-                    });
-                }
-                $("#page-wrapper").html('<br><br><br><br><div class="text-center"><i class="fa fa-spinner fa-spin fa-4x"></i></div>');
-                if (schemesCall != null)
-                    schemesCall.abort();
-                schemesCall = $.get("/api/schemes?token=" + options.token).done(function(result){
-                    $.get("../views/schemes/main.hbs").then(function(src){
-                        var template = Handlebars.compile(src);
-                        $("#page-wrapper").html(template());
-                        $.get("../views/schemes/list.hbs").then(function(src){
-                            var context = {
-                                items: result
-                            };
-                            template = Handlebars.compile(src);
-                            $("#scheme-list").html(template(context));
-                            $("#scheme-list").find(".item-link").unbind();
-                            $("#scheme-list").find(".item-link").disableTextSelect();
-                            $("#scheme-list").find(".item-link").click(function(e){
-                                var id = $(e.target).attr("data-id");
-                                loadPermissions(id);
-//                                        $("#scheme-details").html("<div class="text-center"><i class="fa fa-spinner fa-spin fa-4x"></i></div>");
-//                                    $.get("../views/schemes/details.hbs").then(function(src){
-//                                        var context = {
-//                                            item: scheme
-//                                        };
-//                                        template = Handlebars.compile(src);
-//                                        //namespace-details
-//                                        $("#scheme-details").html(template(context));
-//                                    });
-
-                            });
-                            $("#scheme-list").find(".item-link").first().click();
-                        });
-                    });
-                }).fail(function(err){
-                    console.log(err);
-                });
+                loadItems("schemes", "/api/schemes", "name");
             });
 
             $("#schemes-generate-ids").unbind();
@@ -404,16 +546,6 @@
 
             $("#admin-administrators").unbind();
             $("#admin-administrators").click(function(){
-
-            });
-
-            $("#namespace-permissions").unbind();
-            $("#namespace-permissions").click(function(){
-
-            });
-
-            $("#scheme-permissions").unbind();
-            $("#scheme-permissions").click(function(){
 
             });
         }
@@ -723,96 +855,14 @@
                             <a href="#"><i class="fa fa-bar-chart-o fa-fw"></i> Admin<span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
                                 <li>
-                                    <a href="#"><i class="fa fa-bar-chart-o fa-fw"></i> User Groups<span class="fa arrow"></span></a>
-                                    <ul class="nav nav-second-level">
-                                        <li>
-                                            <a id="admin-clients" href="javascript:void(0);">Clients</a>
-                                        </li>
-                                        <li>
-                                            <a id="admin-administrators" href="javascript:void(0);">Administrators</a>
-                                        </li>
-                                    </ul>
+                                    <a id="admin-clients" href="javascript:void(0);">Users</a>
                                 </li>
                                 <li>
-                                    <a href="#"><i class="fa fa-bar-chart-o fa-fw"></i> Permissions<span class="fa arrow"></span></a>
-                                    <ul class="nav nav-second-level">
-                                        <li>
-                                            <a id="namespace-permissions" href="javascript:void(0);">Namespace permissions</a>
-                                        </li>
-                                        <li>
-                                            <a id="scheme-permissions" href="javascript:void(0);">Scheme permissions</a>
-                                        </li>
-                                    </ul>
+                                    <a id="admin-administrators" href="javascript:void(0);">Administrators</a>
                                 </li>
                             </ul>
                             <!-- /.nav-second-level -->
                         </li>
-                        <!--<li>-->
-                            <!--<a href="#"><i class="fa fa-wrench fa-fw"></i> UI Elements<span class="fa arrow"></span></a>-->
-                            <!--<ul class="nav nav-second-level">-->
-                                <!--<li>-->
-                                    <!--<a href="panels-wells.html">Panels and Wells</a>-->
-                                <!--</li>-->
-                                <!--<li>-->
-                                    <!--<a href="buttons.html">Buttons</a>-->
-                                <!--</li>-->
-                                <!--<li>-->
-                                    <!--<a href="notifications.html">Notifications</a>-->
-                                <!--</li>-->
-                                <!--<li>-->
-                                    <!--<a href="typography.html">Typography</a>-->
-                                <!--</li>-->
-                                <!--<li>-->
-                                    <!--<a href="icons.html"> Icons</a>-->
-                                <!--</li>-->
-                                <!--<li>-->
-                                    <!--<a href="grid.html">Grid</a>-->
-                                <!--</li>-->
-                            <!--</ul>-->
-                            <!--&lt;!&ndash; /.nav-second-level &ndash;&gt;-->
-                        <!--</li>-->
-                        <!--<li>-->
-                            <!--<a href="#"><i class="fa fa-sitemap fa-fw"></i> Multi-Level Dropdown<span class="fa arrow"></span></a>-->
-                            <!--<ul class="nav nav-second-level">-->
-                                <!--<li>-->
-                                    <!--<a href="#">Second Level Item</a>-->
-                                <!--</li>-->
-                                <!--<li>-->
-                                    <!--<a href="#">Second Level Item</a>-->
-                                <!--</li>-->
-                                <!--<li>-->
-                                    <!--<a href="#">Third Level <span class="fa arrow"></span></a>-->
-                                    <!--<ul class="nav nav-third-level">-->
-                                        <!--<li>-->
-                                            <!--<a href="#">Third Level Item</a>-->
-                                        <!--</li>-->
-                                        <!--<li>-->
-                                            <!--<a href="#">Third Level Item</a>-->
-                                        <!--</li>-->
-                                        <!--<li>-->
-                                            <!--<a href="#">Third Level Item</a>-->
-                                        <!--</li>-->
-                                        <!--<li>-->
-                                            <!--<a href="#">Third Level Item</a>-->
-                                        <!--</li>-->
-                                    <!--</ul>-->
-                                    <!--&lt;!&ndash; /.nav-third-level &ndash;&gt;-->
-                                <!--</li>-->
-                            <!--</ul>-->
-                            <!--&lt;!&ndash; /.nav-second-level &ndash;&gt;-->
-                        <!--</li>-->
-                        <!--<li>-->
-                            <!--<a href="#"><i class="fa fa-files-o fa-fw"></i> Sample Pages<span class="fa arrow"></span></a>-->
-                            <!--<ul class="nav nav-second-level">-->
-                                <!--<li>-->
-                                    <!--<a href="blank.html">Blank Page</a>-->
-                                <!--</li>-->
-                                <!--<li>-->
-                                    <!--<a href="login.html">Login Page</a>-->
-                                <!--</li>-->
-                            <!--</ul>-->
-                            <!--&lt;!&ndash; /.nav-second-level &ndash;&gt;-->
-                        <!--</li>-->
                     </ul>
                 </div>
                 <!-- /.sidebar-collapse -->

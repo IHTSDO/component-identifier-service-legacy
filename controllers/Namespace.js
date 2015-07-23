@@ -4,86 +4,61 @@
 'use strict';
 
 var security = require("./../blogic/Security");
+var namespace = require("../blogic/NamespaceDataManager");
 
 module.exports.getNamespace = function getNamespace (req, res, next) {
     var token = req.swagger.params.token.value;
     var namespaceId = req.swagger.params.namespaceId.value;
     security.authenticate(token, function(err, data) {
-        if (err) {
+        if (err)
             return next(err.message);
+        else{
+            namespace.getNamespace(namespaceId, function(err, namespaces) {
+                if (err)
+                    return next(err.message);
+                else{
+                    res.setHeader('Content-Type', 'application/json');
+                    res.end(JSON.stringify(namespaces[0]));
+                }
+            });
         }
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(
-            {
-                "namespace": parseInt(namespaceId),
-                "organizationName": "Uruguay NRC",
-                "email": "nrc@uruguay.org",
-                "partitions": [
-                    {
-                        "partitionId": "10",
-                        "sequence": 23121
-                    },
-                    {
-                        "partitionId": "11",
-                        "sequence": 1233
-                    },
-                    {
-                        "partitionId": "12",
-                        "sequence": 876
-                    }
-                ]
-            }
-        ));
     });
 };
 
 module.exports.getNamespaces = function getNamespaces (req, res, next) {
     var token = req.swagger.params.token.value;
     security.authenticate(token, function(err, data) {
-        if (err) {
+        if (err)
             return next(err.message);
+        else{
+            namespace.getNamespaces(function(err, namespaces) {
+                if (err)
+                    return next(err.message);
+                else{
+                    res.setHeader('Content-Type', 'application/json');
+                    res.end(JSON.stringify(namespaces));
+                }
+            });
         }
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify([
-            {
-                "namespace": 10000171,
-                "organizationName": "Uruguay NRC",
-                "email": "nrc@uruguay.org",
-                "partitions": [
-                    {
-                        "partitionId": "10",
-                        "sequence": 23121
-                    },
-                    {
-                        "partitionId": "11",
-                        "sequence": 1233
-                    },
-                    {
-                        "partitionId": "12",
-                        "sequence": 876
-                    }
-                ]
-            },
-            {
-                "namespace": 10000041,
-                "organizationName": "Norway NRC",
-                "email": "nrc@norway.org",
-                "partitions": [
-                    {
-                        "partitionId": "10",
-                        "sequence": 23121
-                    },
-                    {
-                        "partitionId": "11",
-                        "sequence": 1233
-                    },
-                    {
-                        "partitionId": "12",
-                        "sequence": 876
-                    }
-                ]
-            }
-        ]));
+    });
+};
+
+module.exports.getNamespacesForUser = function getNamespacesForUser (req, res, next) {
+    var token = req.swagger.params.token.value;
+    var username = req.swagger.params.username.value;
+    security.authenticate(token, function(err, data) {
+        if (err)
+            return next(err.message);
+        else{
+            namespace.getNamespacesForUser(username, function(err, namespaces) {
+                if (err)
+                    return next(err.message);
+                else{
+                    res.setHeader('Content-Type', 'application/json');
+                    res.end(JSON.stringify(namespaces));
+                }
+            });
+        }
     });
 };
 
@@ -91,31 +66,18 @@ module.exports.createNamespace = function createNamespace (req, res, next) {
     var token = req.swagger.params.token.value;
     var namespaceData = req.swagger.params.namespace.value;
     security.authenticate(token, function(err, data) {
-        if (err) {
+        if (err)
             return next(err.message);
+        else{
+            namespace.createNamespace(namespaceData,function(err) {
+                if (err)
+                    return next(err.message);
+                else{
+                    res.setHeader('Content-Type', 'application/json');
+                    res.end(JSON.stringify({message: "Success"}));
+                }
+            });
         }
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(
-            {
-                "namespace": 10000171,
-                "organizationName": "Uruguay NRC",
-                "email": "nrc@uruguay.org",
-                "partitions": [
-                    {
-                        "partitionId": "10",
-                        "sequence": 23121
-                    },
-                    {
-                        "partitionId": "11",
-                        "sequence": 1233
-                    },
-                    {
-                        "partitionId": "12",
-                        "sequence": 876
-                    }
-                ]
-            }
-        ));
     });
 };
 
@@ -123,31 +85,37 @@ module.exports.updateNamespace = function updateNamespace (req, res, next) {
     var token = req.swagger.params.token.value;
     var namespaceData = req.swagger.params.namespace.value;
     security.authenticate(token, function(err, data) {
-        if (err) {
+        if (err)
             return next(err.message);
+        else{
+            namespace.editNamespace(namespaceData.namespace, namespaceData,function(err) {
+                if (err)
+                    return next(err.message);
+                else{
+                    res.setHeader('Content-Type', 'application/json');
+                    res.end(JSON.stringify({message: "Success"}));
+                }
+            });
         }
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(
-            {
-                "namespace": 10000171,
-                "organizationName": "Uruguay NRC",
-                "email": "nrc@uruguay.org",
-                "partitions": [
-                    {
-                        "partitionId": "10",
-                        "sequence": 23121
-                    },
-                    {
-                        "partitionId": "11",
-                        "sequence": 1233
-                    },
-                    {
-                        "partitionId": "12",
-                        "sequence": 876
-                    }
-                ]
-            }
-        ));
+    });
+};
+
+module.exports.deleteNamespace = function deleteNamespace (req, res, next) {
+    var token = req.swagger.params.token.value;
+    var namespaceId = req.swagger.params.namespaceId.value;
+    security.authenticate(token, function(err, data) {
+        if (err)
+            return next(err.message);
+        else{
+            namespace.deleteNamespace(namespaceId, function(err) {
+                if (err)
+                    return next(err.message);
+                else{
+                    res.setHeader('Content-Type', 'application/json');
+                    res.end(JSON.stringify({message: "Success"}));
+                }
+            });
+        }
     });
 };
 
@@ -157,19 +125,16 @@ module.exports.getPermissions = function getPermissions (req, res, next) {
     security.authenticate(token, function(err, data) {
         if (err) {
             return next(err.message);
-        }
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify([
-                {
-                    "namespace": parseInt(namespaceId),
-                    "username": "alopez"
-                },
-                {
-                    "namespace": parseInt(namespaceId),
-                    "username": "greynoso"
+        }else{
+            namespace.getPermissions(namespaceId, function(err, permissions) {
+                if (err)
+                    return next(err.message);
+                else{
+                    res.setHeader('Content-Type', 'application/json');
+                    res.end(JSON.stringify(permissions));
                 }
-            ]
-        ));
+            });
+        }
     });
 };
 
@@ -177,17 +142,20 @@ module.exports.createPermission = function createPermission (req, res, next) {
     var token = req.swagger.params.token.value;
     var namespaceId = req.swagger.params.namespaceId.value;
     var username = req.swagger.params.username.value;
+    var role = req.swagger.params.role.value;
     security.authenticate(token, function(err, data) {
         if (err) {
             return next(err.message);
-        }
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(
-                {
-                    "namespace": parseInt(namespaceId),
-                    "username": username
+        }else{
+            namespace.createPermission({namespace: namespaceId, username: username, role: role}, function(err) {
+                if (err)
+                    return next(err.message);
+                else{
+                    res.setHeader('Content-Type', 'application/json');
+                    res.end(JSON.stringify({message: "Success"}));
                 }
-        ));
+            });
+        }
     });
 };
 
@@ -198,9 +166,16 @@ module.exports.deletePermission = function deletePermission (req, res, next) {
     security.authenticate(token, function(err, data) {
         if (err) {
             return next(err.message);
+        }else{
+            namespace.deletePermission(namespaceId, username, function(err) {
+                if (err)
+                    return next(err.message);
+                else{
+                    res.setHeader('Content-Type', 'application/json');
+                    res.end(JSON.stringify({message: "Success"}));
+                }
+            });
         }
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify({}));
     });
 };
 
@@ -210,30 +185,17 @@ module.exports.updatePartitionSequence = function updatePartitionSequence (req, 
     var namespaceId = req.swagger.params.namespaceId.value;
     var value = req.swagger.params.value.value;
     security.authenticate(token, function(err, data) {
-        if (err) {
+        if (err)
             return next(err.message);
+        else{
+            namespace.editPartition([namespaceId, partitionId], value,function(err) {
+                if (err)
+                    return next(err.message);
+                else{
+                    res.setHeader('Content-Type', 'application/json');
+                    res.end(JSON.stringify({message: "Success"}));
+                }
+            });
         }
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(
-            {
-                "namespace": parseInt(namespaceId),
-                "organizationName": "Uruguay NRC",
-                "email": "nrc@uruguay.org",
-                "partitions": [
-                    {
-                        "partitionId": "10",
-                        "sequence": 23121
-                    },
-                    {
-                        "partitionId": "11",
-                        "sequence": 1233
-                    },
-                    {
-                        "partitionId": "12",
-                        "sequence": 876
-                    }
-                ]
-            }
-        ));
     });
 };

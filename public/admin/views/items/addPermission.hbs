@@ -1,0 +1,23 @@
+<li class="list-group-item">
+    <div class="row">
+        <div class="col-md-5 form-group">
+            <label for="add-permission-value">User:</label>
+            <select id="add-permission-value" class="form-control" style="width: 30%;display: inline-block;">
+                options.users.forEach(function(user){
+                <option value="' +  user + '">' + user + '</option>
+                });
+                </select>
+            </div>
+        <div class="col-md-5 form-group"></div>
+        <label for="add-permission-value-role">Role:</label>
+        <select id="add-permission-value-role" class="form-control" style="width: 30%;display: inline-block;">
+            <option value="user">user</option>
+            <option value="manager">manager</option>
+            </select>
+        </div>
+    <div class="col-md-2">
+        <button id="add-permission-ok-namespace" class="btn btn-success btn-sm glyphicon glyphicon-ok pull-right" style=""></button>
+        <button id="add-permission-remove-namespace" class="btn btn-danger btn-sm glyphicon glyphicon-remove pull-right" style="margin-right: 10px;"></button>
+        </div>
+    </div>
+    </li>
