@@ -146,6 +146,88 @@
                 }
             }
         },
+        "/users/{username}/namespaces/":{
+            "get": {
+                "x-swagger-router-controller": "Namespace",
+                "operationId": "getNamespacesForUser",
+                "tags": ["Namespaces"],
+                "description": "Returns the list of available namespaces.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "username",
+                        "in": "path",
+                        "description": "The username.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Invalid request.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Successful request.",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Namespace"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{username}/schemes/":{
+            "get": {
+                "x-swagger-router-controller": "Scheme",
+                "operationId": "getSchemesForUser",
+                "tags": ["Schemes"],
+                "description": "Returns the list of available schemes.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "username",
+                        "in": "path",
+                        "description": "The username.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Invalid request.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Successful request.",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Scheme"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/users/{username}/groups/": {
             "get": {
                 "x-swagger-router-controller": "Login",
@@ -387,6 +469,13 @@
                         "description": "The username.",
                         "required": true,
                         "type": "string"
+                    },
+                    {
+                        "name": "role",
+                        "in": "query",
+                        "description": "The role.",
+                        "required": true,
+                        "type": "string"
                     }
                 ],
                 "responses": {
@@ -508,6 +597,13 @@
                         "description": "The username.",
                         "required": true,
                         "type": "string"
+                    },
+                    {
+                        "name": "role",
+                        "in": "query",
+                        "description": "The role.",
+                        "required": true,
+                        "type": "string"
                     }
                 ],
                 "responses": {
@@ -595,6 +691,42 @@
                     },
                     "200": {
                         "description": "Successful request.",
+                        "schema": {
+                            "$ref": "#/definitions/Namespace"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "x-swagger-router-controller": "Namespace",
+                "operationId": "deleteNamespace",
+                "tags": ["Namespaces"],
+                "description": "Deletes a namespace.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "namespaceId",
+                        "in": "path",
+                        "description": "The namespace to delete.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Invalid request.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Namespace updated.",
                         "schema": {
                             "$ref": "#/definitions/Namespace"
                         }
@@ -1298,7 +1430,10 @@
     "definitions": {
         "Partition" : {
             "properties": {
-                "parititonId": {
+                "namespace": {
+                    "type": "integer"
+                },
+                "partitionId": {
                     "type": "string"
                 },
                 "sequence": {
@@ -1332,6 +1467,10 @@
                 },
                 "username": {
                     "type": "string"
+                },
+                "role": {
+                    "type": "string",
+                    "description": "name of the role (consumer or manager)"
                 }
             }
         },
@@ -1341,6 +1480,9 @@
                     "type": "string"
                 },
                 "username": {
+                    "type": "string"
+                },
+                "role": {
                     "type": "string"
                 }
             }
@@ -1356,6 +1498,9 @@
         "Scheme": {
             "properties": {
                 "name": {
+                    "type": "string"
+                },
+                "description": {
                     "type": "string"
                 }
             }

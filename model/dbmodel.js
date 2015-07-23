@@ -37,7 +37,7 @@ var namespaceRecord={name: "namespace",
     }
 };
 
-var partitionRecord={name: "partition",
+var partitionRecord={name: "partitions",
     fields: {
         namespace: { type: 'integer', key: true },
         partitionId: { type: 'text', key: true },
@@ -45,10 +45,28 @@ var partitionRecord={name: "partition",
     }
 };
 
+var permissionsNamespaceRecord={name: "permissionsNamespace",
+    fields: {
+        namespace: { type: 'integer', key: true },
+        username: { type: 'text', key: true },
+        role: String
+    }
+};
+
+var permissionsSchemeRecord={name: "permissionsScheme",
+    fields: {
+        scheme: { type: 'text', key: true },
+        username: { type: 'text', key: true },
+        role: String
+    }
+};
 
 var model={
     sctIdTable:sctIdRecord,
-    namespace:namespaceRecord
+    namespace:namespaceRecord,
+    partitions:partitionRecord,
+    permissionsNamespace:permissionsNamespaceRecord,
+    permissionsScheme: permissionsSchemeRecord
 };
 
 module.exports.mUse=mUse;
