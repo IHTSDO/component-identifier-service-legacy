@@ -847,12 +847,12 @@
                 }
             }
         },
-        "/sct/ids": {
+        "/sct/generate": {
             "post": {
                 "x-swagger-router-controller": "Sctid",
-                "operationId": "processSctidRequest",
+                "operationId": "generateSctid",
                 "tags": ["SCTIDS"],
-                "description": "Receives a request for a SCTID Operation.",
+                "description": "Generates a new SCTID, based on the metadata passed in the GenerationData parameter. The first available SCTID will be assigned. Returns a SCTID Record with status 'Assigned'",
                 "parameters": [
                     {
                         "name": "token",
@@ -862,12 +862,12 @@
                         "type": "string"
                     },
                     {
-                        "name": "operation",
+                        "name": "generationData",
                         "in": "body",
                         "description": "The requested operation.",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/SCTIDRequest"
+                            "$ref": "#/definitions/SCTIDGenerationRequest"
                         }
                     }
                 ],
@@ -887,11 +887,211 @@
                 }
             }
         },
-        "/sct/ids/bulk": {
+        "/sct/register": {
+            "post": {
+                "x-swagger-router-controller": "Sctid",
+                "operationId": "registerSctid",
+                "tags": ["SCTIDS"],
+                "description": "Registers a SCTID already in use in an external system, based on the metadata passed in the RegistrationData parameter. Returns a SCTID Record with status 'Assigned'. If the SCTID is already assigned it will return an error.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "registrationData",
+                        "in": "body",
+                        "description": "The requested operation.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/SCTIDRegistrationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Invalid request.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Operation ready.",
+                        "schema": {
+                            "$ref": "#/definitions/SCTIDRecord"
+                        }
+                    }
+                }
+            }
+        },
+        "/sct/reserve": {
+            "post": {
+                "x-swagger-router-controller": "Sctid",
+                "operationId": "reserveSctid",
+                "tags": ["SCTIDS"],
+                "description": "Reserves a SCTID for use in an external system, based on the metadata passed in the ReservationData parameter. The first available SCTID will be reserved. Returns a SCTID Record with status 'Reserved'.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "reservationData",
+                        "in": "body",
+                        "description": "The requested operation.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/SCTIDReservationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Invalid request.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Operation ready.",
+                        "schema": {
+                            "$ref": "#/definitions/SCTIDRecord"
+                        }
+                    }
+                }
+            }
+        },
+        "/sct/deprecate": {
+            "put": {
+                "x-swagger-router-controller": "Sctid",
+                "operationId": "deprecateSctid",
+                "tags": ["SCTIDS"],
+                "description": "Deprecates a SCTID, so it will not be assigned to any component, based on the metadata passed in the DeprecationData parameter. Returns a SCTID Record with status 'Deprecated'.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "deprecationData",
+                        "in": "body",
+                        "description": "The requested operation.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/SCTIDUpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Invalid request.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Operation ready.",
+                        "schema": {
+                            "$ref": "#/definitions/SCTIDRecord"
+                        }
+                    }
+                }
+            }
+        },
+        "/sct/release": {
+            "put": {
+                "x-swagger-router-controller": "Sctid",
+                "operationId": "releaseSctid",
+                "tags": ["SCTIDS"],
+                "description": "Releases a SCTID, so it will available to be assigned again, based on the metadata passed in the DeprecationData parameter. Returns a SCTID Record with status 'Available'.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "releaseData",
+                        "in": "body",
+                        "description": "The requested operation.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/SCTIDUpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Invalid request.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Operation ready.",
+                        "schema": {
+                            "$ref": "#/definitions/SCTIDRecord"
+                        }
+                    }
+                }
+            }
+        },
+        "/sct/publish": {
+            "put": {
+                "x-swagger-router-controller": "Sctid",
+                "operationId": "publishSctid",
+                "tags": ["SCTIDS"],
+                "description": "Sets the SCTID as published, based on the metadata passed in the DeprecationData parameter. Returns a SCTID Record with status 'Published'.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "publicationData",
+                        "in": "body",
+                        "description": "The requested operation.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/SCTIDUpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Invalid request.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Operation ready.",
+                        "schema": {
+                            "$ref": "#/definitions/SCTIDRecord"
+                        }
+                    }
+                }
+            }
+        },
+        "/sct/bulk/ids": {
             "get": {
                 "x-swagger-router-controller": "SctidBulk",
                 "operationId": "getSctids",
-                "tags": ["SCTIDS"],
+                "tags": ["SCTIDS - Bulk Operations"],
                 "description": "Returns the required SCTID Records.",
                 "parameters": [
                     {
@@ -926,12 +1126,14 @@
                         }
                     }
                 }
-            },
-            "post": {
+            }
+        },
+        "/sct/namespace/{namespaceId}/systemIds": {
+            "get": {
                 "x-swagger-router-controller": "SctidBulk",
-                "operationId": "processBulkSctidRequest",
-                "tags": ["SCTIDS"],
-                "description": "Receives a bulk request for multiple SCTID Operations.",
+                "operationId": "getSystemIds",
+                "tags": ["SCTIDS - Bulk Operations"],
+                "description": "Returns the required SCTID Records by SystemIds.",
                 "parameters": [
                     {
                         "name": "token",
@@ -941,12 +1143,275 @@
                         "type": "string"
                     },
                     {
-                        "name": "operation",
+                        "name": "namespaceId",
+                        "in": "path",
+                        "description": "The namespaceId.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "systemIds",
+                        "in": "query",
+                        "description": "The required systemIds list, separated with commas (,).",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Invalid request.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Successful request.",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/SCTIDRecord"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/sct/bulk/generate": {
+            "post": {
+                "x-swagger-router-controller": "SctidBulk",
+                "operationId": "generateSctids",
+                "tags": ["SCTIDS - Bulk Operations"],
+                "description": "Generates news SCTID, based on the metadata passed in the GenerationData parameter. The first available SCTIDs will be assigned. Returns an array of SCTIDs Record with status 'Assigned'",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "generationData",
                         "in": "body",
                         "description": "The requested operation.",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/SCTIDBulkRequest"
+                            "$ref": "#/definitions/SCTIDBulkGenerationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Invalid request.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Operation ready.",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/SCTIDRecord"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/sct/bulk/register": {
+            "post": {
+                "x-swagger-router-controller": "SctidBulk",
+                "operationId": "registerSctids",
+                "tags": ["SCTIDS - Bulk Operations"],
+                "description": "Registers SCTIDs already in use in an external system, based on the metadata passed in the RegistrationData parameter. Returns an array of SCTID Records with status 'Assigned'.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "registrationData",
+                        "in": "body",
+                        "description": "The requested operation.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/SCTIDBulkRegistrationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Invalid request.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Operation ready.",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/SCTIDRecord"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/sct/bulk/reserve": {
+            "post": {
+                "x-swagger-router-controller": "SctidBulk",
+                "operationId": "reserveSctids",
+                "tags": ["SCTIDS - Bulk Operations"],
+                "description": "Reserves SCTIDs for use in an external system, based on the metadata passed in the ReservationData parameter. The first available SCTIDs will be reserved. Returns an array of SCTID Records with status 'Reserved'.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "reservationData",
+                        "in": "body",
+                        "description": "The requested operation.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/SCTIDBulkReservationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Invalid request.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Operation ready.",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/SCTIDRecord"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/sct/bulk/deprecate": {
+            "put": {
+                "x-swagger-router-controller": "SctidBulk",
+                "operationId": "deprecateSctids",
+                "tags": ["SCTIDS - Bulk Operations"],
+                "description": "Deprecates SCTIDs, so they will not be assigned to any component, based on the metadata passed in the DeprecationData parameter. Returns an array of SCTID Records with status 'Deprecated'.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "deprecationData",
+                        "in": "body",
+                        "description": "The requested operation.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/SCTIDBulkUpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Invalid request.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Operation ready.",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/SCTIDRecord"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/sct/bulk/release": {
+            "put": {
+                "x-swagger-router-controller": "SctidBulk",
+                "operationId": "releaseSctids",
+                "tags": ["SCTIDS - Bulk Operations"],
+                "description": "Releases SCTIDs, so they will be available to be assigned again, based on the metadata passed in the DeprecationData parameter. Returns an array SCTID Records with status 'Available'.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "releaseData",
+                        "in": "body",
+                        "description": "The requested operation.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/SCTIDBulkUpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Invalid request.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Operation ready.",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/SCTIDRecord"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/sct/bulk/publish": {
+            "put": {
+                "x-swagger-router-controller": "SctidBulk",
+                "operationId": "publishSctids",
+                "tags": ["SCTIDS - Bulk Operations"],
+                "description": "Sets the SCTIDs as published, based on the metadata passed in the DeprecationData parameter. Returns an array SCTID Records with status 'Published'.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "publicationData",
+                        "in": "body",
+                        "description": "The requested operation.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/SCTIDBulkUpdateRequest"
                         }
                     }
                 ],
@@ -1523,27 +1988,10 @@
                 }
             }
         },
-        "SCTIDRequest" : {
+        "SCTIDGenerationRequest" : {
             "properties" : {
-                "action": {
-                    "type": "string",
-                    "description": "The action requested",
-                    "enum" : [
-                        "generate",
-                        "reserve",
-                        "register",
-                        "release",
-                        "publish",
-                        "deprecate"
-                    ]
-                },
-                "sctid": {
-                    "type": "string",
-                    "description": "The SCTID, only necessary to register, release, deprecate, publish"
-                },
                 "namespace": {
-                    "type": "integer",
-                    "description": "The namespace, always mandatory"
+                    "type": "integer"
                 },
                 "partitionId": {
                     "type": "string",
@@ -1557,9 +2005,35 @@
                     "type": "string",
                     "description": "The name of the software sending the request, mandatory"
                 },
-                "expirationDate": {
+                "comment": {
                     "type": "string",
-                    "description": "The expiration date, only necessary on reserve actions"
+                    "description": "A comment about the action, optional."
+                }
+            }
+        },
+        "SCTIDBulkGenerationRequest" : {
+            "properties" : {
+                "namespace": {
+                    "type": "integer"
+                },
+                "partitionId": {
+                    "type": "string",
+                    "description": "The partitionId, always mandatory. '10' for concepts, '11' for descriptions, '12' for relationships"
+                },
+                "quantity": {
+                    "type": "integer",
+                    "description": "Number of actions to be performed"
+                },
+                "systemIds": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "The systemIds, optional, a reference to an existing ID on the user environment, external to this API"
+                },
+                "software": {
+                    "type": "string",
+                    "description": "The name of the software sending the request, mandatory"
                 },
                 "comment": {
                     "type": "string",
@@ -1567,33 +2041,65 @@
                 }
             }
         },
-        "SCTIDBulkRequest" : {
+        "SCTIDRegistrationRequest" : {
             "properties" : {
-                "action": {
+                "sctid": {
                     "type": "string",
-                    "description": "The action requested",
-                    "enum" : [
-                        "generate",
-                        "reserve",
-                        "register",
-                        "release",
-                        "publish",
-                        "deprecate",
-                        "getBySctid",
-                        "getBySystemId"
-                    ]
+                    "description": "The SCTID"
                 },
-                "quantity": {
+                "namespace": {
                     "type": "integer",
-                    "description": "Number of actions to be performed"
+                    "description": "The namespace, always mandatory"
                 },
-                "sctids": {
-                    "description": "The SCTIDs, only necessary to register, release, deprecate, publish",
+                "systemId": {
+                    "type": "string",
+                    "description": "The systemId, optional, a reference to an existing ID on the user environment, external to this API"
+                },
+                "software": {
+                    "type": "string",
+                    "description": "The name of the software sending the request, mandatory"
+                },
+                "comment": {
+                    "type": "string",
+                    "description": "A comment about the action, optional."
+                }
+            }
+        },
+        "RegistrationRecord": {
+            "properties": {
+                "sctid": {
+                    "type": "string"
+                },
+                "systemId": {
+                    "type": "string"
+                }
+            }
+        },
+        "SCTIDBulkRegistrationRequest" : {
+            "properties" : {
+                "records": {
+                    "description": "The list of ids pairs to register",
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "$ref": "#/definitions/RegistrationRecord"
                     }
                 },
+                "namespace": {
+                    "type": "integer",
+                    "description": "The namespace, always mandatory"
+                },
+                "software": {
+                    "type": "string",
+                    "description": "The name of the software sending the request, mandatory"
+                },
+                "comment": {
+                    "type": "string",
+                    "description": "A comment about the action, optional."
+                }
+            }
+        },
+        "SCTIDReservationRequest" : {
+            "properties" : {
                 "namespace": {
                     "type": "integer",
                     "description": "The namespace, always mandatory"
@@ -1602,20 +2108,84 @@
                     "type": "string",
                     "description": "The partitionId, always mandatory. '10' for concepts, '11' for descriptions, '12' for relationships"
                 },
-                "systemId": {
-                    "description": "The systemIds, optional, a reference to an existing ID on the user environment, external to this API",
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
+                "expirationDate": {
+                    "type": "string",
+                    "description": "The expiration date, only necessary on reserve actions"
                 },
                 "software": {
                     "type": "string",
                     "description": "The name of the software sending the request, mandatory"
                 },
+                "comment": {
+                    "type": "string",
+                    "description": "A comment about the action, optional."
+                }
+            }
+        },
+        "SCTIDBulkReservationRequest" : {
+            "properties" : {
+                "namespace": {
+                    "type": "integer",
+                    "description": "The namespace, always mandatory"
+                },
+                "partitionId": {
+                    "type": "string",
+                    "description": "The partitionId, always mandatory. '10' for concepts, '11' for descriptions, '12' for relationships"
+                },
                 "expirationDate": {
                     "type": "string",
                     "description": "The expiration date, only necessary on reserve actions"
+                },
+                "quantity": {
+                    "type": "integer",
+                    "description": "Number of ids to reserve"
+                },
+                "software": {
+                    "type": "string",
+                    "description": "The name of the software sending the request, mandatory"
+                },
+                "comment": {
+                    "type": "string",
+                    "description": "A comment about the action, optional."
+                }
+            }
+        },
+        "SCTIDUpdateRequest" : {
+            "properties" : {
+                "sctid": {
+                    "type": "string",
+                    "description": "The SCTID"
+                },
+                "namespace": {
+                    "type": "integer",
+                    "description": "The namespace, always mandatory"
+                },
+                "software": {
+                    "type": "string",
+                    "description": "The name of the software sending the request, mandatory"
+                },
+                "comment": {
+                    "type": "string",
+                    "description": "A comment about the action, optional."
+                }
+            }
+        },
+        "SCTIDBulkUpdateRequest" : {
+            "properties" : {
+                "sctids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "The SCTIDs"
+                },
+                "namespace": {
+                    "type": "integer",
+                    "description": "The namespace, always mandatory"
+                },
+                "software": {
+                    "type": "string",
+                    "description": "The name of the software sending the request, mandatory"
                 },
                 "comment": {
                     "type": "string",
