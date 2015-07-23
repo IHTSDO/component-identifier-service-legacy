@@ -2,8 +2,6 @@ var assert = require("assert");
 var should = require('should');
 var security = require("../blogic/Security");
 
-
-
 describe('Users', function() {
     describe('#findUser()', function () {
         it('should return the user object', function (done) {
