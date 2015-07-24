@@ -1,0 +1,42 @@
+<div class="row">
+    <div class="col-md-4">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>Users</strong>
+            </div>
+            <div class="panel-body">
+                <ul class="list-group">
+                    <li class="list-group-item"><a id="users-select-list" href="javascript:void(0);">USERS</a></li>
+                    <li class="list-group-item"><a id="admins-select-list" href="javascript:void(0);">ADMINISTRATORS</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>Details</strong>
+            </div>
+            <div class="panel-body" id="selected-list-details"></div>
+        </div>
+    </div>
+</div>
+
+<!-- New Query Modal -->
+<div class="modal fade" id="select-user-modal" tabindex="-1" role="dialog" aria-labelledby="QueryLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="select-user-modal-title">Selecting user</h4>
+            </div>
+            <div class="modal-body" id="select-user-modal-body" style="max-height: 450px; overflow: auto;">
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+                <button id="select-user-modal-select-button" type="button" class="btn btn-success">Select</button>
+            </div>
+        </div>
+    </div>
+</div>

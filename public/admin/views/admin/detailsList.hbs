@@ -1,0 +1,12 @@
+<ul class="list-group">
+    <li class="list-group-item text-center">
+        <h4 style="display: inline-block; margin: 0px;">{{type}}</h4>
+        <span tabindex="-1" id="addGroup-{{type}}" class="btn btn-link glyphicon glyphicon-plus pull-right" style="text-decoration: inherit; padding: 0px;"></span>
+    </li>
+    {{#each users}}
+        <li data-username="{{this}}" class="list-group-item">
+            {{this}}
+            <span tabindex="-1" class="btn btn-link glyphicon glyphicon-remove pull-right remove-group" style="text-decoration: inherit; padding: 0px;"></span>
+        </li>
+    {{/each}}
+</ul>

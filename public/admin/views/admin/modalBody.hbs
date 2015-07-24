@@ -1,0 +1,25 @@
+<br>
+<div class="row">
+    <div class="btn-group col-sm-9" style="padding-right: 0px;">
+        <div>
+            <input type="search" id="users-querySearchBox" autocomplete="off" placeholder="Search query..." class="form-control">
+            <span id="users-query-clearButton" style="position: absolute;right: 5px;top: 0;bottom: 0;height: 14px;margin: auto;font-size: 14px;cursor: pointer;color: #ccc;" class="glyphicon glyphicon-remove-circle"></span>
+        </div>
+    </div>
+    <div class="col-sm-3 text-center">
+        <span style="display: inherit; margin-bottom: 10px;">User selected:</span>
+        <br>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-9">
+        <ul class="list-group">
+            {{#each users}}
+                <li class="list-group-item selectUserRow" data-value="{{this}}" data-id="{{toLower this}}"><a href="javascript:void(0);" class="selectUser">{{this}}</a></li>
+            {{/each}}
+        </ul>
+    </div>
+    <div class="col-sm-3 text-center">
+        <span style="font-size: 150%;display: inline-block;" class="label label-danger" id="selectedUser-span">(none)</span>
+    </div>
+</div>

@@ -73,6 +73,9 @@
             });
         };
         function setupDashboard(credentials){
+            Handlebars.registerHelper("toLower", function(text){
+                return(text.toLowerCase());
+            });
             loadUsers();
             $("#username-label").html(credentials.username);
 //            var iconData = new Identicon(CryptoJS.MD5(credentials.username).toString(), 20).toString();
@@ -238,6 +241,7 @@
                                     };
                                     template = Handlebars.compile(src);
                                     $("#item-" + typeSelected + "-details").html(template(context));
+                                    $("#item-" + typeSelected + "-details").find("input").first().focus();
                                     if (!itemLoaded.new)
                                         loadPermissions(itemLoaded[primaryKey], edit);
                                     if (!options.adminUser)
@@ -539,14 +543,147 @@
 
             });
 
-            $("#admin-clients").unbind();
-            $("#admin-clients").click(function(){
+            $("#admin-users").unbind();
+            $("#admin-users").click(function(){
+                $("#page-wrapper").html('<br><br><br><br><div class="text-center"><i class="fa fa-spinner fa-spin fa-4x"></i></div>');
+                $.get("../views/admin/main.hbs").then(function(src){
+                    var template = Handlebars.compile(src);
+                    $("#page-wrapper").html(template());
+                    function loadUsersList(usersList, type, completeGroupName){
+                        $.get("../views/admin/detailsList.hbs").then(function(src){
+                            var template = Handlebars.compile(src);
+                            var context = {
+                                users: usersList,
+                                type: type
+                            };
+                            $("#selected-list-details").html(template(context));
 
-            });
+                            $("#selected-list-details").find(".remove-group").unbind();
+                            $("#selected-list-details").find(".remove-group").disableTextSelect();
+                            $("#selected-list-details").find(".remove-group").click(function(e){
+                                $("#selected-list-details").find(".btn").addClass("disabled");
+                                var userSelected = $(e.target).closest("li").attr("data-username");
+                                $.ajax({
+                                    type: "DELETE",
+                                    url: "/api/users/" + userSelected + "/groups/" + completeGroupName + "?token=" + options.token
+                                }).done(function(res){
+                                    $("#selected-list-details").find(".btn").removeClass("disabled");
+                                    $(e.target).closest("li").remove();
+                                    $.notify("Removed", "success");
+                                }).fail(function(err){
+                                    $.notify("Failed", "error");
+                                    $("#selected-list-details").find(".btn").addClass("disabled");
+                                    console.log(err.message);
+                                });
+                            });
 
-            $("#admin-administrators").unbind();
-            $("#admin-administrators").click(function(){
+                            $("#addGroup-" + type).unbind();
+                            $("#addGroup-" + type).disableTextSelect();
+                            $("#addGroup-" + type).click(function(){
+                                $("#select-user-modal").modal("show");
+                                $("#select-user-modal-body").html('<div class="text-center"><i class="fa fa-spinner fa-spin fa-2x"></i></div>');
+                                function loadSelectUsersModal(){
+                                    $.get("../views/admin/modalBody.hbs").then(function(src){
+                                        var template = Handlebars.compile(src);
+                                        var context = {
+                                            users: options.allUsers
+                                        };
+                                        $("#select-user-modal-body").html(template(context));
 
+                                        $("#select-user-modal-select-button").addClass("disabled");
+                                        $("#select-user-modal-select-button").unbind();
+                                        $("#select-user-modal-select-button").disableTextSelect();
+                                        $("#select-user-modal-select-button").click(function(){
+                                            var userSelected = $("#selectedUser-span").html();
+                                            $("#select-user-modal").find(".btn").addClass("disabled");
+                                            $.ajax({
+                                                type: "POST",
+                                                url: "/api/users/" + userSelected + "/groups/" + completeGroupName + "?token=" + options.token
+                                            }).done(function(res){
+                                                $("#select-user-modal").find(".btn").removeClass("disabled");
+                                                $("#select-user-modal").modal("hide");
+                                                $.notify("Added", "success");
+                                                if (type == "Users")
+                                                    $("#users-select-list").click();
+                                                else
+                                                    $("#admins-select-list").click();
+                                            }).fail(function(err){
+                                                $("#select-user-modal").find(".btn").removeClass("disabled");
+                                                $.notify("Failed", "error");
+                                                console.log(err.message);
+                                            });
+                                        });
+
+                                        $("#select-user-modal-body").find(".selectUser").unbind();
+                                        $("#select-user-modal-body").find(".selectUser").disableTextSelect();
+                                        $("#select-user-modal-body").find(".selectUser").click(function(e){
+                                            $("#selectedUser-span").html($(e.target).closest("li").attr("data-value"));
+                                            $("#selectedUser-span").addClass("label-success");
+                                            $("#selectedUser-span").removeClass("label-danger");
+                                            $("#select-user-modal-select-button").removeClass("disabled");
+                                        });
+                                        function searchUser(){
+                                            var query = $.trim($("#users-querySearchBox").val().toLowerCase());
+                                            if (query == "") {
+                                                $("#select-user-modal-body").find(".selectUserRow").show();
+                                            }else{
+                                                $("#select-user-modal-body").find(".selectUserRow").hide();
+                                                $("#select-user-modal-body").find(".selectUserRow[data-id*=" + query + "]").show();
+                                                $("#select-user-modal-body").find(".selectUserRow[data-id=" + query + "]").show();
+                                            }
+                                        }
+                                        //
+                                        $("#users-query-clearButton").unbind();
+                                        $("#users-query-clearButton").disableTextSelect();
+                                        $("#users-query-clearButton").click(function(){
+                                            $("#users-querySearchBox").val("");
+                                            searchUser();
+                                        });
+                                        $('#users-querySearchBox').keyup(function () {
+                                            searchUser();
+                                        });
+                                    });
+                                }
+                                if (!options.allUsers){
+                                    $.get("/api/users?token=" + options.token).done(function(res){
+                                        options.allUsers = res;
+                                        loadSelectUsersModal();
+                                    }).fail(function(err){
+                                        $("#select-user-modal-body").html("");
+                                        $.notify("Failed", "error");
+                                        console.log(err.message);
+                                    });
+                                }else{
+                                    loadSelectUsersModal();
+                                }
+                            });
+                        });
+                    }
+                    $("#users-select-list").unbind();
+                    $("#users-select-list").disableTextSelect();
+                    $("#users-select-list").click(function(){
+                        $("#selected-list-details").html('<div class="text-center"><i class="fa fa-spinner fa-spin fa-2x"></i></div>');
+                        $.get("/api/groups/component-identifier-service-user/users?token=" + options.token).done(function(res){
+                            loadUsersList(res, "Users", "component-identifier-service-user");
+                        }).fail(function(err){
+                            $.notify("Failed", "error");
+                            console.log(err.message);
+                        });
+                    });
+
+                    $("#admins-select-list").unbind();
+                    $("#admins-select-list").disableTextSelect();
+                    $("#admins-select-list").click(function(){
+                        $("#selected-list-details").html('<div class="text-center"><i class="fa fa-spinner fa-spin fa-2x"></i></div>');
+                        $.get("/api/groups/component-identifier-service-admin/users?token=" + options.token).done(function(res){
+                            loadUsersList(res, "Administrators", "component-identifier-service-admin");
+                        }).fail(function(err){
+                            $.notify("Failed", "error");
+                            console.log(err.message);
+                        });
+                    });
+                    $("#users-select-list").click();
+                });
             });
         }
 
@@ -852,15 +989,7 @@
                             <a href="https://jira.ihtsdotools.org/projects/ICIS"><i class="fa fa-edit fa-fw"></i> Jira Site</a>
                         </li>
                         <li>
-                            <a href="#"><i class="fa fa-bar-chart-o fa-fw"></i> Admin<span class="fa arrow"></span></a>
-                            <ul class="nav nav-second-level">
-                                <li>
-                                    <a id="admin-clients" href="javascript:void(0);">Users</a>
-                                </li>
-                                <li>
-                                    <a id="admin-administrators" href="javascript:void(0);">Administrators</a>
-                                </li>
-                            </ul>
+                            <a href="javascript:void(0);" id="admin-users">Admin - Users</a>
                             <!-- /.nav-second-level -->
                         </li>
                     </ul>
