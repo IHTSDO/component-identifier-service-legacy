@@ -6,28 +6,6 @@ var sctIdHelper=require("../utils/SctIdHelper");
 var db={};
 var model;
 var sets=require('simplesets');
-//dbInit.getDB(function(db,model) {
-//
-//    model.sctIdTable.create({
-//        sctid: "44691001",
-//        sequence: 44691,
-//        namespace: 0,
-//        partitionId: "00",
-//        checkDigit: 1,
-//        status: "assigned"
-//    }, function (err) {
-//        if (err) throw err;
-//
-//        model.sctIdTable.find({sctid: "44691001"}, function (err, sctids) {
-//            if (err) throw err;
-//
-//            console.log("sctids found: %d", sctids.length);
-//            console.log("First sctid: %s, %d", sctids[0].sctid, sctids[0].sequence);
-//
-//        });
-//
-//    });
-//});
 
 function getModel(callback){
     if (model){
@@ -48,13 +26,18 @@ function getModel(callback){
     }
 }
 
+var throwErrMessage=function(msg){
+    var err={};
+    err.message=msg;
+    return err;
+};
+
 var getSctids=function (sctidArray, callback){
 
-    sctidArray.forEach(sctid,function(){
+    sctidArray.forEach(function(sctid){
 
         if (!sctIdHelper.validSCTId(sctid)) {
-            callback("Not valid SCTID: " + sctid, null);
-            return;
+            callback(throwErrMessage("Not valid SCTID: " + sctid), null);
         }
     });
     var objQuery={sctid: sctidArray};
@@ -66,13 +49,20 @@ var getSctids=function (sctidArray, callback){
                 if (err) {
                     callback(err, null);
                 }
-                sctidArray.forEach(sctid,function(){
-                    sctIdRecords
+                var resArray=[];
+                sctIdRecords.forEach(function(sctIdRecord){
+                    resArray.push(sctIdRecord.sctid);
+                });
+                var rA=sets.StringSet(resArray);
+                var rQ=sets.StringSet(sctidArray);
+                var diff=rQ.difference(rA).array();
+
+                if (diff){
+                    diff.forEach(function(rec){
+                        sctIdRecords.push(getFreeRecord(rec));
+                    });
                 }
-                if (!sctIdRecord.length>0) {
-                    sctIdRecord = getFreeRecords(sctidArray);
-                }
-                callback(null, sctIdRecord);
+                callback(null, sctIdRecords);
             });
         }
     });
@@ -92,11 +82,11 @@ var getSctidBySystemId=function (namespaceId,systemId, callback){
         if (err) {
             callback(err, null);
         }else {
-            getSCTIDRecord(objQuery, function (err, sctIdRecord) {
+            getSCTIDRecords(objQuery, function (err, sctIdRecords) {
                 if (err) {
                     callback(err, null);
                 }
-                callback(null, sctIdRecord);
+                callback(null, sctIdRecords);
             });
         }
     });

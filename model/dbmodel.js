@@ -10,7 +10,7 @@ var mUse={
     expire: function() { var d = new Date(); return d.setMinutes(d.getMinutes() + 60); },
     persist: true
 };
-var sctIdRecord={name: "sctid_record",
+var sctIdRecord={name: "sctId",
     fields: {
         sctid: { type: 'text', size:18},
         sequence: Number,
@@ -62,7 +62,7 @@ var permissionsSchemeRecord={name: "permissionsScheme",
 };
 
 var model={
-    sctIdTable:sctIdRecord,
+    sctId:sctIdRecord,
     namespace:namespaceRecord,
     partitions:partitionRecord,
     permissionsNamespace:permissionsNamespaceRecord,

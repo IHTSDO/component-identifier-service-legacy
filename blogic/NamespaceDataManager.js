@@ -80,19 +80,36 @@ module.exports.createNamespace = function createNamespace(objNamespace, callback
                     if (partitionsOfObj && partitionsOfObj.length)
                         partitions = partitionsOfObj;
                     else{
-                        partitions = [{
-                            namespace: objNamespace.namespace,
-                            partitionId: "10",
-                            sequence: 0
-                        },{
-                            namespace: objNamespace.namespace,
-                            partitionId: "11",
-                            sequence: 0
-                        },{
-                            namespace: objNamespace.namespace,
-                            partitionId: "12",
-                            sequence: 0
-                        }];
+
+                        if (objNamespace.namespace==0){
+                            partitions = [{
+                                namespace: objNamespace.namespace,
+                                partitionId: "00",
+                                sequence: 0
+                            }, {
+                                namespace: objNamespace.namespace,
+                                partitionId: "01",
+                                sequence: 0
+                            }, {
+                                namespace: objNamespace.namespace,
+                                partitionId: "02",
+                                sequence: 0
+                            }];
+                        }else {
+                            partitions = [{
+                                namespace: objNamespace.namespace,
+                                partitionId: "10",
+                                sequence: 0
+                            }, {
+                                namespace: objNamespace.namespace,
+                                partitionId: "11",
+                                sequence: 0
+                            }, {
+                                namespace: objNamespace.namespace,
+                                partitionId: "12",
+                                sequence: 0
+                            }];
+                        }
                     }
                     model.partitions.create(partitions, function (err) {
                         if (err)

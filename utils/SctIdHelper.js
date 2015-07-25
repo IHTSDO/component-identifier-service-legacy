@@ -19,7 +19,7 @@ var Dihedral = [[ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 ], [ 1, 2, 3, 4, 0, 6, 7, 8, 9, 5
 
 var InverseD5 = [ 0, 4, 3, 2, 1, 5, 6, 7, 8, 9 ];
 
-module.exports.verhoeffCompute=function (idAsString) {
+var verhoeffCompute=function (idAsString) {
     var check = 0;
     for (var i = idAsString.length - 1; i >= 0; i--) {
         check = Dihedral[check][FnF[((idAsString.length - i) % 8)][ idAsString.charAt(i) ]];
@@ -28,7 +28,7 @@ module.exports.verhoeffCompute=function (idAsString) {
     return InverseD5[check];
 };
 
-module.exports.validSCTId=function (sctid){
+var validSCTId=function (sctid){
     var tmp=sctid.toString();
     try{
 
@@ -37,12 +37,81 @@ module.exports.validSCTId=function (sctid){
         var cd=tmp.substr(tmp.length-1,1);
         var num=tmp.substr(0,tmp.length-1);
         var ret=verhoeffCompute(num);
-
         return parseInt(cd)==ret;
 
-    }catch (e){}
+    }catch (e){
+        console.log("parser error:" + e);
+    }
 
     return false;
 };
 
+var getSequence=function(sctid){
+    if (sctid){
+        if (!validSCTId(sctid)){
+            return null;
+        }
+        var tmp=sctid.toString();
+        var partition=getPartition(tmp);
+        if (partition.substr(0,1)=="1" ){
+            if ( tmp.length<11){
+                return null;
+            }else{
+                return parseFloat(tmp.substr(0,tmp.length-10));
+            }
+        }
+        var ret=parseFloat(tmp.substr(0,tmp.length-3));
+        return  ret;
+    }
+    return null;
+};
+var getPartition=function(sctid){
+    if (sctid){
+        var tmp=sctid.toString();
+        if ( tmp.length>3){
+            return tmp.substr(tmp.length-3,2);
+        }
+        return null
+    }
+    return null;
+};
+
+var getCheckDigit=function(sctid){
+    if (sctid){
+        if (!validSCTId(sctid)){
+            return null;
+        }
+        var tmp=sctid.toString();
+        tmp.substr(tmp.length-1,1);
+
+        return  parseInt(tmp.substr(tmp.length-1,1));
+    }
+    return null;
+};
+
+var getNamespace=function(sctid){
+    if (sctid){
+        if (!validSCTId(sctid)){
+            return null;
+        }
+        var tmp=sctid.toString();
+        var partition=getPartition(tmp);
+        if (partition.substr(0,1)=="1" ){
+            if ( tmp.length<11){
+                return null;
+            }else{
+                return parseInt(tmp.substr(tmp.length-10,7));
+            }
+        }
+
+        return  0;
+    }
+    return null;
+};
+module.exports.verhoeffCompute=verhoeffCompute;
+module.exports.getPartition=getPartition;
+module.exports.getNamespace=getNamespace;
+module.exports.getCheckDigit=getCheckDigit;
+module.exports.validSCTId=validSCTId;
+module.exports.getSequence=getSequence;
 init();
