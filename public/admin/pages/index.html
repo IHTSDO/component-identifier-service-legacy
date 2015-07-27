@@ -36,27 +36,34 @@
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
     <script type="text/javascript">
-        function loadUsers(){
-            var users = [];
-            var adminCall = $.get("/api/groups/component-identifier-service-admin/users?token=" + options.token).done(function(res){
-                $.merge(users, res);
-            }).fail(function(err){
-                adminCall = null;
-                console.log(err.message);
-            });
+    var adminCall = null, consumerCall = null;
+    function loadUsers(){
+        var users = [];
+        if (adminCall != null)
+            adminCall.abort();
+        adminCall = $.get("/api/groups/component-identifier-service-admin/users?token=" + options.token).done(function(res){
+            $.merge(users, res);
+            adminCall = null;
+        }).fail(function(err){
+            adminCall = null;
+            console.log(err.message);
+        });
 
-            var consumerCall = $.get("/api/groups/component-identifier-service-user/users?token=" + options.token).done(function(res){
-                $.merge(users, res);
-            }).fail(function(err){
-                consumerCall = null;
-                console.log(err.message);
-            });
+        if (consumerCall != null)
+            consumerCall.abort();
+        consumerCall = $.get("/api/groups/component-identifier-service-user/users?token=" + options.token).done(function(res){
+            $.merge(users, res);
+            consumerCall = null;
+        }).fail(function(err){
+            consumerCall = null;
+            console.log(err.message);
+        });
 
-            $.when(adminCall, consumerCall).done(function(){
-                options.users = users;
-                console.log("users:", users);
-            });
-        }
+        $.when(adminCall, consumerCall).done(function(){
+            options.users = users;
+            console.log("users:", users);
+        });
+    }
         function start() {
             $(function() {
                 $.extend($.fn.disableTextSelect = function() {
@@ -285,6 +292,7 @@
                                             namespaceEdit["namespace"] = parseInt($.trim($("#edit-namespace-value").val()));
                                             if (isNaN(namespaceEdit.namespace)){
                                                 $.notify("Invalid namespace", 'error');
+                                                $("#item-" + typeSelected + "-details").find(".btn").removeClass("disabled");
                                                 return 0;
                                             }
                                             namespaceEdit.partitions = [];
@@ -364,6 +372,7 @@
                                                 if (itemLoaded.new){
                                                     $(e.target).closest("td").attr("data-value", sequence);
                                                     var newHtml = sequence + '<button class="btn btn-link glyphicon glyphicon-pencil pull-right editSequence" style="padding: 0px; text-decoration: inherit;" type="button"></button>';
+                                                    $("#item-" + typeSelected + "-details").find(".btn").removeClass("disabled");
                                                     $(e.target).closest("td").html(newHtml);
                                                     bindSequencesClick();
                                                 }else{
@@ -406,6 +415,7 @@
                                             if (itemLoaded.new){
                                                 $(e.target).closest("td").attr("data-value", sequence);
                                                 var newHtml = sequence + '<button class="btn btn-link glyphicon glyphicon-pencil pull-right editSequence" style="padding: 0px; text-decoration: inherit;" type="button"></button>';
+                                                $("#item-" + typeSelected + "-details").find(".btn").removeClass("disabled");
                                                 $(e.target).closest("td").html(newHtml);
                                                 bindSequencesClick();
                                             }else{
@@ -463,6 +473,8 @@
                             $("#create-new-" + typeSelected).unbind();
                             $("#create-new-" + typeSelected).disableTextSelect();
                             $("#create-new-" + typeSelected).click(function(){
+                                $("#item-" + typeSelected + "-list").find("li").removeClass("active");
+                                $("#create-new-" + typeSelected).closest("li").addClass("active");
                                 var obj = {
                                     namespace: "",
                                     email: "",
@@ -572,6 +584,7 @@
                                     $("#selected-list-details").find(".btn").removeClass("disabled");
                                     $(e.target).closest("li").remove();
                                     $.notify("Removed", "success");
+                                    loadUsers();
                                 }).fail(function(err){
                                     $.notify("Failed", "error");
                                     $("#selected-list-details").find(".btn").addClass("disabled");
@@ -609,6 +622,7 @@
                                                     $("#users-select-list").click();
                                                 else
                                                     $("#admins-select-list").click();
+                                                loadUsers();
                                             }).fail(function(err){
                                                 $("#select-user-modal").find(".btn").removeClass("disabled");
                                                 $.notify("Failed", "error");
