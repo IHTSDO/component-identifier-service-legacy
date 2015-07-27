@@ -664,6 +664,8 @@
                     $("#users-select-list").unbind();
                     $("#users-select-list").disableTextSelect();
                     $("#users-select-list").click(function(){
+                        $("#admins-select-list").closest("li").removeClass("active");
+                        $("#users-select-list").closest("li").addClass("active");
                         $("#selected-list-details").html('<div class="text-center"><i class="fa fa-spinner fa-spin fa-2x"></i></div>');
                         $.get("/api/groups/component-identifier-service-user/users?token=" + options.token).done(function(res){
                             loadUsersList(res, "Users", "component-identifier-service-user");
@@ -676,6 +678,8 @@
                     $("#admins-select-list").unbind();
                     $("#admins-select-list").disableTextSelect();
                     $("#admins-select-list").click(function(){
+                        $("#admins-select-list").closest("li").addClass("active");
+                        $("#users-select-list").closest("li").removeClass("active");
                         $("#selected-list-details").html('<div class="text-center"><i class="fa fa-spinner fa-spin fa-2x"></i></div>');
                         $.get("/api/groups/component-identifier-service-admin/users?token=" + options.token).done(function(res){
                             loadUsersList(res, "Administrators", "component-identifier-service-admin");
