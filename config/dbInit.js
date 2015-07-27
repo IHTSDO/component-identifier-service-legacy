@@ -51,10 +51,10 @@ var dbTablesCreate=function (callback ) {
             dbr.sync(function (err) {
                 if (err) throw err;
 
+                if (callback) {
+                    callback(dbr);
+                }
             });
-            if (callback) {
-                callback(dbr);
-            }
         });
 
     });
@@ -78,9 +78,9 @@ var getDB=function (callback ) {
                         if (err) throw err;
 
 //                   console.log("Initializing model");
-                    gModel = model;
-                    gdb = dbr;
-                    callback(null, dbr, model);
+                        gModel = model;
+                        gdb = dbr;
+                        callback(null, dbr, model);
                     });
                 }
             });
@@ -89,7 +89,9 @@ var getDB=function (callback ) {
     });
 };
 
-//dbTablesCreate();
+//dbTablesCreate(function(){
+//    process.exit(code = 0);
+//});
 
 module.exports.dbDefine=dbDefine;
 module.exports.dbTablesCreate=dbTablesCreate;

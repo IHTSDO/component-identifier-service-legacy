@@ -10,7 +10,7 @@ var mUse={
     expire: function() { var d = new Date(); return d.setMinutes(d.getMinutes() + 60); },
     persist: true
 };
-var sctIdRecord={name: "sctid_record",
+var sctIdRecord={name: "sctId",
     fields: {
         sctid: { type: 'text', size:18},
         sequence: Number,
@@ -29,6 +29,22 @@ var sctIdRecord={name: "sctid_record",
     }
 };
 
+var schemeIdRecord={name: "schemeId",
+    fields: {
+        scheme: { type: 'text', size:18, key: true},
+        schemeId: { type: 'text', size:18, key: true},
+        sequence: Number,
+        checkDigit: { type: 'integer'},
+        systemId: String,
+        status: String,
+        author: String,
+        software: String,
+        expirationDate: Date,
+        comment: String
+    }, features:{
+        timestamp: true
+    }
+};
 var namespaceRecord={name: "namespace",
     fields: {
         namespace: { type: 'integer', key: true },
@@ -62,7 +78,8 @@ var permissionsSchemeRecord={name: "permissionsScheme",
 };
 
 var model={
-    sctIdTable:sctIdRecord,
+    sctId:sctIdRecord,
+    schemeId:schemeIdRecord,
     namespace:namespaceRecord,
     partitions:partitionRecord,
     permissionsNamespace:permissionsNamespaceRecord,

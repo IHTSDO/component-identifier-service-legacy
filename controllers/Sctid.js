@@ -4,6 +4,7 @@
 'use strict';
 
 var security = require("./../blogic/Security");
+var idDM = require("./../blogic/SCTIdDataManager");
 
 module.exports.getSctid = function getSctid (req, res, next) {
     var token = req.swagger.params.token.value;
@@ -12,22 +13,14 @@ module.exports.getSctid = function getSctid (req, res, next) {
         if (err) {
             return next(err.message);
         }
+
         res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(
-            {
-                "sctid": sctid,
-                "sequence": 557,
-                "namespace": 1000179,
-                "partitionId": "10",
-                "checkDigit": 7,
-                "systemId": "780ffeb2-aafa-4042-a643-228ec38afc80",
-                "status": "Assigned", // Assigned, Free, Reserved, Locked, Deprecated
-                "author": "alopez",
-                "software": "termSpace",
-                "expirationDate": "2015/08/29 18:02:32 UTC",
-                "comment": "Batch request for July release 2015"
+        idDM.getSctid(sctid,function(err,sctIdRecord){
+            if (err) {
+                return next(err.message);
             }
-        ));
+            res.end(JSON.stringify(sctIdRecord));
+        });
     });
 };
 
@@ -40,100 +33,115 @@ module.exports.getSctidBySystemId = function getSctidBySystemId (req, res, next)
             return next(err.message);
         }
         res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(
-            {
-                "sctid": "890213710099282",
-                "sequence": 557,
-                "namespace": namespaceId,
-                "partitionId": "10",
-                "checkDigit": 7,
-                "systemId": systemId,
-                "status": "Assigned", // Assigned, Free, Reserved, Locked, Deprecated
-                "author": "alopez",
-                "software": "termSpace",
-                "expirationDate": "2015/08/29 18:02:32 UTC",
-                "comment": "Batch request for July release 2015"
+
+        idDM.getSctidBySystemId(namespaceId,systemId,function(err,sctIdRecord){
+            if (err) {
+                return next(err.message);
             }
-        ));
+            res.end(JSON.stringify(sctIdRecord));
+        });
+
     });
 };
 
-module.exports.processSctidRequest = function processSctidRequest (req, res, next) {
+module.exports.generateSctid = function generateSctid (req, res, next) {
     var token = req.swagger.params.token.value;
-    var operation = req.swagger.params.operation.value;
+    var generationData = req.swagger.params.generationData.value;
     security.authenticate(token, function(err, data) {
         if (err) {
             return next(err.message);
         }
-        if (operation.action in generator) {
-            generator[operation.action](operation, function(err2, sctidRecord) {
-                if (err2) {
-                    return next(err2.message);
-                }
-                //
-                res.setHeader('Content-Type', 'application/json');
-                res.end(JSON.stringify(sctidRecord));
-            });
-        } else {
-            return next("Unknown action: " + operation.action);
-        }
+        idDM.generateSctid(generationData,function(err,sctIdRecord){
+            if (err) {
+                return next(err.message);
+            }
+            res.end(JSON.stringify(sctIdRecord));
+        });
+
     });
 };
 
-var sctidRecordMock = {
-    "sctid": "0",
-    "sequence": 557,
-    "namespace": 1000179,
-    "partitionId": "10",
-    "checkDigit": 7,
-    "systemId": "780ffeb2-aafa-4042-a643-228ec38afc80",
-    "status": "assigned", // assigned, available, reserved, registered, deprecated, published
-    "author": "alopez",
-    "software": "termSpace",
-    "expirationDate": "2015/08/29 18:02:32 UTC",
-    "comment": "Batch request for July release 2015"
+module.exports.reserveSctid = function reserveSctid (req, res, next) {
+    var token = req.swagger.params.token.value;
+    var reservationData = req.swagger.params.reservationData.value;
+    security.authenticate(token, function(err, data) {
+        if (err) {
+            return next(err.message);
+        }
+        idDM.reserveSctid(reservationData,function(err,sctIdRecord){
+            if (err) {
+                return next(err.message);
+            }
+            res.end(JSON.stringify(sctIdRecord));
+        });
+
+    });
 };
 
-var generator = {};
+module.exports.registerSctid = function registerSctid (req, res, next) {
+    var token = req.swagger.params.token.value;
+    var registrationData = req.swagger.params.registrationData.value;
+    security.authenticate(token, function(err, data) {
+        if (err) {
+            return next(err.message);
+        }
+        idDM.registerSctid(registrationData,function(err,sctIdRecord){
+            if (err) {
+                return next(err.message);
+            }
+            res.end(JSON.stringify(sctIdRecord));
+        });
 
-generator.generate = function(operation, callback) {
-    // TODO: Generates SCTID
-    sctidRecordMock.sctid = operation.sctid;
-    sctidRecordMock.status = "assigned";
-    callback(null, sctidRecordMock);
+    });
 };
 
-generator.register = function(operation, callback) {
-    // TODO: Registers SCTID
-    sctidRecordMock.sctid = operation.sctid;
-    sctidRecordMock.status = "registered";
-    callback(null, sctidRecordMock);
+module.exports.deprecateSctid = function deprecateSctid (req, res, next) {
+    var token = req.swagger.params.token.value;
+    var deprecationData = req.swagger.params.deprecationData.value;
+    security.authenticate(token, function(err, data) {
+        if (err) {
+            return next(err.message);
+        }
+        idDM.deprecateSctid(deprecationData,function(err,sctIdRecord){
+            if (err) {
+                return next(err.message);
+            }
+            res.end(JSON.stringify(sctIdRecord));
+        });
+
+    });
 };
 
-generator.reserve = function(operation, callback) {
-    // TODO: Reserves SCTID
-    sctidRecordMock.sctid = operation.sctid;
-    sctidRecordMock.status = "reserved";
-    callback(null, sctidRecordMock);
+module.exports.releaseSctid = function releaseSctid (req, res, next) {
+    var token = req.swagger.params.token.value;
+    var releaseData = req.swagger.params.releaseData.value;
+    security.authenticate(token, function(err, data) {
+        if (err) {
+            return next(err.message);
+        }
+        idDM.releaseSctid(releaseData,function(err,sctIdRecord){
+            if (err) {
+                return next(err.message);
+            }
+            res.end(JSON.stringify(sctIdRecord));
+        });
+
+    });
 };
 
-generator.deprecate = function(operation, callback) {
-    // TODO: Deprecates SCTID
-    sctidRecordMock.sctid = operation.sctid;
-    sctidRecordMock.status = "deprecated";
-    callback(null, sctidRecordMock);
-};
+module.exports.publishSctid = function publishSctid (req, res, next) {
+    var token = req.swagger.params.token.value;
+    var publicationData = req.swagger.params.publicationData.value;
+    security.authenticate(token, function(err, data) {
+        if (err) {
+            return next(err.message);
+        }
+        idDM.publishSctid(publicationData,function(err,sctIdRecord){
+            if (err) {
+                return next(err.message);
+            }
+            res.end(JSON.stringify(sctIdRecord));
+        });
 
-generator.release = function(operation, callback) {
-    // TODO: Releases SCTID
-    sctidRecordMock.sctid = operation.sctid;
-    sctidRecordMock.status = "available";
-    callback(null, sctidRecordMock);
-};
-
-generator.publish = function(operation, callback) {
-    // TODO: Publishes SCTID
-    sctidRecordMock.sctid = operation.sctid;
-    sctidRecordMock.status = "published";
-    callback(null, sctidRecordMock);
+    });
 };
