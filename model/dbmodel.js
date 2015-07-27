@@ -29,6 +29,22 @@ var sctIdRecord={name: "sctId",
     }
 };
 
+var schemeIdRecord={name: "schemeId",
+    fields: {
+        scheme: { type: 'text', size:18, key: true},
+        schemeId: { type: 'text', size:18, key: true},
+        sequence: Number,
+        checkDigit: { type: 'integer'},
+        systemId: String,
+        status: String,
+        author: String,
+        software: String,
+        expirationDate: Date,
+        comment: String
+    }, features:{
+        timestamp: true
+    }
+};
 var namespaceRecord={name: "namespace",
     fields: {
         namespace: { type: 'integer', key: true },
@@ -63,6 +79,7 @@ var permissionsSchemeRecord={name: "permissionsScheme",
 
 var model={
     sctId:sctIdRecord,
+    schemeId:schemeIdRecord,
     namespace:namespaceRecord,
     partitions:partitionRecord,
     permissionsNamespace:permissionsNamespaceRecord,
