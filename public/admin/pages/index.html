@@ -492,6 +492,8 @@
                             $("#item-" + typeSelected + "-list").find(".item-link").disableTextSelect();
                             $("#item-" + typeSelected + "-list").find(".item-link").click(function(e){
                                 var id = $(e.target).attr("data-id");
+                                $("#item-" + typeSelected + "-list").find("li").removeClass("active");
+                                $(e.target).closest("li").addClass("active");
                                 $("#item-" + typeSelected + "-details").html('<div class="text-center"><i class="fa fa-spinner fa-spin fa-2x"></i></div>');
                                 if (itemsCall != null)
                                     itemsCall.abort();
@@ -980,13 +982,13 @@
                             <!-- /.nav-second-level -->
                         </li>
                         <li>
-                            <a href="http://107.170.101.181:3000/docs"><i class="fa fa-table fa-fw"></i> API Documentation</a>
+                            <a href="/docs" target="_blank"><i class="fa fa-table fa-fw"></i> API Documentation</a>
                         </li>
                         <li>
-                            <a href="https://confluence.ihtsdotools.org/x/DICQ"><i class="fa fa-edit fa-fw"></i> Confluence Site</a>
+                            <a href="https://confluence.ihtsdotools.org/x/DICQ" target="_blank"><i class="fa fa-edit fa-fw"></i> Confluence Site</a>
                         </li>
                         <li>
-                            <a href="https://jira.ihtsdotools.org/projects/ICIS"><i class="fa fa-edit fa-fw"></i> Jira Site</a>
+                            <a href="https://jira.ihtsdotools.org/projects/ICIS" target="_blank"><i class="fa fa-edit fa-fw"></i> Jira Site</a>
                         </li>
                         <li>
                             <a href="javascript:void(0);" id="admin-users">Admin - Users</a>
