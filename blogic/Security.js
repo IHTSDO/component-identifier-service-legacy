@@ -11,7 +11,11 @@ var options = {
         "name": "component-id-service",
         "password": "snomedid"
     }
-}
+};
+
+var authenticationCache = {};
+module.exports.admins = [];
+module.exports.users = [];
 
 var crowd = new AtlassianCrowd(options);
 
@@ -35,13 +39,38 @@ module.exports.createSession = function createSession (username, password, callb
 };
 
 module.exports.authenticate = function authenticate (token, callback) {
-    crowd.session.authenticate(token, function (err, res) {
-        if(err) {
-            callback(err);
+    if (authenticationCache[token]) {
+        var now = Date.now();
+        var ago = (Date.now() - authenticationCahe[token].timestamp);
+        if (ago < (60000*60)) {
+            callback(null, authenticationCahe[token].res);
         } else {
-            callback(null, res);
+            delete authenticationCahe[token];
+            crowd.session.authenticate(token, function (err, res) {
+                if(err) {
+                    callback(err);
+                } else {
+                    authenticationCahe[token] = {
+                        timestamp: now,
+                        res: res
+                    };
+                    callback(null, res);
+                }
+            });
         }
-    });
+    } else {
+        crowd.session.authenticate(token, function (err, res) {
+            if(err) {
+                callback(err);
+            } else {
+                authenticationCahe[token] = {
+                    timestamp: now,
+                    res: res
+                };
+                callback(null, res);
+            }
+        });
+    }
 };
 
 module.exports.destroySession = function destroySession (token, callback) {
@@ -79,6 +108,11 @@ module.exports.getGroupUsers = function getGroupUsers (groupName, callback) {
         if(err) {
             callback(err);
         } else {
+            if (groupName == "component-identifier-service-admin") {
+                module.exports.admins = res;
+            } else if (groupName == "component-identifier-service-user") {
+                module.exports.users = res;
+            }
             callback(null, res);
         }
     });
@@ -89,6 +123,7 @@ module.exports.addMember = function addMember (username, groupName, callback) {
         if(err) {
             callback(err);
         } else {
+            updateGroupCache();
             callback(null, {});
         }
     });
@@ -99,6 +134,7 @@ module.exports.removeMember = function removeMember (username, groupName, callba
         if(err) {
             callback(err);
         } else {
+            updateGroupCache();
             callback(null, {});
         }
     });
@@ -125,3 +161,13 @@ module.exports.searchUsers = function searchUsers (searchString, callback) {
         }
     });
 };
+
+var updateGroupCache = function() {
+    module.exports.getGroupUsers("component-identifier-service-admin", function(err,res) {
+        // cache only
+    });
+    module.exports.getGroupUsers("component-identifier-service-user", function(err,res) {
+        // cache only
+    });
+};
+updateGroupCache();
