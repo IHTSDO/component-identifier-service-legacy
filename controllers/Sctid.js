@@ -97,7 +97,7 @@ module.exports.generateSctid = function generateSctid (req, res, next) {
         if (err) {
             return next(err.message);
         }
-        if (isAbleUser(deprecationData.namespace, data.user.name)){
+        if (isAbleUser(generationData.namespace, data.user.name)){
             if (!generationData.systemId || generationData.systemId.trim()==""){
                 generationData.systemId=guid();
             }

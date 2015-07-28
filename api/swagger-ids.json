@@ -953,7 +953,7 @@
                         "in": "path",
                         "description": "The required namespace that contains the SystemId.",
                         "required": true,
-                        "type": "string"
+                        "type": "integer"
                     },
                     {
                         "name": "systemId",
@@ -2552,7 +2552,10 @@
                     "type": "string",
                     "description": "A comment about the action, optional."
                 }
-            }
+            },
+          "required": [
+            "scheme"
+          ]
         },
         "SchemeIdRegistrationRequest" : {
             "properties" : {
@@ -2576,7 +2579,10 @@
                     "type": "string",
                     "description": "A comment about the action, optional."
                 }
-            }
+            },
+          "required": [
+            "scheme","schemeId"
+          ]
         },
         "SchemeIdReservationRequest" : {
             "properties" : {
@@ -2596,7 +2602,10 @@
                     "type": "string",
                     "description": "A comment about the action, optional."
                 }
-            }
+            },
+          "required": [
+            "scheme"
+          ]
         },
         "SchemeIdUpdateRequest" : {
             "properties" : {
@@ -2643,7 +2652,10 @@
                     "type": "string",
                     "description": "A comment about the action, optional."
                 }
-            }
+            },
+          "required": [
+            "scheme"
+          ]
         },
         "SchemeRegistrationRecord": {
             "properties": {
@@ -2676,7 +2688,10 @@
                     "type": "string",
                     "description": "A comment about the action, optional."
                 }
-            }
+            },
+          "required": [
+            "scheme","records"
+          ]
         },
         "SchemeIdBulkReservationRequest" : {
             "properties" : {
@@ -2700,7 +2715,10 @@
                     "type": "string",
                     "description": "A comment about the action, optional."
                 }
-            }
+            },
+          "required": [
+            "scheme","quantity"
+          ]
         },
         "SchemeIdBulkUpdateRequest" : {
             "properties" : {
@@ -2722,7 +2740,10 @@
                     "type": "string",
                     "description": "A comment about the action, optional."
                 }
-            }
+            },
+          "required": [
+            "scheme","schemeIds"
+          ]
         },
         "SCTIDRecord" : {
             "properties": {
@@ -2787,7 +2808,10 @@
                   "default": "false",
                   "description": "Option to generate CTV3ID and SNOMEDID."
                 }
-            }
+            },
+          "required": [
+            "namespace","partitionId"
+          ]
         },
         "SCTIDBulkGenerationRequest" : {
             "properties" : {
@@ -2822,7 +2846,10 @@
                   "default": "false",
                   "description": "Option to generate CTV3ID and SNOMEDID."
                 }
-            }
+            },
+          "required": [
+            "namespace","partitionId","quantity"
+          ]
         },
         "SCTIDRegistrationRequest" : {
             "properties" : {
@@ -2846,7 +2873,10 @@
                     "type": "string",
                     "description": "A comment about the action, optional."
                 }
-            }
+            },
+            "required": [
+              "sctid","namespace"
+          ]
         },
         "RegistrationRecord": {
             "properties": {
@@ -2879,7 +2909,10 @@
                     "type": "string",
                     "description": "A comment about the action, optional."
                 }
-            }
+            },
+          "required": [
+            "records","namespace"
+          ]
         },
         "SCTIDReservationRequest" : {
             "properties" : {
@@ -2903,7 +2936,10 @@
                     "type": "string",
                     "description": "A comment about the action, optional."
                 }
-            }
+            },
+          "required": [
+            "namespace","partitionId"
+          ]
         },
         "SCTIDBulkReservationRequest" : {
             "properties" : {
@@ -2931,7 +2967,10 @@
                     "type": "string",
                     "description": "A comment about the action, optional."
                 }
-            }
+            },
+          "required": [
+            "namespace","partitionId","quantity"
+          ]
         },
         "SCTIDUpdateRequest" : {
             "properties" : {
@@ -2951,7 +2990,10 @@
                     "type": "string",
                     "description": "A comment about the action, optional."
                 }
-            }
+            },
+          "required": [
+            "sctid","namespace"
+          ]
         },
         "SCTIDBulkUpdateRequest" : {
             "properties" : {
@@ -2974,7 +3016,10 @@
                     "type": "string",
                     "description": "A comment about the action, optional."
                 }
-            }
+            },
+          "required": [
+            "sctids","namespace"
+          ]
         },
         "Credentials" : {
             "properties": {
