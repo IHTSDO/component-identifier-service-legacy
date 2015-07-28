@@ -125,7 +125,7 @@
                             $.get("../views/items/permissions.hbs").then(function(src){
                                 var managerUser = false, context = {
                                     permissions: result,
-                                    edit: edit,
+//                                    edit: edit,
                                     type: typeSelected.substr(0, typeSelected.length - 1),
                                     typeId: typeSelected
                                 };
@@ -136,7 +136,8 @@
                                 var template = Handlebars.compile(src);
                                 $("#" + typeSelected + "-permissions-configure").html(template(context));
                                 if (options.adminUser || managerUser){
-                                    $("#edit-button-" + typeSelected).show();
+                                    if (typeSelected == "namespaces")
+                                        $("#edit-button-" + typeSelected).show();
                                     $("#" + typeSelected + "-permissions-configure").find(".remove-permission").unbind();
                                     $("#" + typeSelected + "-permissions-configure").find(".remove-permission").disableTextSelect();
                                     $("#" + typeSelected + "-permissions-configure").find(".remove-permission").click(function(e){
@@ -251,8 +252,8 @@
                                     $("#item-" + typeSelected + "-details").find("input").first().focus();
                                     if (!itemLoaded.new)
                                         loadPermissions(itemLoaded[primaryKey], edit);
-                                    if (!options.adminUser)
-                                        $("#edit-button-" + typeSelected).hide();
+//                                    if (!options.adminUser)
+                                    $("#edit-button-" + typeSelected).hide();
                                     $("#edit-button-" + typeSelected).unbind();
                                     $("#edit-button-" + typeSelected).disableTextSelect();
                                     $("#edit-button-" + typeSelected).click(function(){
@@ -551,7 +552,7 @@
 
             $("#configure-schemes").unbind();
             $("#configure-schemes").click(function(){
-                loadItems("schemes", "/api/schemes", "name");
+                loadItems("schemes", "/api/schemes", "scheme");
             });
 
             $("#schemes-generate-ids").unbind();
