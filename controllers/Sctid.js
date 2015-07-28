@@ -10,7 +10,6 @@ var schemeIdDM = require("./../blogic/SchemeIdDataManager");
 module.exports.getSctid = function getSctid (req, res, next) {
     var token = req.swagger.params.token.value;
     var sctid = req.swagger.params.sctid.value;
-    console.log("step0-getid");
     security.authenticate(token, function(err, data) {
         if (err) {
             return next(err.message);
@@ -61,6 +60,7 @@ module.exports.generateSctid = function generateSctid (req, res, next) {
 
                 return next(err.message);
             }
+            var sctIdRecordArray = [];
             if (generationData.generateLegacyIds && generationData.generateLegacyIds.toUpperCase()=="TRUE"){
                 schemeIdDM.generateSchemeId("CTV3ID",generationData,function(err,ctv3IdRecord) {
                     if (err) {
@@ -72,7 +72,6 @@ module.exports.generateSctid = function generateSctid (req, res, next) {
 
                             return next(err.message);
                         }
-                        var sctIdRecordArray = [];
                         sctIdRecordArray.push(sctIdRecord);
                         sctIdRecordArray.push(ctv3IdRecord);
                         sctIdRecordArray.push(snomedIdRecord);
@@ -82,8 +81,9 @@ module.exports.generateSctid = function generateSctid (req, res, next) {
                     });
                 });
             }else {
+                sctIdRecordArray.push(sctIdRecord);
                 res.setHeader('Content-Type', 'application/json');
-                res.end(JSON.stringify(sctIdRecord));
+                res.end(JSON.stringify(sctIdRecordArray));
             }
         });
 
