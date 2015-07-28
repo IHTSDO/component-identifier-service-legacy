@@ -41,12 +41,12 @@ module.exports.getSchemeId = function getSchemeId (req, res, next) {
             return next(err.message);
         }
 
-        res.setHeader('Content-Type', 'application/json');
         if (isAbleUser(schemeName, data.user.name)){
             idDM.getSchemeId(schemeName, schemeId,function(err,SchemeIdRecord){
                 if (err) {
                     return next(err.message);
                 }
+                res.setHeader('Content-Type', 'application/json');
                 res.end(JSON.stringify(SchemeIdRecord));
             });
         }else
@@ -62,12 +62,12 @@ module.exports.getSchemeIdBySystemId = function getSchemeIdBySystemId (req, res,
         if (err) {
             return next(err.message);
         }
-        res.setHeader('Content-Type', 'application/json');
         if (isAbleUser(schemeName, data.user.name)){
             idDM.getSchemeIdBySystemId(schemeName,systemId,function(err,SchemeIdRecord){
                 if (err) {
                     return next(err.message);
                 }
+                res.setHeader('Content-Type', 'application/json');
                 res.end(JSON.stringify(SchemeIdRecord));
             });
         }else
@@ -88,6 +88,7 @@ module.exports.generateSchemeId = function generateSchemeId (req, res, next) {
                 if (err) {
                     return next(err.message);
                 }
+                res.setHeader('Content-Type', 'application/json');
                 res.end(JSON.stringify(SchemeIdRecord));
             });
         }else
@@ -108,6 +109,7 @@ module.exports.reserveSchemeId = function reserveSchemeId (req, res, next) {
                 if (err) {
                     return next(err.message);
                 }
+                res.setHeader('Content-Type', 'application/json');
                 res.end(JSON.stringify(SchemeIdRecord));
             });
         }else
@@ -128,6 +130,7 @@ module.exports.registerSchemeId = function registerSchemeId (req, res, next) {
                 if (err) {
                     return next(err.message);
                 }
+                res.setHeader('Content-Type', 'application/json');
                 res.end(JSON.stringify(SchemeIdRecord));
             });
         }else
@@ -148,6 +151,7 @@ module.exports.deprecateSchemeId = function deprecateSchemeId (req, res, next) {
                 if (err) {
                     return next(err.message);
                 }
+                res.setHeader('Content-Type', 'application/json');
                 res.end(JSON.stringify(SchemeIdRecord));
             });
         }else
@@ -168,6 +172,7 @@ module.exports.releaseSchemeId = function releaseSchemeId (req, res, next) {
                 if (err) {
                     return next(err.message);
                 }
+                res.setHeader('Content-Type', 'application/json');
                 res.end(JSON.stringify(SchemeIdRecord));
             });
         }else
@@ -188,6 +193,7 @@ module.exports.publishSchemeId = function publishSchemeId (req, res, next) {
                 if (err) {
                     return next(err.message);
                 }
+                res.setHeader('Content-Type', 'application/json');
                 res.end(JSON.stringify(SchemeIdRecord));
             });
         }else
