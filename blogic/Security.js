@@ -41,16 +41,16 @@ module.exports.createSession = function createSession (username, password, callb
 module.exports.authenticate = function authenticate (token, callback) {
     if (authenticationCache[token]) {
         var now = Date.now();
-        var ago = (Date.now() - authenticationCahe[token].timestamp);
+        var ago = (Date.now() - authenticationCache[token].timestamp);
         if (ago < (60000*60)) {
-            callback(null, authenticationCahe[token].res);
+            callback(null, authenticationCache[token].res);
         } else {
-            delete authenticationCahe[token];
+            delete authenticationCache[token];
             crowd.session.authenticate(token, function (err, res) {
                 if(err) {
                     callback(err);
                 } else {
-                    authenticationCahe[token] = {
+                    authenticationCache[token] = {
                         timestamp: now,
                         res: res
                     };
@@ -63,7 +63,7 @@ module.exports.authenticate = function authenticate (token, callback) {
             if(err) {
                 callback(err);
             } else {
-                authenticationCahe[token] = {
+                authenticationCache[token] = {
                     timestamp: now,
                     res: res
                 };
