@@ -2778,6 +2778,11 @@
                 "comment": {
                     "type": "string",
                     "description": "A comment about the action, optional."
+                },
+                "generateLegacyIds": {
+                  "type": "string",
+                  "default": "false",
+                  "description": "Option to generate CTV3ID and SNOMEDID."
                 }
             }
         },
@@ -2808,6 +2813,11 @@
                 "comment": {
                     "type": "string",
                     "description": "A comment about the action, optional."
+                },
+                "generateLegacyIds": {
+                  "type": "string",
+                  "default": "false",
+                  "description": "Option to generate CTV3ID and SNOMEDID."
                 }
             }
         },

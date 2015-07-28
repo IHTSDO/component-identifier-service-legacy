@@ -123,10 +123,13 @@ var generateSctid=function (operation, callback){
         if (err) {
             callback(err, null);
         }else {
+
             setNewSCTIdRecord(operation, stateMachine.actions.generate, function (err, sctIdRecord) {
+
                 if (err) {
                     callback(err, null);
                 }else {
+
                     callback(null, sctIdRecord);
                 }
             });

@@ -5,20 +5,22 @@
 
 var security = require("./../blogic/Security");
 var idDM = require("./../blogic/SCTIdDataManager");
+var schemeIdDM = require("./../blogic/SchemeIdDataManager");
 
 module.exports.getSctid = function getSctid (req, res, next) {
     var token = req.swagger.params.token.value;
     var sctid = req.swagger.params.sctid.value;
+    console.log("step0-getid");
     security.authenticate(token, function(err, data) {
         if (err) {
             return next(err.message);
         }
 
-        res.setHeader('Content-Type', 'application/json');
         idDM.getSctid(sctid,function(err,sctIdRecord){
             if (err) {
                 return next(err.message);
             }
+            res.setHeader('Content-Type', 'application/json');
             res.end(JSON.stringify(sctIdRecord));
         });
     });
@@ -32,12 +34,12 @@ module.exports.getSctidBySystemId = function getSctidBySystemId (req, res, next)
         if (err) {
             return next(err.message);
         }
-        res.setHeader('Content-Type', 'application/json');
 
         idDM.getSctidBySystemId(namespaceId,systemId,function(err,sctIdRecord){
             if (err) {
                 return next(err.message);
             }
+            res.setHeader('Content-Type', 'application/json');
             res.end(JSON.stringify(sctIdRecord));
         });
 
@@ -51,11 +53,38 @@ module.exports.generateSctid = function generateSctid (req, res, next) {
         if (err) {
             return next(err.message);
         }
+        if (!generationData.systemId || generationData.systemId.trim()==""){
+            generationData.systemId=guid();
+        }
         idDM.generateSctid(generationData,function(err,sctIdRecord){
             if (err) {
+
                 return next(err.message);
             }
-            res.end(JSON.stringify(sctIdRecord));
+            if (generationData.generateLegacyIds && generationData.generateLegacyIds.toUpperCase()=="TRUE"){
+                schemeIdDM.generateSchemeId("CTV3ID",generationData,function(err,ctv3IdRecord) {
+                    if (err) {
+
+                        return next(err.message);
+                    }
+                    schemeIdDM.generateSchemeId("SNOMEDID", generationData, function (err, snomedIdRecord) {
+                        if (err) {
+
+                            return next(err.message);
+                        }
+                        var sctIdRecordArray = [];
+                        sctIdRecordArray.push(sctIdRecord);
+                        sctIdRecordArray.push(ctv3IdRecord);
+                        sctIdRecordArray.push(snomedIdRecord);
+
+                        res.setHeader('Content-Type', 'application/json');
+                        res.end(JSON.stringify(sctIdRecordArray));
+                    });
+                });
+            }else {
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify(sctIdRecord));
+            }
         });
 
     });
@@ -72,6 +101,7 @@ module.exports.reserveSctid = function reserveSctid (req, res, next) {
             if (err) {
                 return next(err.message);
             }
+            res.setHeader('Content-Type', 'application/json');
             res.end(JSON.stringify(sctIdRecord));
         });
 
@@ -89,6 +119,7 @@ module.exports.registerSctid = function registerSctid (req, res, next) {
             if (err) {
                 return next(err.message);
             }
+            res.setHeader('Content-Type', 'application/json');
             res.end(JSON.stringify(sctIdRecord));
         });
 
@@ -106,6 +137,7 @@ module.exports.deprecateSctid = function deprecateSctid (req, res, next) {
             if (err) {
                 return next(err.message);
             }
+            res.setHeader('Content-Type', 'application/json');
             res.end(JSON.stringify(sctIdRecord));
         });
 
@@ -123,6 +155,7 @@ module.exports.releaseSctid = function releaseSctid (req, res, next) {
             if (err) {
                 return next(err.message);
             }
+            res.setHeader('Content-Type', 'application/json');
             res.end(JSON.stringify(sctIdRecord));
         });
 
@@ -140,8 +173,20 @@ module.exports.publishSctid = function publishSctid (req, res, next) {
             if (err) {
                 return next(err.message);
             }
+            res.setHeader('Content-Type', 'application/json');
             res.end(JSON.stringify(sctIdRecord));
         });
 
     });
 };
+var guid = (function() {
+    function s4() {
+        return Math.floor((1 + Math.random()) * 0x10000)
+            .toString(16)
+            .substring(1);
+    }
+    return function() {
+        return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+            s4() + '-' + s4() + s4() + s4();
+    };
+})();
