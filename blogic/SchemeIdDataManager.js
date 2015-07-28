@@ -7,9 +7,9 @@ var db;
 var model;
 var fs = require('fs');
 var path=require('path');
-
+var schemes=[];
 // Bootstrap models
-var generators_path = './SchemeIdGenerator';
+var generators_path = __dirname + '/SchemeIdGenerator';
 fs.readdirSync(generators_path).forEach(function (file) {
     if (~file.indexOf('.js')) {
         var schemeName=path.basename(file, '.js');
@@ -369,6 +369,30 @@ var removeSchemeId=function (query, callback){
         }
     });
 };
+
+
+var initializeScheme=function (scheme,initialValue,callback) {
+    getModel(function(err) {
+        if (err) {
+            callback(err, null);
+
+        } else {
+            model.schemeIdBase.find({scheme:scheme}).remove(function (err) {
+                if (err) {
+                    throw err;
+                } else {
+                    model.schemeIdBase.create({scheme: scheme, idBase: initialValue}, function (err) {
+                        if (err) throw err;
+                        callback();
+
+                    });
+
+                }
+            });
+        }
+    });
+};
+
 module.exports.removeSchemeId=removeSchemeId;
 module.exports.publishSchemeId=publishSchemeId;
 module.exports.releaseSchemeId=releaseSchemeId;
@@ -378,3 +402,4 @@ module.exports.generateSchemeId=generateSchemeId;
 module.exports.reserveSchemeId=reserveSchemeId;
 module.exports.getSchemeIdBySystemId=getSchemeIdBySystemId;
 module.exports.getSchemeId=getSchemeId;
+module.exports.initializeScheme=initializeScheme;
