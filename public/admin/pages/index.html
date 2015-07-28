@@ -36,27 +36,34 @@
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
     <script type="text/javascript">
-        function loadUsers(){
-            var users = [];
-            var adminCall = $.get("/api/groups/component-identifier-service-admin/users?token=" + options.token).done(function(res){
-                $.merge(users, res);
-            }).fail(function(err){
-                adminCall = null;
-                console.log(err.message);
-            });
+    var adminCall = null, consumerCall = null;
+    function loadUsers(){
+        var users = [];
+        if (adminCall != null)
+            adminCall.abort();
+        adminCall = $.get("/api/groups/component-identifier-service-admin/users?token=" + options.token).done(function(res){
+            $.merge(users, res);
+            adminCall = null;
+        }).fail(function(err){
+            adminCall = null;
+            console.log(err.message);
+        });
 
-            var consumerCall = $.get("/api/groups/component-identifier-service-user/users?token=" + options.token).done(function(res){
-                $.merge(users, res);
-            }).fail(function(err){
-                consumerCall = null;
-                console.log(err.message);
-            });
+        if (consumerCall != null)
+            consumerCall.abort();
+        consumerCall = $.get("/api/groups/component-identifier-service-user/users?token=" + options.token).done(function(res){
+            $.merge(users, res);
+            consumerCall = null;
+        }).fail(function(err){
+            consumerCall = null;
+            console.log(err.message);
+        });
 
-            $.when(adminCall, consumerCall).done(function(){
-                options.users = users;
-                console.log("users:", users);
-            });
-        }
+        $.when(adminCall, consumerCall).done(function(){
+            options.users = users;
+            console.log("users:", users);
+        });
+    }
         function start() {
             $(function() {
                 $.extend($.fn.disableTextSelect = function() {
@@ -285,6 +292,7 @@
                                             namespaceEdit["namespace"] = parseInt($.trim($("#edit-namespace-value").val()));
                                             if (isNaN(namespaceEdit.namespace)){
                                                 $.notify("Invalid namespace", 'error');
+                                                $("#item-" + typeSelected + "-details").find(".btn").removeClass("disabled");
                                                 return 0;
                                             }
                                             namespaceEdit.partitions = [];
@@ -364,6 +372,7 @@
                                                 if (itemLoaded.new){
                                                     $(e.target).closest("td").attr("data-value", sequence);
                                                     var newHtml = sequence + '<button class="btn btn-link glyphicon glyphicon-pencil pull-right editSequence" style="padding: 0px; text-decoration: inherit;" type="button"></button>';
+                                                    $("#item-" + typeSelected + "-details").find(".btn").removeClass("disabled");
                                                     $(e.target).closest("td").html(newHtml);
                                                     bindSequencesClick();
                                                 }else{
@@ -406,6 +415,7 @@
                                             if (itemLoaded.new){
                                                 $(e.target).closest("td").attr("data-value", sequence);
                                                 var newHtml = sequence + '<button class="btn btn-link glyphicon glyphicon-pencil pull-right editSequence" style="padding: 0px; text-decoration: inherit;" type="button"></button>';
+                                                $("#item-" + typeSelected + "-details").find(".btn").removeClass("disabled");
                                                 $(e.target).closest("td").html(newHtml);
                                                 bindSequencesClick();
                                             }else{
@@ -463,6 +473,8 @@
                             $("#create-new-" + typeSelected).unbind();
                             $("#create-new-" + typeSelected).disableTextSelect();
                             $("#create-new-" + typeSelected).click(function(){
+                                $("#item-" + typeSelected + "-list").find("li").removeClass("active");
+                                $("#create-new-" + typeSelected).closest("li").addClass("active");
                                 var obj = {
                                     namespace: "",
                                     email: "",
@@ -492,6 +504,8 @@
                             $("#item-" + typeSelected + "-list").find(".item-link").disableTextSelect();
                             $("#item-" + typeSelected + "-list").find(".item-link").click(function(e){
                                 var id = $(e.target).attr("data-id");
+                                $("#item-" + typeSelected + "-list").find("li").removeClass("active");
+                                $(e.target).closest("li").addClass("active");
                                 $("#item-" + typeSelected + "-details").html('<div class="text-center"><i class="fa fa-spinner fa-spin fa-2x"></i></div>');
                                 if (itemsCall != null)
                                     itemsCall.abort();
@@ -570,6 +584,7 @@
                                     $("#selected-list-details").find(".btn").removeClass("disabled");
                                     $(e.target).closest("li").remove();
                                     $.notify("Removed", "success");
+                                    loadUsers();
                                 }).fail(function(err){
                                     $.notify("Failed", "error");
                                     $("#selected-list-details").find(".btn").addClass("disabled");
@@ -607,6 +622,7 @@
                                                     $("#users-select-list").click();
                                                 else
                                                     $("#admins-select-list").click();
+                                                loadUsers();
                                             }).fail(function(err){
                                                 $("#select-user-modal").find(".btn").removeClass("disabled");
                                                 $.notify("Failed", "error");
@@ -662,6 +678,8 @@
                     $("#users-select-list").unbind();
                     $("#users-select-list").disableTextSelect();
                     $("#users-select-list").click(function(){
+                        $("#admins-select-list").closest("li").removeClass("active");
+                        $("#users-select-list").closest("li").addClass("active");
                         $("#selected-list-details").html('<div class="text-center"><i class="fa fa-spinner fa-spin fa-2x"></i></div>');
                         $.get("/api/groups/component-identifier-service-user/users?token=" + options.token).done(function(res){
                             loadUsersList(res, "Users", "component-identifier-service-user");
@@ -674,6 +692,8 @@
                     $("#admins-select-list").unbind();
                     $("#admins-select-list").disableTextSelect();
                     $("#admins-select-list").click(function(){
+                        $("#admins-select-list").closest("li").addClass("active");
+                        $("#users-select-list").closest("li").removeClass("active");
                         $("#selected-list-details").html('<div class="text-center"><i class="fa fa-spinner fa-spin fa-2x"></i></div>');
                         $.get("/api/groups/component-identifier-service-admin/users?token=" + options.token).done(function(res){
                             loadUsersList(res, "Administrators", "component-identifier-service-admin");
@@ -980,13 +1000,13 @@
                             <!-- /.nav-second-level -->
                         </li>
                         <li>
-                            <a href="http://107.170.101.181:3000/docs"><i class="fa fa-table fa-fw"></i> API Documentation</a>
+                            <a href="/docs" target="_blank"><i class="fa fa-table fa-fw"></i> API Documentation</a>
                         </li>
                         <li>
-                            <a href="https://confluence.ihtsdotools.org/x/DICQ"><i class="fa fa-edit fa-fw"></i> Confluence Site</a>
+                            <a href="https://confluence.ihtsdotools.org/x/DICQ" target="_blank"><i class="fa fa-edit fa-fw"></i> Confluence Site</a>
                         </li>
                         <li>
-                            <a href="https://jira.ihtsdotools.org/projects/ICIS"><i class="fa fa-edit fa-fw"></i> Jira Site</a>
+                            <a href="https://jira.ihtsdotools.org/projects/ICIS" target="_blank"><i class="fa fa-edit fa-fw"></i> Jira Site</a>
                         </li>
                         <li>
                             <a href="javascript:void(0);" id="admin-users">Admin - Users</a>
