@@ -81,8 +81,9 @@ function getNewRecord(sctid){
         sequence: sctIdHelper.getSequence(sctid),
         namespace: sctIdHelper.getNamespace(sctid),
         partitionId: sctIdHelper.getPartition(sctid),
-        checkDigit: sctIdHelper.getCheckDigit(sctid)
-    };
+        checkDigit: sctIdHelper.getCheckDigit(sctid),
+        systemId:guid()
+};
     return sctIdRecord;
 }
 
@@ -375,6 +376,18 @@ var removeSctId=function (query, callback){
         }
     });
 };
+
+var guid = (function() {
+    function s4() {
+        return Math.floor((1 + Math.random()) * 0x10000)
+            .toString(16)
+            .substring(1);
+    }
+    return function() {
+        return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+            s4() + '-' + s4() + s4() + s4();
+    };
+})();
 module.exports.removeSctId=removeSctId;
 module.exports.publishSctid=publishSctid;
 module.exports.releaseSctid=releaseSctid;

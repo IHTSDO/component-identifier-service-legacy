@@ -90,7 +90,8 @@ function getNewRecord(scheme, schemeId){
         scheme: scheme.toUpperCase(),
         schemeId: schemeId,
         sequence: schemes[scheme.toUpperCase()].getSequence( schemeId),
-        checkDigit: schemes[scheme.toUpperCase()].getCheckDigit( schemeId)
+        checkDigit: schemes[scheme.toUpperCase()].getCheckDigit( schemeId),
+        systemId:guid()
     };
     return schemeIdRecord;
 }
@@ -393,6 +394,17 @@ var initializeScheme=function (scheme,initialValue,callback) {
     });
 };
 
+var guid = (function() {
+    function s4() {
+        return Math.floor((1 + Math.random()) * 0x10000)
+            .toString(16)
+            .substring(1);
+    }
+    return function() {
+        return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+            s4() + '-' + s4() + s4() + s4();
+    };
+})();
 module.exports.removeSchemeId=removeSchemeId;
 module.exports.publishSchemeId=publishSchemeId;
 module.exports.releaseSchemeId=releaseSchemeId;
