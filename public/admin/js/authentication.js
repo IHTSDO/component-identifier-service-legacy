@@ -114,13 +114,20 @@ function loginWithCredentials(credentials, callback, rememberMe) {
 }
 
 function logout() {
-//    $.post("/api/logout", {token: options.token}).done(function (data) {
-//    }).fail(function () {
+//    $.ajax({
+//        type: "POST",
+//        url: "/api/logout",
+//        contentType: 'application/json',
+//        data: JSON.stringify({token: options.token})
+//    }).done(function(res){
+//        $.notify("Logged out!", "success");
+        options.token = null;
+        options.username = "";
+        options.email = "";
+        createCookie("ts-author","{}",-1);
+        $("#username-label").html("");
+        window.location.reload();
+//    }).fail(function(err){
+//        $.notify("Failed!", "error");
 //    });
-    options.token = null;
-    options.username = "";
-    options.email = "";
-    createCookie("ts-author","{}",-1);
-    $("#username-label").html("");
-    window.location.reload();
 }
