@@ -5,6 +5,32 @@
 
 var security = require("./../blogic/Security");
 var idDM = require("./../blogic/SchemeIdDataManager");
+var scheme = require("./../blogic/SchemeDataManager");
+
+function isAbleUser(schemeName, user){
+    var able = false;
+    security.admins.forEach(function(admin){
+        if (admin == user)
+            able = true;
+    });
+    if (!able){
+        if (schemeName != "false"){
+            scheme.getPermissions(schemeName, function(err, permissions) {
+                if (err)
+                    return next(err.message);
+                else{
+                    permissions.forEach(function(permission){
+                        if (permission.username == user)
+                            able = true;
+                    });
+                    return able;
+                }
+            });
+        }else
+            return able;
+    }else
+        return able;
+}
 
 module.exports.getSchemeId = function getSchemeId (req, res, next) {
     var token = req.swagger.params.token.value;
@@ -16,12 +42,15 @@ module.exports.getSchemeId = function getSchemeId (req, res, next) {
         }
 
         res.setHeader('Content-Type', 'application/json');
-        idDM.getSchemeId(schemeName, schemeId,function(err,SchemeIdRecord){
-            if (err) {
-                return next(err.message);
-            }
-            res.end(JSON.stringify(SchemeIdRecord));
-        });
+        if (isAbleUser(schemeName, data.user.name)){
+            idDM.getSchemeId(schemeName, schemeId,function(err,SchemeIdRecord){
+                if (err) {
+                    return next(err.message);
+                }
+                res.end(JSON.stringify(SchemeIdRecord));
+            });
+        }else
+            return next("No permission for the selected operation");
     });
 };
 
@@ -34,14 +63,15 @@ module.exports.getSchemeIdBySystemId = function getSchemeIdBySystemId (req, res,
             return next(err.message);
         }
         res.setHeader('Content-Type', 'application/json');
-
-        idDM.getSchemeIdBySystemId(schemeName,systemId,function(err,SchemeIdRecord){
-            if (err) {
-                return next(err.message);
-            }
-            res.end(JSON.stringify(SchemeIdRecord));
-        });
-
+        if (isAbleUser(schemeName, data.user.name)){
+            idDM.getSchemeIdBySystemId(schemeName,systemId,function(err,SchemeIdRecord){
+                if (err) {
+                    return next(err.message);
+                }
+                res.end(JSON.stringify(SchemeIdRecord));
+            });
+        }else
+            return next("No permission for the selected operation");
     });
 };
 
@@ -53,13 +83,15 @@ module.exports.generateSchemeId = function generateSchemeId (req, res, next) {
         if (err) {
             return next(err.message);
         }
-        idDM.generateSchemeId(schemeName, generationMetadata,function(err,SchemeIdRecord){
-            if (err) {
-                return next(err.message);
-            }
-            res.end(JSON.stringify(SchemeIdRecord));
-        });
-
+        if (isAbleUser(schemeName, data.user.name)){
+            idDM.generateSchemeId(schemeName, generationMetadata,function(err,SchemeIdRecord){
+                if (err) {
+                    return next(err.message);
+                }
+                res.end(JSON.stringify(SchemeIdRecord));
+            });
+        }else
+            return next("No permission for the selected operation");
     });
 };
 
@@ -71,13 +103,15 @@ module.exports.reserveSchemeId = function reserveSchemeId (req, res, next) {
         if (err) {
             return next(err.message);
         }
-        idDM.reserveSchemeId(schemeName, reservationMetadata,function(err,SchemeIdRecord){
-            if (err) {
-                return next(err.message);
-            }
-            res.end(JSON.stringify(SchemeIdRecord));
-        });
-
+        if (isAbleUser(schemeName, data.user.name)){
+            idDM.reserveSchemeId(schemeName, reservationMetadata,function(err,SchemeIdRecord){
+                if (err) {
+                    return next(err.message);
+                }
+                res.end(JSON.stringify(SchemeIdRecord));
+            });
+        }else
+            return next("No permission for the selected operation");
     });
 };
 
@@ -89,13 +123,15 @@ module.exports.registerSchemeId = function registerSchemeId (req, res, next) {
         if (err) {
             return next(err.message);
         }
-        idDM.registerSchemeId(schemeName, registrationMetadata,function(err,SchemeIdRecord){
-            if (err) {
-                return next(err.message);
-            }
-            res.end(JSON.stringify(SchemeIdRecord));
-        });
-
+        if (isAbleUser(schemeName, data.user.name)){
+            idDM.registerSchemeId(schemeName, registrationMetadata,function(err,SchemeIdRecord){
+                if (err) {
+                    return next(err.message);
+                }
+                res.end(JSON.stringify(SchemeIdRecord));
+            });
+        }else
+            return next("No permission for the selected operation");
     });
 };
 
@@ -107,13 +143,15 @@ module.exports.deprecateSchemeId = function deprecateSchemeId (req, res, next) {
         if (err) {
             return next(err.message);
         }
-        idDM.deprecateSchemeId(schemeName, deprecationMetadata,function(err,SchemeIdRecord){
-            if (err) {
-                return next(err.message);
-            }
-            res.end(JSON.stringify(SchemeIdRecord));
-        });
-
+        if (isAbleUser(schemeName, data.user.name)){
+            idDM.deprecateSchemeId(schemeName, deprecationMetadata,function(err,SchemeIdRecord){
+                if (err) {
+                    return next(err.message);
+                }
+                res.end(JSON.stringify(SchemeIdRecord));
+            });
+        }else
+            return next("No permission for the selected operation");
     });
 };
 
@@ -125,13 +163,15 @@ module.exports.releaseSchemeId = function releaseSchemeId (req, res, next) {
         if (err) {
             return next(err.message);
         }
-        idDM.releaseSchemeId(schemeName, releaseMetadata,function(err,SchemeIdRecord){
-            if (err) {
-                return next(err.message);
-            }
-            res.end(JSON.stringify(SchemeIdRecord));
-        });
-
+        if (isAbleUser(schemeName, data.user.name)){
+            idDM.releaseSchemeId(schemeName, releaseMetadata,function(err,SchemeIdRecord){
+                if (err) {
+                    return next(err.message);
+                }
+                res.end(JSON.stringify(SchemeIdRecord));
+            });
+        }else
+            return next("No permission for the selected operation");
     });
 };
 
@@ -143,12 +183,14 @@ module.exports.publishSchemeId = function publishSchemeId (req, res, next) {
         if (err) {
             return next(err.message);
         }
-        idDM.publishSchemeId(schemeName, publicationMetadata,function(err,SchemeIdRecord){
-            if (err) {
-                return next(err.message);
-            }
-            res.end(JSON.stringify(SchemeIdRecord));
-        });
-
+        if (isAbleUser(schemeName, data.user.name)){
+            idDM.publishSchemeId(schemeName, publicationMetadata,function(err,SchemeIdRecord){
+                if (err) {
+                    return next(err.message);
+                }
+                res.end(JSON.stringify(SchemeIdRecord));
+            });
+        }else
+            return next("No permission for the selected operation");
     });
 };
