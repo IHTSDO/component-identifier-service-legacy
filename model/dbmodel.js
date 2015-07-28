@@ -45,6 +45,16 @@ var schemeIdRecord={name: "schemeId",
         timestamp: true
     }
 };
+
+var schemeIdBaseRecord={name: "schemeIdBase",
+    fields: {
+        scheme: { type: 'text', size:18, key: true},
+        idBase : { type: 'text', size:18}
+    }, features:{
+        timestamp: true
+    }
+};
+
 var namespaceRecord={name: "namespace",
     fields: {
         namespace: { type: 'integer', key: true },
@@ -80,6 +90,7 @@ var permissionsSchemeRecord={name: "permissionsScheme",
 var model={
     sctId:sctIdRecord,
     schemeId:schemeIdRecord,
+    schemeIdBase:schemeIdBaseRecord,
     namespace:namespaceRecord,
     partitions:partitionRecord,
     permissionsNamespace:permissionsNamespaceRecord,
