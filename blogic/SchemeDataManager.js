@@ -1,5 +1,39 @@
 var dbInit=require("../config/dbInit");
 
+module.exports.getSchemes = function getSchemes(callback){
+    dbInit.getDB(function (err, pdb, model) {
+        if (err)
+            throw err;
+        else{
+            model.schemeIdBase.all(function (err, schemeResult) {
+                if (err)
+                    callback(err, null);
+                else
+                    callback(null, schemeResult);
+            });
+        }
+    });
+};
+
+module.exports.getScheme = function getScheme(id, callback){
+    dbInit.getDB(function (err, pdb, model) {
+        if (err)
+            throw err;
+        else{
+            model.schemeIdBase.find({scheme: id},function (err, schemeResult) {
+                if (err)
+                    callback(err, null);
+                else{
+                    if (schemeResult[0])
+                        callback(null, schemeResult);
+                    else
+                        callback(null, []);
+                }
+            });
+        }
+    });
+};
+
 module.exports.getSchemesForUser = function getSchemesForUser(username, callback){
     dbInit.getDB(function (err, pdb, model) {
         if (err)
