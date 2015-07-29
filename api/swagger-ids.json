@@ -2552,10 +2552,7 @@
                     "type": "string",
                     "description": "A comment about the action, optional."
                 }
-            },
-          "required": [
-            "scheme"
-          ]
+            }
         },
         "SchemeIdRegistrationRequest" : {
             "properties" : {
@@ -2581,7 +2578,7 @@
                 }
             },
           "required": [
-            "scheme","schemeId"
+            "schemeId"
           ]
         },
         "SchemeIdReservationRequest" : {
@@ -2602,10 +2599,7 @@
                     "type": "string",
                     "description": "A comment about the action, optional."
                 }
-            },
-          "required": [
-            "scheme"
-          ]
+            }
         },
         "SchemeIdUpdateRequest" : {
             "properties" : {
@@ -2652,10 +2646,7 @@
                     "type": "string",
                     "description": "A comment about the action, optional."
                 }
-            },
-          "required": [
-            "scheme"
-          ]
+            }
         },
         "SchemeRegistrationRecord": {
             "properties": {
@@ -2690,7 +2681,7 @@
                 }
             },
           "required": [
-            "scheme","records"
+            "records"
           ]
         },
         "SchemeIdBulkReservationRequest" : {
@@ -2717,7 +2708,7 @@
                 }
             },
           "required": [
-            "scheme","quantity"
+            "quantity"
           ]
         },
         "SchemeIdBulkUpdateRequest" : {
@@ -2742,7 +2733,7 @@
                 }
             },
           "required": [
-            "scheme","schemeIds"
+            "schemeIds"
           ]
         },
         "SCTIDRecord" : {
