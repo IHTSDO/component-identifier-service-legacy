@@ -32,7 +32,18 @@ var getSequence=function (id){
 var getCheckDigit=function(id){
     return null;
 };
-
+var validSchemeId=function(id){
+    if (id.length!=5 ){
+        return false;
+    }
+    for (var i=0;i<5;i++){
+        if (baseDigits.indexOf( id.substr( i , 1 ) ) <0 && id.substr( i , 1 )!="."){
+            return false;
+        }
+    }
+    return true;
+};
 module.exports.getNextId=getNextId;
 module.exports.getSequence=getSequence;
 module.exports.getCheckDigit=getCheckDigit;
+module.exports.validSchemeId=validSchemeId;
