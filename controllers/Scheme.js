@@ -110,6 +110,29 @@ module.exports.getSchemesForUser = function getSchemesForUser(req, res, next){
     });
 };
 
+module.exports.updateScheme = function updateScheme (req, res, next) {
+    var token = req.swagger.params.token.value;
+    var schemeName = req.swagger.params.schemeName.value;
+    var schemeSeq = req.swagger.params.schemeSeq.value;
+    security.authenticate(token, function(err, data) {
+        if (err)
+            return next(err.message);
+        else{
+            if (isAbleToEdit(schemeName, data.user.name)){
+                scheme.editScheme(schemeName, schemeSeq,function(err) {
+                    if (err)
+                        return next(err.message);
+                    else{
+                        res.setHeader('Content-Type', 'application/json');
+                        res.end(JSON.stringify({message: "Success"}));
+                    }
+                });
+            }else
+                return next("No permission for the selected operation");
+        }
+    });
+};
+
 module.exports.getPermissions = function getPermissions (req, res, next) {
     var token = req.swagger.params.token.value;
     var schemeName = req.swagger.params.schemeName.value;

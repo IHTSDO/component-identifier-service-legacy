@@ -45,9 +45,31 @@ module.exports.getSchemesForUser = function getSchemesForUser(username, callback
                 else{
                     var schemes = [];
                     permissions.forEach(function(permission){
-                        schemes.push({name: permission.scheme});
+                        schemes.push({scheme: permission.scheme});
                     });
                     callback(null, schemes);
+                }
+            });
+        }
+    });
+};
+
+module.exports.editScheme = function editScheme(id, schemeSeq, callback) {
+    dbInit.getDB(function (err, pdb, model) {
+        if (err)
+            throw err;
+        else{
+            model.schemeIdBase.get(id, function(err, scheme) {
+                if (err)
+                    callback(err);
+                else{
+                    scheme.idBase = schemeSeq;
+                    scheme.save(function(err){
+                        if (err)
+                            callback(err);
+                        else
+                            callback(null);
+                    });
                 }
             });
         }

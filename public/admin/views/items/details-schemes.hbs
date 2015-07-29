@@ -1,10 +1,19 @@
 <p>Name: {{item.scheme}}
     {{#if edit}}
-        <button tabindex="-1" id="close-button-schemes" class="pull-right btn btn-warning" style="" type="button">Close edition</button>
+        <button tabindex="-1" id="save-button-schemes" class="pull-right btn btn-success" type="button">Save</button>
+        <button tabindex="-1" id="cancel-button-schemes" class="pull-right btn btn-danger" style="margin-right: 10px;" type="button">Cancel</button>
+        <button tabindex="-1" id="close-button-schemes" class="pull-right btn btn-warning" style="margin-right: 10px;" type="button">Close edition</button>
     {{else}}
         <button tabindex="-1" id="edit-button-schemes" class="pull-right btn btn-default" type="button">Edit</button>
     {{/if}}
 </p>
 <p>Description: Modified at {{item.modified_at}}</p>
+<p>Sequence:
+{{#if edit}}
+    <input tabindex="1" id="edit-scheme-value" value="{{item.idBase}}" placeholder="sequence" type="text">
+{{else}}
+    {{item.idBase}}
+{{/if}}
+</p>
 <br>
 <div id="schemes-permissions-configure"></div>

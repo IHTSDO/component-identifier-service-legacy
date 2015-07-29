@@ -1013,10 +1013,7 @@
                     "200": {
                         "description": "Operation ready.",
                         "schema": {
-                          "type": "array",
-                          "items": {
-                            "$ref": "#/definitions/SCTIDRecord"
-                          }
+                          "$ref": "#/definitions/SCTIDRecord"
                         }
                     }
                 }
@@ -1636,6 +1633,53 @@
                         "description": "Successful request.",
                         "schema": {
                             "$ref": "#/definitions/Scheme"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "x-swagger-router-controller": "Scheme",
+                "operationId": "updateScheme",
+                "tags": ["Schemes"],
+                "description": "Receives a request for updating a Scheme.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "schemeName",
+                        "in": "path",
+                        "description": "The Scheme Name.",
+                        "required": true,
+                        "type": "string",
+                        "enum": [
+                            "SNOMEDID",
+                            "CTV3ID"
+                        ]
+                    },
+                    {
+                        "name": "schemeSeq",
+                        "in": "query",
+                        "description": "The changed operation.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Invalid request.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Operation ready.",
+                        "schema": {
+                            "$ref": "#/definitions/SchemeIdRecord"
                         }
                     }
                 }
@@ -2536,10 +2580,6 @@
         },
         "SchemeIdGenerationRequest" : {
             "properties" : {
-                "scheme": {
-                    "type": "string",
-                    "description": "The Scheme used for operation"
-                },
                 "systemId": {
                     "type": "string",
                     "description": "The systemId, optional, a reference to an existing ID on the user environment, external to this API"
@@ -2555,38 +2595,30 @@
             }
         },
         "SchemeIdRegistrationRequest" : {
-            "properties" : {
-                "scheme": {
-                    "type": "string",
-                    "description": "The Scheme used for operation"
-                },
-                "schemeId": {
-                    "type": "string",
-                    "description": "The Scheme Identifier"
-                },
-                "systemId": {
-                    "type": "string",
-                    "description": "The systemId, optional, a reference to an existing ID on the user environment, external to this API"
-                },
-                "software": {
-                    "type": "string",
-                    "description": "The name of the software sending the request, mandatory"
-                },
-                "comment": {
-                    "type": "string",
-                    "description": "A comment about the action, optional."
-                }
+          "properties": {
+            "schemeId": {
+              "type": "string",
+              "description": "The Scheme Identifier"
             },
+            "systemId": {
+              "type": "string",
+              "description": "The systemId, optional, a reference to an existing ID on the user environment, external to this API"
+            },
+            "software": {
+              "type": "string",
+              "description": "The name of the software sending the request, mandatory"
+            },
+            "comment": {
+              "type": "string",
+              "description": "A comment about the action, optional."
+            }
+          },
           "required": [
             "schemeId"
           ]
         },
         "SchemeIdReservationRequest" : {
             "properties" : {
-                "scheme": {
-                    "type": "string",
-                    "description": "The Scheme used for operation"
-                },
                 "software": {
                     "type": "string",
                     "description": "The name of the software sending the request, mandatory"
@@ -2602,51 +2634,49 @@
             }
         },
         "SchemeIdUpdateRequest" : {
-            "properties" : {
-                "schemeId": {
-                    "type": "string",
-                    "description": "The Scheme Identifier"
-                },
-                "scheme": {
-                    "type": "string",
-                    "description": "The Scheme used for operation"
-                },
-                "software": {
-                    "type": "string",
-                    "description": "The name of the software sending the request, mandatory"
-                },
-                "comment": {
-                    "type": "string",
-                    "description": "A comment about the action, optional."
-                }
+          "properties": {
+            "schemeId": {
+              "type": "string",
+              "description": "The Scheme Identifier"
+            },
+            "software": {
+              "type": "string",
+              "description": "The name of the software sending the request, mandatory"
+            },
+            "comment": {
+              "type": "string",
+              "description": "A comment about the action, optional."
             }
+          },
+          "required": [
+            "schemeId"
+          ]
         },
         "SchemeIdBulkGenerationRequest" : {
-            "properties" : {
-                "scheme": {
-                    "type": "string",
-                    "description": "The Scheme used for operation"
-                },
-                "quantity": {
-                    "type": "integer",
-                    "description": "Number of actions to be performed"
-                },
-                "systemIds": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    },
-                    "description": "The systemIds, optional, a reference to an existing ID on the user environment, external to this API"
-                },
-                "software": {
-                    "type": "string",
-                    "description": "The name of the software sending the request, mandatory"
-                },
-                "comment": {
-                    "type": "string",
-                    "description": "A comment about the action, optional."
-                }
+          "properties": {
+            "quantity": {
+              "type": "integer",
+              "description": "Number of actions to be performed"
+            },
+            "systemIds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "The systemIds, optional, a reference to an existing ID on the user environment, external to this API"
+            },
+            "software": {
+              "type": "string",
+              "description": "The name of the software sending the request, mandatory"
+            },
+            "comment": {
+              "type": "string",
+              "description": "A comment about the action, optional."
             }
+          },
+          "required": [
+            "quantity"
+          ]
         },
         "SchemeRegistrationRecord": {
             "properties": {
@@ -2659,79 +2689,67 @@
             }
         },
         "SchemeIdBulkRegistrationRequest" : {
-            "properties" : {
-                "scheme": {
-                    "type": "string",
-                    "description": "The Scheme used for operation"
-                },
-                "records": {
-                    "description": "The list of ids pairs to register",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/SchemeRegistrationRecord"
-                    }
-                },
-                "software": {
-                    "type": "string",
-                    "description": "The name of the software sending the request, mandatory"
-                },
-                "comment": {
-                    "type": "string",
-                    "description": "A comment about the action, optional."
-                }
+          "properties": {
+            "records": {
+              "description": "The list of ids pairs to register",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/SchemeRegistrationRecord"
+              }
             },
+            "software": {
+              "type": "string",
+              "description": "The name of the software sending the request, mandatory"
+            },
+            "comment": {
+              "type": "string",
+              "description": "A comment about the action, optional."
+            }
+          },
           "required": [
             "records"
           ]
         },
         "SchemeIdBulkReservationRequest" : {
-            "properties" : {
-                "quantity": {
-                    "type": "integer",
-                    "description": "Number of actions to be performed"
-                },
-                "scheme": {
-                    "type": "string",
-                    "description": "The Scheme used for operation"
-                },
-                "software": {
-                    "type": "string",
-                    "description": "The name of the software sending the request, mandatory"
-                },
-                "expirationDate": {
-                    "type": "string",
-                    "description": "The expiration date, only necessary on reserve actions"
-                },
-                "comment": {
-                    "type": "string",
-                    "description": "A comment about the action, optional."
-                }
+          "properties": {
+            "quantity": {
+              "type": "integer",
+              "description": "Number of actions to be performed"
             },
+            "software": {
+              "type": "string",
+              "description": "The name of the software sending the request, mandatory"
+            },
+            "expirationDate": {
+              "type": "string",
+              "description": "The expiration date, only necessary on reserve actions"
+            },
+            "comment": {
+              "type": "string",
+              "description": "A comment about the action, optional."
+            }
+          },
           "required": [
             "quantity"
           ]
         },
         "SchemeIdBulkUpdateRequest" : {
-            "properties" : {
-                "schemeIds": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "scheme": {
-                    "type": "string",
-                    "description": "The Scheme used for operation"
-                },
-                "software": {
-                    "type": "string",
-                    "description": "The name of the software sending the request, mandatory"
-                },
-                "comment": {
-                    "type": "string",
-                    "description": "A comment about the action, optional."
-                }
+          "properties": {
+            "schemeIds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
             },
+            "software": {
+              "type": "string",
+              "description": "The name of the software sending the request, mandatory"
+            },
+            "comment": {
+              "type": "string",
+              "description": "A comment about the action, optional."
+            }
+          },
           "required": [
             "schemeIds"
           ]
@@ -2770,6 +2788,12 @@
                 },
                 "comment": {
                     "type": "string"
+                },
+                "additionalIds": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/SchemeIdRecord"
+                  }
                 }
             }
         },
