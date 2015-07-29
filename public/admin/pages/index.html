@@ -83,6 +83,14 @@
             Handlebars.registerHelper("toLower", function(text){
                 return(text.toLowerCase());
             });
+            Handlebars.registerHelper('if_eq', function (a, b, opts) {
+                if (opts != "undefined") {
+                    if (a == b)
+                        return opts.fn(this);
+                    else
+                        return opts.inverse(this);
+                }
+            });
             loadUsers();
             $("#username-label").html(credentials.username);
 //            var iconData = new Identicon(CryptoJS.MD5(credentials.username).toString(), 20).toString();
@@ -471,7 +479,7 @@
                                         $("#item-" + typeSelected + "-details").find(".editSequence").disableTextSelect();
                                         $("#item-" + typeSelected + "-details").find(".editSequence").click(function(e){
                                             var sequence = $(e.target).closest("td").attr("data-value");
-                                            var newHtml = "<input class='inpSequence' type='text' value='" + sequence + "'>";
+                                            var newHtml = "<input class='inpSequence' type='number' value='" + sequence + "'>";
                                             newHtml+= '<button type="button" class="btn btn-success btn-sm pull-right glyphicon glyphicon-ok saveSequence"></button>';
                                             newHtml+= '<button type="button" class="btn btn-danger btn-sm pull-right glyphicon glyphicon-remove cancelSequence" style="margin-right: 5px;"></button>';
                                             $(e.target).closest("td").html(newHtml);
@@ -546,10 +554,153 @@
                 $("#page-wrapper").html('<br><br><br><br><div class="text-center"><i class="fa fa-spinner fa-spin fa-4x"></i></div>');
                 $.get("../views/generateIds/main.hbs").then(function(src){
                     var template = Handlebars.compile(src);
-                    $("#page-wrapper").html(template({typeH: typeSelected.charAt(0).toUpperCase() + typeSelected.slice(1), type: typeSelected}));
+                    $("#page-wrapper").html(template({type: typeSelected}));
+
+                    function loadPartitions(namespace){
+                        $.get("/api/sct/namespaces/" + namespace + "?token=" + options.token).done(function(res){
+                            console.log(res);
+                            var partitionsHtml = "";
+                            res.partitions.forEach(function(partition){
+                                partitionsHtml+= '<option value="' + partition.partitionId + '">' + partition.partitionId + '</option>';
+                            });
+                            $("#generateIds-form-" + typeSelected).find("select[data-field=partitionId]").first().html(partitionsHtml);
+                        }).fail(function(err){
+                            console.log(err);
+                        });
+                    }
+
+                    if (typeSelected == "schemeId"){
+                        var itemsUrl = "/api/users/" + options.username + "/schemes/?token=" + options.token;
+                        if (options.adminUser)
+                            itemsUrl = "/api/schemes?token=" + options.token;
+                        $.get(itemsUrl).done(function(result){
+                            var schemesHtml = "";
+                            result.forEach(function(item){
+                                schemesHtml+= '<option value="' + item.scheme + '">' + item.scheme + '</option>';
+                            });
+                            $("#generateIds-form-" + typeSelected).find("select[data-field=schemeName]").first().html(schemesHtml);
+                        }).fail(function(err){
+                            console.log(err);
+                        });
+                    }else if (typeSelected == "SCTID"){
+                        var itemsUrl = "/api/users/" + options.username + "/namespaces/?token=" + options.token;
+                        if (options.adminUser)
+                            itemsUrl = "/api/sct/namespaces?token=" + options.token;
+                        $.get(itemsUrl).done(function(result){
+                            var namespacesHtml = "";
+                            result.forEach(function(item){
+                                namespacesHtml+= '<option value="' + item.namespace + '">' + item.namespace + '</option>';
+                            });
+                            loadPartitions(result[0].namespace);
+                            $("#generateIds-form-" + typeSelected).find("select[data-field=namespace]").first().html(namespacesHtml);
+                        }).fail(function(err){
+                            console.log(err);
+                        });
+                    }
+
+                    $("#generateIds-form-" + typeSelected).find("select[data-field=namespace]").first().unbind();
+                    $("#generateIds-form-" + typeSelected).find("select[data-field=namespace]").first().change(function(){
+                        loadPartitions($("#generateIds-form-" + typeSelected).find("select[data-field=namespace]").first().val());
+                    });
+
+                    function changeAction(action){
+                        function showHideFields(fields, show){
+                            fields.forEach(function(field){
+                                if (show)
+                                    $("#generateIds-form-" + typeSelected).find(".form-group[data-field=" + field + "]").show();
+                                else
+                                    $("#generateIds-form-" + typeSelected).find(".form-group[data-field=" + field + "]").hide();
+                            });
+                        }
+
+                        switch (action){
+                            case "generate":
+                                $("#generationId-title-main").html("Generating");
+                                var fieldsToHide = [], fieldsToShow = [];
+                                if (typeSelected == "schemeId"){
+                                    fieldsToHide.push("schemeId")
+                                    fieldsToShow.push("schemeName");
+                                }else if (typeSelected == "SCTID"){
+                                    fieldsToHide.push("sctid");
+                                    $.merge(fieldsToShow, ["generateLegacyIds", "partitionId", "namespace"]);
+                                }
+                                fieldsToShow.push("systemId");
+                                fieldsToHide.push("expirationDate");
+                                showHideFields(fieldsToHide, false);
+                                showHideFields(fieldsToShow, true);
+                                break;
+                            case "register":
+                                $("#generationId-title-main").html("Registering");
+                                var fieldsToHide = [], fieldsToShow = [];
+                                if (typeSelected == "schemeId"){
+                                    fieldsToShow.push("schemeName");
+                                    fieldsToShow.push("schemeId");
+                                }else if (typeSelected == "SCTID"){
+                                    $.merge(fieldsToHide, ["partitionId", "generateLegacyIds"]);
+                                    $.merge(fieldsToShow, ["sctid", "namespace"]);
+                                }
+                                fieldsToHide.push("expirationDate");
+                                fieldsToShow.push("systemId");
+                                showHideFields(fieldsToHide, false);
+                                showHideFields(fieldsToShow, true);
+                                break;
+                            case "reserve":
+                                $("#generationId-title-main").html("Reserving");
+                                var fieldsToHide = [], fieldsToShow = [];
+                                if (typeSelected == "schemeId"){
+                                    fieldsToHide.push("schemeId");
+                                    fieldsToShow.push("schemeName");
+                                }else if (typeSelected == "SCTID"){
+                                    $.merge(fieldsToHide, ["generateLegacyIds", "sctid"]);
+                                    $.merge(fieldsToShow, ["namespace", "partitionId"]);
+                                }
+                                fieldsToHide.push("systemId");
+                                fieldsToShow.push("expirationDate");
+                                showHideFields(fieldsToHide, false);
+                                showHideFields(fieldsToShow, true);
+                                break;
+                        }
+                    }
+
+                    $("#action-toDo-generateId").unbind();
+                    $("#action-toDo-generateId").change(function() {
+                        var action = $("#action-toDo-generateId").val();
+                        changeAction(action);
+                    });
+                    changeAction("generate");
+
                     $("#generateIds-send-button").unbind();
                     $("#generateIds-send-button").disableTextSelect();
                     $("#generateIds-send-button").click(function(){
+                        var objToPost = {};
+                        $.each($("#generateIds-form-" + typeSelected).find(".form-control:visible"), function (i, input){
+                            var field = $(input).attr("data-field");
+                            var value = $.trim($(input).val());
+                            if (typeof $(input).attr("data-field") != "undefined")
+                                objToPost[field] = value;
+                        });
+                        if (objToPost["namespace"])
+                            objToPost["namespace"] = parseInt(objToPost["namespace"]);
+                        delete objToPost["schemeName"];
+                        var urlToPost = getUrl + "/" + $("#action-toDo-generateId").val() + "?token=" + options.token;
+                        urlToPost = urlToPost.replace("{schemeName}", $("#generateIds-form-" + typeSelected).find("select[data-field=schemeName]").first().val());
+                        console.log(objToPost);
+                        console.log(urlToPost);
+//                        $("#generateIds-send-button").addClass("disabled");
+//                        $.ajax({
+//                            type: "POST",
+//                            url: urlToPost,
+//                            contentType: 'application/json',
+//                            data: JSON.stringify(objToPost)
+//                        }).done(function(res){
+//                            console.log(res);
+//                            $.notify("Created!", "success");
+//                            $("#generateIds-send-button").removeClass("disabled");
+//                        }).fail(function(err){
+//                            console.log(err);
+//                            $.notify("Failed!", "error");
+//                            $("#generateIds-send-button").removeClass("disabled");
+//                        });
 
                     });
                 });
@@ -561,7 +712,7 @@
 
             $("#snomed-generate-ids").unbind();
             $("#snomed-generate-ids").click(function(){
-                generateIds("namespaces", "/api/sct/namespaces");
+                generateIds("SCTID", "/api/sct");
                 //"generate","reserve","register","release","publish","deprecate"
                 //select action, fill form then proceed
             });
@@ -578,7 +729,7 @@
 
             $("#schemes-generate-ids").unbind();
             $("#schemes-generate-ids").click(function(){
-
+                generateIds("schemeId", "/api/scheme/{schemeName}");
             });
 
             $("#schemes-search-ids").unbind();
