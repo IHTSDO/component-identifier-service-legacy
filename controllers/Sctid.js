@@ -117,18 +117,19 @@ module.exports.generateSctid = function generateSctid (req, res, next) {
 
                                 return next(err.message);
                             }
-                            sctIdRecordArray.push(sctIdRecord);
+
                             sctIdRecordArray.push(ctv3IdRecord);
                             sctIdRecordArray.push(snomedIdRecord);
 
+                            sctIdRecord.additionalIds=sctIdRecordArray;
                             res.setHeader('Content-Type', 'application/json');
-                            res.end(JSON.stringify(sctIdRecordArray));
+                            res.end(JSON.stringify(sctIdRecord));
                         });
                     });
                 }else {
-                    sctIdRecordArray.push(sctIdRecord);
+                    sctIdRecord.additionalIds=sctIdRecordArray;
                     res.setHeader('Content-Type', 'application/json');
-                    res.end(JSON.stringify(sctIdRecordArray));
+                    res.end(JSON.stringify(sctIdRecord));
                 }
             });
         }else

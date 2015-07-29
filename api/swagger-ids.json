@@ -1013,10 +1013,7 @@
                     "200": {
                         "description": "Operation ready.",
                         "schema": {
-                          "type": "array",
-                          "items": {
-                            "$ref": "#/definitions/SCTIDRecord"
-                          }
+                          "$ref": "#/definitions/SCTIDRecord"
                         }
                     }
                 }
@@ -2791,6 +2788,12 @@
                 },
                 "comment": {
                     "type": "string"
+                },
+                "additionalIds": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/SchemeIdRecord"
+                  }
                 }
             }
         },
