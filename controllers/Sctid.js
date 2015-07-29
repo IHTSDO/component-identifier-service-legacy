@@ -45,7 +45,6 @@ module.exports.getSctid = function getSctid (req, res, next) {
         var namespace = sctIdHelper.getNamespace(sctid);
         if (namespace){
             if (isAbleUser(namespace, data.user.name)){
-                res.setHeader('Content-Type', 'application/json');
                 idDM.getSctid(sctid,function(err,sctIdRecord){
                     if (err) {
                         return next(err.message);
@@ -56,7 +55,6 @@ module.exports.getSctid = function getSctid (req, res, next) {
             }else
                 return next("No permission for the selected operation");
         }else{
-            res.setHeader('Content-Type', 'application/json');
             idDM.getSctid(sctid,function(err,sctIdRecord){
                 if (err) {
                     return next(err.message);
@@ -76,7 +74,6 @@ module.exports.getSctidBySystemId = function getSctidBySystemId (req, res, next)
         if (err) {
             return next(err.message);
         }
-        res.setHeader('Content-Type', 'application/json');
         if (isAbleUser(namespaceId, data.user.name)){
             idDM.getSctidBySystemId(namespaceId,systemId,function(err,sctIdRecord){
                 if (err) {
@@ -101,13 +98,15 @@ module.exports.generateSctid = function generateSctid (req, res, next) {
             if (!generationData.systemId || generationData.systemId.trim()==""){
                 generationData.systemId=guid();
             }
+            generationData.author=data.user.name;
             idDM.generateSctid(generationData,function(err,sctIdRecord){
                 if (err) {
 
                     return next(err.message);
                 }
                 var sctIdRecordArray = [];
-                if (generationData.generateLegacyIds && generationData.generateLegacyIds.toUpperCase()=="TRUE"){
+                if (generationData.generateLegacyIds && generationData.generateLegacyIds.toUpperCase()=="TRUE" &&
+                    generationData.partitionId.substr(1,1)=="0"){
                     schemeIdDM.generateSchemeId("CTV3ID",generationData,function(err,ctv3IdRecord) {
                         if (err) {
 
@@ -145,6 +144,7 @@ module.exports.reserveSctid = function reserveSctid (req, res, next) {
             return next(err.message);
         }
         if (isAbleUser(reservationData.namespace, data.user.name)){
+            reservationData.author=data.user.name;
             idDM.reserveSctid(reservationData,function(err,sctIdRecord){
                 if (err) {
                     return next(err.message);
@@ -164,7 +164,9 @@ module.exports.registerSctid = function registerSctid (req, res, next) {
         if (err) {
             return next(err.message);
         }
-        if (isAbleUser(registrationData.namespace, data.user.name)){
+        var namespace = sctIdHelper.getNamespace(registrationData.sctid);
+        if (isAbleUser(namespace, data.user.name)){
+            registrationData.author=data.user.name;
             idDM.registerSctid(registrationData,function(err,sctIdRecord){
                 if (err) {
                     return next(err.message);
@@ -184,7 +186,9 @@ module.exports.deprecateSctid = function deprecateSctid (req, res, next) {
         if (err) {
             return next(err.message);
         }
-        if (isAbleUser(deprecationData.namespace, data.user.name)){
+        var namespace = sctIdHelper.getNamespace(deprecationData.sctid);
+        if (isAbleUser(namespace, data.user.name)){
+            deprecationData.author=data.user.name;
             idDM.deprecateSctid(deprecationData,function(err,sctIdRecord){
                 if (err) {
                     return next(err.message);
@@ -204,7 +208,9 @@ module.exports.releaseSctid = function releaseSctid (req, res, next) {
         if (err) {
             return next(err.message);
         }
-        if (isAbleUser(releaseData.namespace, data.user.name)){
+        var namespace = sctIdHelper.getNamespace(releaseData.sctid);
+        if (isAbleUser(namespace, data.user.name)){
+            releaseData.author=data.user.name;
             idDM.releaseSctid(releaseData,function(err,sctIdRecord){
                 if (err) {
                     return next(err.message);
@@ -224,11 +230,14 @@ module.exports.publishSctid = function publishSctid (req, res, next) {
         if (err) {
             return next(err.message);
         }
-        if (isAbleUser(publicationData.namespace, data.user.name)){
+        var namespace = sctIdHelper.getNamespace(publicationData.sctid);
+        if (isAbleUser(namespace, data.user.name)){
+            publicationData.author=data.user.name;
             idDM.publishSctid(publicationData,function(err,sctIdRecord){
                 if (err) {
                     return next(err.message);
                 }
+                res.setHeader('Content-Type', 'application/json');
                 res.end(JSON.stringify(sctIdRecord));
             });
         }else

@@ -84,6 +84,7 @@ module.exports.generateSchemeId = function generateSchemeId (req, res, next) {
             return next(err.message);
         }
         if (isAbleUser(schemeName, data.user.name)){
+            generationMetadata.author=data.user.name;
             idDM.generateSchemeId(schemeName, generationMetadata,function(err,SchemeIdRecord){
                 if (err) {
                     return next(err.message);
@@ -105,6 +106,7 @@ module.exports.reserveSchemeId = function reserveSchemeId (req, res, next) {
             return next(err.message);
         }
         if (isAbleUser(schemeName, data.user.name)){
+            reservationMetadata.author=data.user.name;
             idDM.reserveSchemeId(schemeName, reservationMetadata,function(err,SchemeIdRecord){
                 if (err) {
                     return next(err.message);
@@ -126,6 +128,7 @@ module.exports.registerSchemeId = function registerSchemeId (req, res, next) {
             return next(err.message);
         }
         if (isAbleUser(schemeName, data.user.name)){
+            registrationMetadata.author=data.user.name;
             idDM.registerSchemeId(schemeName, registrationMetadata,function(err,SchemeIdRecord){
                 if (err) {
                     return next(err.message);
@@ -147,6 +150,7 @@ module.exports.deprecateSchemeId = function deprecateSchemeId (req, res, next) {
             return next(err.message);
         }
         if (isAbleUser(schemeName, data.user.name)){
+            deprecationMetadata.author=data.user.name;
             idDM.deprecateSchemeId(schemeName, deprecationMetadata,function(err,SchemeIdRecord){
                 if (err) {
                     return next(err.message);
@@ -168,6 +172,7 @@ module.exports.releaseSchemeId = function releaseSchemeId (req, res, next) {
             return next(err.message);
         }
         if (isAbleUser(schemeName, data.user.name)){
+            releaseMetadata.author=data.user.name;
             idDM.releaseSchemeId(schemeName, releaseMetadata,function(err,SchemeIdRecord){
                 if (err) {
                     return next(err.message);
@@ -189,6 +194,7 @@ module.exports.publishSchemeId = function publishSchemeId (req, res, next) {
             return next(err.message);
         }
         if (isAbleUser(schemeName, data.user.name)){
+            publicationMetadata.author=data.user.name;
             idDM.publishSchemeId(schemeName, publicationMetadata,function(err,SchemeIdRecord){
                 if (err) {
                     return next(err.message);
