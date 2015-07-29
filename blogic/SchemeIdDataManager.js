@@ -46,6 +46,13 @@ var getSchemeId=function (scheme,schemeId, callback){
     if (schemeId==null || schemeId==""){
         callback(throwErrMessage("Not valid schemeId."),null);
         return;
+    }else{
+
+        if (!schemes[scheme.toUpperCase()].validSchemeId(schemeId)){
+
+            callback(throwErrMessage("Not valid schemeId."),null);
+            return;
+        }
     }
     var objQuery={scheme: scheme.toUpperCase(),schemeId: schemeId};
     getModel(function(err) {
@@ -55,18 +62,19 @@ var getSchemeId=function (scheme,schemeId, callback){
             getSchemeIdRecord(objQuery, function (err, schemeIdRecord) {
                 if (err) {
                     callback(err, null);
-                }
-                if (!schemeIdRecord) {
-                    getFreeRecord(scheme, schemeId,function(err,record){
-                        if (err){
-                            callback(err,null);
-                        }else{
-                            //console.log("getSchemeId record:" + JSON.stringify(record));
-                            callback(null,record);
-                        }
-                    });
                 }else {
-                    callback(null, schemeIdRecord);
+                    if (!schemeIdRecord) {
+                        getFreeRecord(scheme, schemeId, function (err, record) {
+                            if (err) {
+                                callback(err, null);
+                            } else {
+                                //console.log("getSchemeId record:" + JSON.stringify(record));
+                                callback(null, record);
+                            }
+                        });
+                    } else {
+                        callback(null, schemeIdRecord);
+                    }
                 }
             });
         }
@@ -90,7 +98,8 @@ function getNewRecord(scheme, schemeId){
         scheme: scheme.toUpperCase(),
         schemeId: schemeId,
         sequence: schemes[scheme.toUpperCase()].getSequence( schemeId),
-        checkDigit: schemes[scheme.toUpperCase()].getCheckDigit( schemeId)
+        checkDigit: schemes[scheme.toUpperCase()].getCheckDigit( schemeId),
+        systemId:guid()
     };
     return schemeIdRecord;
 }
@@ -164,29 +173,33 @@ var registerSchemeId=function (scheme, operation, callback){
 
         if (err) {
             callback(err, null);
-        }
 
-        var newStatus=stateMachine.getNewStatus(schemeIdRecord.status,stateMachine.actions.register);
-        if (newStatus) {
+        }else {
 
-            schemeIdRecord.systemId = operation.systemId;
-            schemeIdRecord.status = newStatus;
-            schemeIdRecord.author = operation.author;
-            schemeIdRecord.software = operation.software;
-            schemeIdRecord.expirationDate = operation.expirationDate;
-            schemeIdRecord.comment = operation.comment;
-            updateSchemeIdRecord(schemeIdRecord, function (err, updatedRecord) {
+            var newStatus = stateMachine.getNewStatus(schemeIdRecord.status, stateMachine.actions.register);
+            if (newStatus) {
 
-                if (err) {
-                    callback(err, null);
+                if (operation.systemId && operation.systemId.trim() != "") {
+                    schemeIdRecord.systemId = operation.systemId;
                 }
+                schemeIdRecord.status = newStatus;
+                schemeIdRecord.author = operation.author;
+                schemeIdRecord.software = operation.software;
+                schemeIdRecord.expirationDate = operation.expirationDate;
+                schemeIdRecord.comment = operation.comment;
+                updateSchemeIdRecord(schemeIdRecord, function (err, updatedRecord) {
 
-                callback(null, updatedRecord);
-            });
-        }else{
-            callback(throwErrMessage("Cannot register SchemeId:" + operation.schemeId + ", current status:" + schemeIdRecord.status), null);
+                    if (err) {
+                        callback(err, null);
+                    }else {
+
+                        callback(null, updatedRecord);
+                    }
+                });
+            } else {
+                callback(throwErrMessage("Cannot register SchemeId:" + operation.schemeId + ", current status:" + schemeIdRecord.status), null);
+            }
         }
-
     });
 };
 var deprecateSchemeId=function (scheme, operation, callback){
@@ -194,26 +207,28 @@ var deprecateSchemeId=function (scheme, operation, callback){
 
         if (err) {
             callback(err, null);
+        }else {
+
+            var newStatus = stateMachine.getNewStatus(schemeIdRecord.status, stateMachine.actions.deprecate);
+            if (newStatus) {
+
+                schemeIdRecord.status = newStatus;
+                schemeIdRecord.author = operation.author;
+                schemeIdRecord.software = operation.software;
+                schemeIdRecord.comment = operation.comment;
+                updateSchemeIdRecord(schemeIdRecord, function (err, updatedRecord) {
+
+                    if (err) {
+                        callback(err, null);
+                    }else {
+
+                        callback(null, updatedRecord);
+                    }
+                });
+            } else {
+                callback(throwErrMessage("Cannot deprecate SchemeId:" + operation.schemeId + ", current status:" + schemeIdRecord.status), null);
+            }
         }
-
-        var newStatus=stateMachine.getNewStatus(schemeIdRecord.status,stateMachine.actions.deprecate);
-        if (newStatus) {
-
-            schemeIdRecord.status = newStatus;
-            schemeIdRecord.software = operation.software;
-            schemeIdRecord.comment = operation.comment;
-            updateSchemeIdRecord(schemeIdRecord, function (err, updatedRecord) {
-
-                if (err) {
-                    callback(err, null);
-                }
-
-                callback(null, updatedRecord);
-            });
-        }else{
-            callback(throwErrMessage("Cannot deprecate SchemeId:" + operation.schemeId + ", current status:" + schemeIdRecord.status), null);
-        }
-
     });
 };
 
@@ -222,26 +237,28 @@ var releaseSchemeId=function (scheme, operation, callback){
 
         if (err) {
             callback(err, null);
+        }else {
+
+            var newStatus = stateMachine.getNewStatus(schemeIdRecord.status, stateMachine.actions.release);
+            if (newStatus) {
+
+                schemeIdRecord.status = newStatus;
+                schemeIdRecord.author = operation.author;
+                schemeIdRecord.software = operation.software;
+                schemeIdRecord.comment = operation.comment;
+                updateSchemeIdRecord(schemeIdRecord, function (err, updatedRecord) {
+
+                    if (err) {
+                        callback(err, null);
+                    }else {
+
+                        callback(null, updatedRecord);
+                    }
+                });
+            } else {
+                callback(throwErrMessage("Cannot release SchemeId:" + operation.schemeId + ", current status:" + schemeIdRecord.status), null);
+            }
         }
-
-        var newStatus=stateMachine.getNewStatus(schemeIdRecord.status,stateMachine.actions.release);
-        if (newStatus) {
-
-            schemeIdRecord.status = newStatus;
-            schemeIdRecord.software = operation.software;
-            schemeIdRecord.comment = operation.comment;
-            updateSchemeIdRecord(schemeIdRecord, function (err, updatedRecord) {
-
-                if (err) {
-                    callback(err, null);
-                }
-
-                callback(null, updatedRecord);
-            });
-        }else{
-            callback(throwErrMessage("Cannot release SchemeId:" + operation.schemeId + ", current status:" + schemeIdRecord.status), null);
-        }
-
     });
 };
 
@@ -250,24 +267,27 @@ var publishSchemeId=function (scheme, operation, callback){
 
         if (err) {
             callback(err, null);
-        }
+        }else {
 
-        var newStatus = stateMachine.getNewStatus(schemeIdRecord.status, stateMachine.actions.publish);
-        if (newStatus) {
+            var newStatus = stateMachine.getNewStatus(schemeIdRecord.status, stateMachine.actions.publish);
+            if (newStatus) {
 
-            schemeIdRecord.status = newStatus;
-            schemeIdRecord.software = operation.software;
-            schemeIdRecord.comment = operation.comment;
-            updateSchemeIdRecord(schemeIdRecord, function (err, updatedRecord) {
+                schemeIdRecord.status = newStatus;
+                schemeIdRecord.author = operation.author;
+                schemeIdRecord.software = operation.software;
+                schemeIdRecord.comment = operation.comment;
+                updateSchemeIdRecord(schemeIdRecord, function (err, updatedRecord) {
 
-                if (err) {
-                    callback(err, null);
-                }
+                    if (err) {
+                        callback(err, null);
+                    }else {
 
-                callback(null, updatedRecord);
-            });
-        } else {
-            callback(throwErrMessage("Cannot publish SchemeId:" + operation.schemeId + ", current status: " + schemeIdRecord.status), null);
+                        callback(null, updatedRecord);
+                    }
+                });
+            } else {
+                callback(throwErrMessage("Cannot publish SchemeId:" + operation.schemeId + ", current status: " + schemeIdRecord.status), null);
+            }
         }
     });
 };
@@ -282,29 +302,34 @@ function setNewSchemeIdRecord(scheme, operation,action,callback){
 
                 if (err) {
                     callback(err, null);
-                }
-                //console.log("schemeIdRecord2:" + JSON.stringify(schemeIdRecord));
+                }else {
+                    //console.log("schemeIdRecord2:" + JSON.stringify(schemeIdRecord));
 
-                var newStatus=stateMachine.getNewStatus(schemeIdRecord.status,action);
-                //console.log("newStatus:" + newStatus);
-                if (newStatus) {
-                    schemeIdRecord.systemId = operation.systemId;
-                    schemeIdRecord.status = newStatus;
-                    schemeIdRecord.author = operation.author;
-                    schemeIdRecord.software = operation.software;
-                    schemeIdRecord.expirationDate = operation.expirationDate;
-                    schemeIdRecord.comment = operation.comment;
+                    var newStatus = stateMachine.getNewStatus(schemeIdRecord.status, action);
+                    //console.log("newStatus:" + newStatus);
+                    if (newStatus) {
 
-                    updateSchemeIdRecord(schemeIdRecord, function (err, updatedRecord) {
-
-                        if (err) {
-                            callback(err, null);
+                        if (operation.systemId && operation.systemId.trim() != "") {
+                            schemeIdRecord.systemId = operation.systemId;
                         }
+                        schemeIdRecord.status = newStatus;
+                        schemeIdRecord.author = operation.author;
+                        schemeIdRecord.software = operation.software;
+                        schemeIdRecord.expirationDate = operation.expirationDate;
+                        schemeIdRecord.comment = operation.comment;
 
-                        callback(null, updatedRecord);
-                    });
-                }else{
-                    setNewSchemeIdRecord(scheme, operation,action,callback);
+                        updateSchemeIdRecord(schemeIdRecord, function (err, updatedRecord) {
+
+                            if (err) {
+                                callback(err, null);
+                            } else {
+
+                                callback(null, updatedRecord);
+                            }
+                        });
+                    } else {
+                        setNewSchemeIdRecord(scheme, operation, action, callback);
+                    }
                 }
             });
         }
@@ -377,14 +402,16 @@ var initializeScheme=function (scheme,initialValue,callback) {
             callback(err, null);
 
         } else {
-            model.schemeIdBase.find({scheme:scheme}).remove(function (err) {
+            model.schemeIdBase.find({scheme:scheme.toUpperCase()}).remove(function (err) {
                 if (err) {
-                    throw err;
+                    callback(err, null);
                 } else {
-                    model.schemeIdBase.create({scheme: scheme, idBase: initialValue}, function (err) {
-                        if (err) throw err;
-                        callback();
-
+                    model.schemeIdBase.create({scheme: scheme.toUpperCase(), idBase: initialValue}, function (err) {
+                        if (err) {
+                            callback(err, null);
+                        }else {
+                            callback(null, null);
+                        }
                     });
 
                 }
@@ -393,6 +420,17 @@ var initializeScheme=function (scheme,initialValue,callback) {
     });
 };
 
+var guid = (function() {
+    function s4() {
+        return Math.floor((1 + Math.random()) * 0x10000)
+            .toString(16)
+            .substring(1);
+    }
+    return function() {
+        return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+            s4() + '-' + s4() + s4() + s4();
+    };
+})();
 module.exports.removeSchemeId=removeSchemeId;
 module.exports.publishSchemeId=publishSchemeId;
 module.exports.releaseSchemeId=releaseSchemeId;

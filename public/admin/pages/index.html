@@ -125,7 +125,7 @@
                             $.get("../views/items/permissions.hbs").then(function(src){
                                 var managerUser = false, context = {
                                     permissions: result,
-                                    edit: edit,
+//                                    edit: edit,
                                     type: typeSelected.substr(0, typeSelected.length - 1),
                                     typeId: typeSelected
                                 };
@@ -136,7 +136,8 @@
                                 var template = Handlebars.compile(src);
                                 $("#" + typeSelected + "-permissions-configure").html(template(context));
                                 if (options.adminUser || managerUser){
-                                    $("#edit-button-" + typeSelected).show();
+                                    if (typeSelected == "namespaces")
+                                        $("#edit-button-" + typeSelected).show();
                                     $("#" + typeSelected + "-permissions-configure").find(".remove-permission").unbind();
                                     $("#" + typeSelected + "-permissions-configure").find(".remove-permission").disableTextSelect();
                                     $("#" + typeSelected + "-permissions-configure").find(".remove-permission").click(function(e){
@@ -251,8 +252,8 @@
                                     $("#item-" + typeSelected + "-details").find("input").first().focus();
                                     if (!itemLoaded.new)
                                         loadPermissions(itemLoaded[primaryKey], edit);
-                                    if (!options.adminUser)
-                                        $("#edit-button-" + typeSelected).hide();
+//                                    if (!options.adminUser)
+                                    $("#edit-button-" + typeSelected).hide();
                                     $("#edit-button-" + typeSelected).unbind();
                                     $("#edit-button-" + typeSelected).disableTextSelect();
                                     $("#edit-button-" + typeSelected).click(function(){
@@ -330,9 +331,14 @@
                                                 data: JSON.stringify(namespaceEdit)
                                             }).done(function(res){
                                                 itemLoaded.email = namespaceEdit.email;
+                                                var previousOrganizationName = itemLoaded.organizationName;
                                                 itemLoaded.organizationName = namespaceEdit.organizationName;
                                                 $.notify("Saved!", "success");
                                                 $("#item-" + typeSelected + "-details").find(".btn").removeClass("disabled");
+                                                if (previousOrganizationName != itemLoaded.organizationName)
+                                                    loadItems(typeSelected, getUrl, primaryKey, namespaceEdit[primaryKey]);
+                                                else
+                                                    $("#close-button-" + typeSelected).click();
                                             }).fail(function(err){
                                                 $.notify("Failed!", "error");
                                                 $("#item-" + typeSelected + "-details").find(".btn").removeClass("disabled");
@@ -343,8 +349,10 @@
                                     $("#cancel-button-" + typeSelected).unbind();
                                     $("#cancel-button-" + typeSelected).disableTextSelect();
                                     $("#cancel-button-" + typeSelected).click(function(){
-                                        loadItem(itemLoaded, true);
+//                                        loadItem(itemLoaded, true);
+                                        $("#close-button-" + typeSelected).click();
                                     });
+                                    $("#close-button-" + typeSelected).hide();
                                     $("#close-button-" + typeSelected).unbind();
                                     $("#close-button-" + typeSelected).disableTextSelect();
                                     $("#close-button-" + typeSelected).click(function(){
@@ -544,7 +552,7 @@
 
             $("#configure-schemes").unbind();
             $("#configure-schemes").click(function(){
-                loadItems("schemes", "/api/schemes", "name");
+                loadItems("schemes", "/api/schemes", "scheme");
             });
 
             $("#schemes-generate-ids").unbind();

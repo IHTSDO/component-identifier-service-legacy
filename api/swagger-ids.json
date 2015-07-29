@@ -953,7 +953,7 @@
                         "in": "path",
                         "description": "The required namespace that contains the SystemId.",
                         "required": true,
-                        "type": "string"
+                        "type": "integer"
                     },
                     {
                         "name": "systemId",
@@ -1013,7 +1013,10 @@
                     "200": {
                         "description": "Operation ready.",
                         "schema": {
+                          "type": "array",
+                          "items": {
                             "$ref": "#/definitions/SCTIDRecord"
+                          }
                         }
                     }
                 }
@@ -2573,7 +2576,10 @@
                     "type": "string",
                     "description": "A comment about the action, optional."
                 }
-            }
+            },
+          "required": [
+            "schemeId"
+          ]
         },
         "SchemeIdReservationRequest" : {
             "properties" : {
@@ -2673,7 +2679,10 @@
                     "type": "string",
                     "description": "A comment about the action, optional."
                 }
-            }
+            },
+          "required": [
+            "records"
+          ]
         },
         "SchemeIdBulkReservationRequest" : {
             "properties" : {
@@ -2697,7 +2706,10 @@
                     "type": "string",
                     "description": "A comment about the action, optional."
                 }
-            }
+            },
+          "required": [
+            "quantity"
+          ]
         },
         "SchemeIdBulkUpdateRequest" : {
             "properties" : {
@@ -2719,7 +2731,10 @@
                     "type": "string",
                     "description": "A comment about the action, optional."
                 }
-            }
+            },
+          "required": [
+            "schemeIds"
+          ]
         },
         "SCTIDRecord" : {
             "properties": {
@@ -2784,7 +2799,10 @@
                   "default": "false",
                   "description": "Option to generate CTV3ID and SNOMEDID."
                 }
-            }
+            },
+          "required": [
+            "namespace","partitionId"
+          ]
         },
         "SCTIDBulkGenerationRequest" : {
             "properties" : {
@@ -2819,7 +2837,10 @@
                   "default": "false",
                   "description": "Option to generate CTV3ID and SNOMEDID."
                 }
-            }
+            },
+          "required": [
+            "namespace","partitionId","quantity"
+          ]
         },
         "SCTIDRegistrationRequest" : {
             "properties" : {
@@ -2843,7 +2864,10 @@
                     "type": "string",
                     "description": "A comment about the action, optional."
                 }
-            }
+            },
+            "required": [
+              "sctid","namespace"
+          ]
         },
         "RegistrationRecord": {
             "properties": {
@@ -2876,7 +2900,10 @@
                     "type": "string",
                     "description": "A comment about the action, optional."
                 }
-            }
+            },
+          "required": [
+            "records","namespace"
+          ]
         },
         "SCTIDReservationRequest" : {
             "properties" : {
@@ -2900,7 +2927,10 @@
                     "type": "string",
                     "description": "A comment about the action, optional."
                 }
-            }
+            },
+          "required": [
+            "namespace","partitionId"
+          ]
         },
         "SCTIDBulkReservationRequest" : {
             "properties" : {
@@ -2928,7 +2958,10 @@
                     "type": "string",
                     "description": "A comment about the action, optional."
                 }
-            }
+            },
+          "required": [
+            "namespace","partitionId","quantity"
+          ]
         },
         "SCTIDUpdateRequest" : {
             "properties" : {
@@ -2948,7 +2981,10 @@
                     "type": "string",
                     "description": "A comment about the action, optional."
                 }
-            }
+            },
+          "required": [
+            "sctid","namespace"
+          ]
         },
         "SCTIDBulkUpdateRequest" : {
             "properties" : {
@@ -2971,7 +3007,10 @@
                     "type": "string",
                     "description": "A comment about the action, optional."
                 }
-            }
+            },
+          "required": [
+            "sctids","namespace"
+          ]
         },
         "Credentials" : {
             "properties": {

@@ -39,8 +39,15 @@ var getSequence=function (id){
 var getCheckDigit=function(id){
     return null;
 };
+var validSchemeId=function(id){
+    if (id.length<6 || id.length>8 || id.indexOf("-")<1 || id.indexOf("-")>2){
+        return false;
+    }
+    return true;
+};
 
 module.exports.getNextId=getNextId;
 module.exports.getSequence=getSequence;
 module.exports.getCheckDigit=getCheckDigit;
+module.exports.validSchemeId=validSchemeId;
 
