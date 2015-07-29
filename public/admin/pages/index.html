@@ -542,6 +542,18 @@
                     console.log(err);
                 });
             }
+            function generateIds(typeSelected, getUrl){
+                $("#page-wrapper").html('<br><br><br><br><div class="text-center"><i class="fa fa-spinner fa-spin fa-4x"></i></div>');
+                $.get("../views/generateIds/main.hbs").then(function(src){
+                    var template = Handlebars.compile(src);
+                    $("#page-wrapper").html(template({typeH: typeSelected.charAt(0).toUpperCase() + typeSelected.slice(1), type: typeSelected}));
+                    $("#generateIds-send-button").unbind();
+                    $("#generateIds-send-button").disableTextSelect();
+                    $("#generateIds-send-button").click(function(){
+
+                    });
+                });
+            }
             $("#configure-namespaces").unbind();
             $("#configure-namespaces").click(function(){
                 loadItems("namespaces", "/api/sct/namespaces", "namespace");
@@ -549,6 +561,7 @@
 
             $("#snomed-generate-ids").unbind();
             $("#snomed-generate-ids").click(function(){
+                generateIds("namespaces", "/api/sct/namespaces");
                 //"generate","reserve","register","release","publish","deprecate"
                 //select action, fill form then proceed
             });
@@ -565,6 +578,11 @@
 
             $("#schemes-generate-ids").unbind();
             $("#schemes-generate-ids").click(function(){
+
+            });
+
+            $("#schemes-search-ids").unbind();
+            $("#schemes-search-ids").click(function(){
 
             });
 
@@ -995,6 +1013,9 @@
                                     <a id="snomed-generate-ids" href="javascript:void(0);">Generate Ids</a>
                                 </li>
                                 <li>
+                                    <a id="snomed-search-ids" href="javascript:void(0);">Search Ids</a>
+                                </li>
+                                <li>
                                     <a id="snomed-reports" href="javascript:void(0);">Reports</a>
                                 </li>
                             </ul>
@@ -1008,6 +1029,9 @@
                                 </li>
                                 <li>
                                     <a id="schemes-generate-ids" href="javascript:void(0);">Generate Ids</a>
+                                </li>
+                                <li>
+                                    <a id="schemes-search-ids" href="javascript:void(0);">Search Ids</a>
                                 </li>
                                 <li>
                                     <a id="schemes-reports" href="javascript:void(0);">Reports</a>
