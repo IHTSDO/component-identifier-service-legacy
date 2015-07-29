@@ -32,172 +32,172 @@ describe('SCHEMIDS', function () {
                 });
         });
     });
-//
-//    describe('#removeSchemeId()', function () {
-//        it('should remove all schemeId for the scheme', function (done) {
-//            schemeId.removeSchemeId({scheme: schemeIdRecord.scheme}
-//                , function (err, data) {
-//                    if (err) throw err;
-//                    should.not.exist(err);
-//
-//                    done();
-//                });
-//        });
-//    });
-//    describe('#generateSchemeId()', function () {
-//        it('should generate a schemeId for the scheme', function (done) {
-//            schemeId.generateSchemeId(
-//                schemeIdRecord.scheme, {
-//                    systemId: schemeIdRecord.systemId,
-//                    author: schemeIdRecord.author,
-//                    software: schemeIdRecord.software,
-//                    expirationDate: schemeIdRecord.expirationDate,
-//                    comment: schemeIdRecord.comment
-//                }, function (err, newSchemeIdRecord) {
-//                    if (err) throw err;
-//                    should.not.exist(err);
-//
-//                    newSchemeIdRecord.should.not.be.equal(null);
-//                    newSchemeIdRecord.status.should.be.equal(stateMachine.statuses.assigned);
-//                    assignedSchemeId = newSchemeIdRecord.schemeId;
-//                    done();
-//                });
-//        });
-//    });
-//
-//
-//    describe('#reserveSchemeId()', function () {
-//        it('should reserve a schemeId for the scheme', function (done) {
-//            schemeId.reserveSchemeId(
-//                schemeIdRecord.scheme, {
-//                    systemId: schemeIdRecord.systemId,
-//                    author: schemeIdRecord.author,
-//                    software: schemeIdRecord.software,
-//                    expirationDate: schemeIdRecord.expirationDate,
-//                    comment: schemeIdRecord.comment
-//                }, function (err, newSchemeIdRecord) {
-//                    if (err) throw err;
-//                    should.not.exist(err);
-//
-//                    newSchemeIdRecord.should.not.be.equal(null);
-//                    newSchemeIdRecord.status.should.be.equal(stateMachine.statuses.reserved);
-//                    reservedSchemeId = newSchemeIdRecord.schemeId;
-//                    done();
-//                });
-//        });
-//    });
-//
-//
-//    describe('#registerSchemeId()', function () {
-//        it('should register a schemeId for the scheme', function (done) {
-//            schemeId.registerSchemeId(
-//                schemeIdRecord.scheme, {
-//                    schemeId: "XVa50",
-//                    systemId: registerSystemId,
-//                    author: schemeIdRecord.author,
-//                    software: schemeIdRecord.software,
-//                    expirationDate: schemeIdRecord.expirationDate,
-//                    comment: schemeIdRecord.comment
-//                }, function (err, newSchemeIdRecord) {
-//                    if (err) throw err;
-//                    should.not.exist(err);
-//
-//                    newSchemeIdRecord.should.not.be.equal(null);
-//                    newSchemeIdRecord.status.should.be.equal(stateMachine.statuses.assigned);
-//                    done();
-//                });
-//        });
-//    });
-//
-//
-//    describe('#getSchemeId()', function () {
-//        it('should getter a schemeId for the scheme', function (done) {
-//            schemeId.getSchemeId(
-//                schemeIdRecord.scheme,
-//                "XVa50"
-//                , function (err, newSchemeIdRecord) {
-//                    if (err) throw err;
-//                    should.not.exist(err);
-//
-//                    newSchemeIdRecord.should.not.be.equal(null);
-//                    newSchemeIdRecord.status.should.be.equal(stateMachine.statuses.assigned);
-//                    //schemeIdRecord = newSchemeIdRecord;
-//                    done();
-//                });
-//        });
-//    });
-//
-//    describe('#getSchemeIdBySystemId()', function () {
-//        it('should getter a schemeId by systemId for the scheme', function (done) {
-//            schemeId.getSchemeIdBySystemId(
-//                schemeIdRecord.scheme,
-//                registerSystemId,
-//                function (err, newSchemeIdRecord) {
-//                    if (err) throw err;
-//                    should.not.exist(err);
-//
-//                    newSchemeIdRecord.should.not.be.equal(null);
-//                    newSchemeIdRecord.status.should.be.equal(stateMachine.statuses.assigned);
-//                    done();
-//                });
-//        });
-//    });
-//
-//    describe('#releaseSchemeId()', function () {
-//        it('should release a schemeId for the scheme', function (done) {
-//            schemeId.releaseSchemeId(
-//                schemeIdRecord.scheme, {
-//                    schemeId: reservedSchemeId,
-//                    software: schemeIdRecord.software,
-//                    comment: schemeIdRecord.comment
-//                }
-//                , function (err, newSchemeIdRecord) {
-//                    if (err) throw err;
-//                    should.not.exist(err);
-//
-//                    newSchemeIdRecord.should.not.be.equal(null);
-//                    newSchemeIdRecord.status.should.be.equal(stateMachine.statuses.available);
-//                    done();
-//                });
-//        });
-//    });
-//
-//    describe('#publishSchemeId()', function () {
-//        it('should publish a schemeId for the scheme', function (done) {
-//            schemeId.publishSchemeId(
-//                schemeIdRecord.scheme, {
-//                    schemeId: assignedSchemeId,
-//                    software: schemeIdRecord.software,
-//                    comment: schemeIdRecord.comment
-//                }
-//                , function (err, newSchemeIdRecord) {
-//                    if (err) throw err;
-//                    should.not.exist(err);
-//
-//                    newSchemeIdRecord.should.not.be.equal(null);
-//                    newSchemeIdRecord.status.should.be.equal(stateMachine.statuses.published);
-//                    done();
-//                });
-//        });
-//    });
-//
-//    describe('#deprecateSchemeId()', function () {
-//        it('should deprecate a schemeId for the scheme', function (done) {
-//            schemeId.deprecateSchemeId(
-//                schemeIdRecord.scheme, {
-//                    schemeId: assignedSchemeId,
-//                    software: schemeIdRecord.software,
-//                    comment: schemeIdRecord.comment
-//                }
-//                , function (err, newSchemeIdRecord) {
-//                    if (err) throw err;
-//                    should.not.exist(err);
-//
-//                    newSchemeIdRecord.should.not.be.equal(null);
-//                    newSchemeIdRecord.status.should.be.equal(stateMachine.statuses.deprecated);
-//                    done();
-//                });
-//        });
-//    });
+
+    describe('#removeSchemeId()', function () {
+        it('should remove all schemeId for the scheme', function (done) {
+            schemeId.removeSchemeId({scheme: schemeIdRecord.scheme}
+                , function (err, data) {
+                    if (err) throw err;
+                    should.not.exist(err);
+
+                    done();
+                });
+        });
+    });
+    describe('#generateSchemeId()', function () {
+        it('should generate a schemeId for the scheme', function (done) {
+            schemeId.generateSchemeId(
+                schemeIdRecord.scheme, {
+                    systemId: schemeIdRecord.systemId,
+                    author: schemeIdRecord.author,
+                    software: schemeIdRecord.software,
+                    expirationDate: schemeIdRecord.expirationDate,
+                    comment: schemeIdRecord.comment
+                }, function (err, newSchemeIdRecord) {
+                    if (err) throw err;
+                    should.not.exist(err);
+
+                    newSchemeIdRecord.should.not.be.equal(null);
+                    newSchemeIdRecord.status.should.be.equal(stateMachine.statuses.assigned);
+                    assignedSchemeId = newSchemeIdRecord.schemeId;
+                    done();
+                });
+        });
+    });
+
+
+    describe('#reserveSchemeId()', function () {
+        it('should reserve a schemeId for the scheme', function (done) {
+            schemeId.reserveSchemeId(
+                schemeIdRecord.scheme, {
+                    systemId: schemeIdRecord.systemId,
+                    author: schemeIdRecord.author,
+                    software: schemeIdRecord.software,
+                    expirationDate: schemeIdRecord.expirationDate,
+                    comment: schemeIdRecord.comment
+                }, function (err, newSchemeIdRecord) {
+                    if (err) throw err;
+                    should.not.exist(err);
+
+                    newSchemeIdRecord.should.not.be.equal(null);
+                    newSchemeIdRecord.status.should.be.equal(stateMachine.statuses.reserved);
+                    reservedSchemeId = newSchemeIdRecord.schemeId;
+                    done();
+                });
+        });
+    });
+
+
+    describe('#registerSchemeId()', function () {
+        it('should register a schemeId for the scheme', function (done) {
+            schemeId.registerSchemeId(
+                schemeIdRecord.scheme, {
+                    schemeId: "XVa50",
+                    systemId: registerSystemId,
+                    author: schemeIdRecord.author,
+                    software: schemeIdRecord.software,
+                    expirationDate: schemeIdRecord.expirationDate,
+                    comment: schemeIdRecord.comment
+                }, function (err, newSchemeIdRecord) {
+                    if (err) throw err;
+                    should.not.exist(err);
+
+                    newSchemeIdRecord.should.not.be.equal(null);
+                    newSchemeIdRecord.status.should.be.equal(stateMachine.statuses.assigned);
+                    done();
+                });
+        });
+    });
+
+
+    describe('#getSchemeId()', function () {
+        it('should getter a schemeId for the scheme', function (done) {
+            schemeId.getSchemeId(
+                schemeIdRecord.scheme,
+                "XVa50"
+                , function (err, newSchemeIdRecord) {
+                    if (err) throw err;
+                    should.not.exist(err);
+
+                    newSchemeIdRecord.should.not.be.equal(null);
+                    newSchemeIdRecord.status.should.be.equal(stateMachine.statuses.assigned);
+                    //schemeIdRecord = newSchemeIdRecord;
+                    done();
+                });
+        });
+    });
+
+    describe('#getSchemeIdBySystemId()', function () {
+        it('should getter a schemeId by systemId for the scheme', function (done) {
+            schemeId.getSchemeIdBySystemId(
+                schemeIdRecord.scheme,
+                registerSystemId,
+                function (err, newSchemeIdRecord) {
+                    if (err) throw err;
+                    should.not.exist(err);
+
+                    newSchemeIdRecord.should.not.be.equal(null);
+                    newSchemeIdRecord.status.should.be.equal(stateMachine.statuses.assigned);
+                    done();
+                });
+        });
+    });
+
+    describe('#releaseSchemeId()', function () {
+        it('should release a schemeId for the scheme', function (done) {
+            schemeId.releaseSchemeId(
+                schemeIdRecord.scheme, {
+                    schemeId: reservedSchemeId,
+                    software: schemeIdRecord.software,
+                    comment: schemeIdRecord.comment
+                }
+                , function (err, newSchemeIdRecord) {
+                    if (err) throw err;
+                    should.not.exist(err);
+
+                    newSchemeIdRecord.should.not.be.equal(null);
+                    newSchemeIdRecord.status.should.be.equal(stateMachine.statuses.available);
+                    done();
+                });
+        });
+    });
+
+    describe('#publishSchemeId()', function () {
+        it('should publish a schemeId for the scheme', function (done) {
+            schemeId.publishSchemeId(
+                schemeIdRecord.scheme, {
+                    schemeId: assignedSchemeId,
+                    software: schemeIdRecord.software,
+                    comment: schemeIdRecord.comment
+                }
+                , function (err, newSchemeIdRecord) {
+                    if (err) throw err;
+                    should.not.exist(err);
+
+                    newSchemeIdRecord.should.not.be.equal(null);
+                    newSchemeIdRecord.status.should.be.equal(stateMachine.statuses.published);
+                    done();
+                });
+        });
+    });
+
+    describe('#deprecateSchemeId()', function () {
+        it('should deprecate a schemeId for the scheme', function (done) {
+            schemeId.deprecateSchemeId(
+                schemeIdRecord.scheme, {
+                    schemeId: assignedSchemeId,
+                    software: schemeIdRecord.software,
+                    comment: schemeIdRecord.comment
+                }
+                , function (err, newSchemeIdRecord) {
+                    if (err) throw err;
+                    should.not.exist(err);
+
+                    newSchemeIdRecord.should.not.be.equal(null);
+                    newSchemeIdRecord.status.should.be.equal(stateMachine.statuses.deprecated);
+                    done();
+                });
+        });
+    });
 });
 

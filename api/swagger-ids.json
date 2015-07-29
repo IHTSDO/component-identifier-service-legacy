@@ -1639,6 +1639,53 @@
                         }
                     }
                 }
+            },
+            "put": {
+                "x-swagger-router-controller": "Scheme",
+                "operationId": "updateScheme",
+                "tags": ["Schemes"],
+                "description": "Receives a request for updating a Scheme.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "schemeName",
+                        "in": "path",
+                        "description": "The Scheme Name.",
+                        "required": true,
+                        "type": "string",
+                        "enum": [
+                            "SNOMEDID",
+                            "CTV3ID"
+                        ]
+                    },
+                    {
+                        "name": "schemeSeq",
+                        "in": "query",
+                        "description": "The changed operation.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Invalid request.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Operation ready.",
+                        "schema": {
+                            "$ref": "#/definitions/SchemeIdRecord"
+                        }
+                    }
+                }
             }
         },
         "/scheme/{schemeName}/ids/{schemeId}": {
