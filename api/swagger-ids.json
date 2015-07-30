@@ -1263,7 +1263,7 @@
         "/sct/namespace/{namespaceId}/systemIds": {
             "get": {
                 "x-swagger-router-controller": "SctidBulk",
-                "operationId": "getSystemIds",
+                "operationId": "getSctidBySystemIds",
                 "tags": ["SCTIDS - Bulk Operations"],
                 "description": "Returns the required SCTID Records by SystemIds.",
                 "parameters": [
