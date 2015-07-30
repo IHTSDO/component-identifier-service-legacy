@@ -689,8 +689,6 @@
                         delete objToPost["schemeName"];
                         var urlToPost = getUrl + "/" + $("#action-toDo-generateId").val() + "?token=" + options.token;
                         urlToPost = urlToPost.replace("{schemeName}", $("#generateIds-form-" + typeSelected).find("select[data-field=schemeName]").first().val());
-                        console.log(objToPost);
-                        console.log(urlToPost);
                         $("#generateIds-send-button").addClass("disabled");
                         $.ajax({
                             type: "POST",
@@ -698,11 +696,12 @@
                             contentType: 'application/json',
                             data: JSON.stringify(objToPost)
                         }).done(function(res){
-                            console.log(res);
+                            console.log(res.sctid);
+                            searchIds("/api/sct/ids/" + res.sctid + "?token=" + options.token, "SCTID");
                             $.notify("Created!", "success");
                             $("#generateIds-send-button").removeClass("disabled");
                         }).fail(function(err){
-                            console.log(err);
+//                            console.log(err);
                             $.notify("Failed!", "error");
                             $("#generateIds-send-button").removeClass("disabled");
                         });
@@ -822,6 +821,24 @@
                     loadHtml(context);
                 }
             }
+
+            $("#button-sctid-fromHome").unbind();
+            $("#button-sctid-fromHome").disableTextSelect();
+            $("#button-sctid-fromHome").click(function(){
+                var url = "/api/sct/ids/{id}?token=" + options.token;
+                url = url.replace("{id}", $.trim($("#search-sctid-fromHome").val()));
+                searchIds(url, "SCTID");
+            });
+
+            $("#search-sctid-fromHome").unbind();
+            $("#search-sctid-fromHome").keyup(function(e){
+                if (e.keyCode == 13){
+                    var url = "/api/sct/ids/{id}?token=" + options.token;
+                    url = url.replace("{id}", $.trim($("#search-sctid-fromHome").val()));
+                    searchIds(url, "SCTID");
+                }
+            });
+
             $("#configure-namespaces").unbind();
             $("#configure-namespaces").click(function(){
                 loadItems("namespaces", "/api/sct/namespaces", "namespace");
@@ -835,8 +852,6 @@
             $("#snomed-generate-ids").unbind();
             $("#snomed-generate-ids").click(function(){
                 generateIds("SCTID", "/api/sct");
-                //"generate","reserve","register","release","publish","deprecate"
-                //select action, fill form then proceed
             });
 
             $("#snomed-reports").unbind();
@@ -856,7 +871,7 @@
 
             $("#schemes-search-ids").unbind();
             $("#schemes-search-ids").click(function(){
-
+                searchIds(false, "schemeId");
             });
 
             $("#schemes-reports").unbind();
@@ -1303,9 +1318,9 @@
                     <ul class="nav" id="side-menu">
                         <li class="sidebar-search">
                             <div class="input-group custom-search-form">
-                                <input type="text" class="form-control" placeholder="Search...">
+                                <input id="search-sctid-fromHome" type="text" class="form-control" placeholder="Search...">
                                 <span class="input-group-btn">
-                                <button class="btn btn-default" type="button">
+                                <button id="button-sctid-fromHome" class="btn btn-default" type="button">
                                     <i class="fa fa-search"></i>
                                 </button>
                             </span>
