@@ -310,6 +310,8 @@
                                             objEdit.partitions = [];
                                             $.each($("#item-" + typeSelected + "-details").find("tbody").first().find("tr"), function (i, field){
                                                 var partition = $($(field).find("td")[1]).attr("data-id");
+                                                var newPart = "0" + partition[1];
+                                                partition = newPart;
                                                 var value = parseInt($($(field).find("td")[1]).attr("data-value"));
                                                 objEdit.partitions.push({
                                                     namespace: objEdit.namespace,
@@ -689,28 +691,145 @@
                         urlToPost = urlToPost.replace("{schemeName}", $("#generateIds-form-" + typeSelected).find("select[data-field=schemeName]").first().val());
                         console.log(objToPost);
                         console.log(urlToPost);
-//                        $("#generateIds-send-button").addClass("disabled");
-//                        $.ajax({
-//                            type: "POST",
-//                            url: urlToPost,
-//                            contentType: 'application/json',
-//                            data: JSON.stringify(objToPost)
-//                        }).done(function(res){
-//                            console.log(res);
-//                            $.notify("Created!", "success");
-//                            $("#generateIds-send-button").removeClass("disabled");
-//                        }).fail(function(err){
-//                            console.log(err);
-//                            $.notify("Failed!", "error");
-//                            $("#generateIds-send-button").removeClass("disabled");
-//                        });
+                        $("#generateIds-send-button").addClass("disabled");
+                        $.ajax({
+                            type: "POST",
+                            url: urlToPost,
+                            contentType: 'application/json',
+                            data: JSON.stringify(objToPost)
+                        }).done(function(res){
+                            console.log(res);
+                            $.notify("Created!", "success");
+                            $("#generateIds-send-button").removeClass("disabled");
+                        }).fail(function(err){
+                            console.log(err);
+                            $.notify("Failed!", "error");
+                            $("#generateIds-send-button").removeClass("disabled");
+                        });
 
                     });
                 });
             }
+            function searchIds(getUrl, typeSelected){
+                $("#page-wrapper").html('<br><br><br><br><div class="text-center"><i class="fa fa-spinner fa-spin fa-4x"></i></div>');
+                function loadHtml(context){
+                    $.get("../views/searchIds/main.hbs").then(function(src){
+                        var template = Handlebars.compile(src);
+                        $("#page-wrapper").html(template(context));
+
+                        $("#search-button-ids").unbind();
+                        $("#search-button-ids").disableTextSelect();
+                        $("#search-button-ids").click(function(){
+                            var url = "/api/sct/ids/{id}?token=" + options.token;
+                            if (typeSelected == "schemeId")
+                                url = "";
+                            url = url.replace("{id}", $.trim($("#search-input-ids").val()));
+                            searchIds(url, typeSelected);
+                        });
+
+                        $("#search-input-ids").unbind();
+                        $("#search-input-ids").keyup(function(e){
+                            if (e.keyCode == 13){
+                                var url = "/api/sct/ids/{id}?token=" + options.token;
+                                if (typeSelected == "schemeId")
+                                    url = "";
+                                url = url.replace("{id}", $.trim($("#search-input-ids").val()));
+                                searchIds(url, typeSelected);
+                            }
+                        });
+
+                        $("#page-wrapper").find(".actionSearchId").unbind();
+                        $("#page-wrapper").find(".actionSearchId").click(function(e){
+                            var action = $(e.target).attr("data-action");
+                            $("#searchId-actions-dropdown").attr("data-action", action);
+                            $("#searchId-actions-dropdown").hide();
+                            $("#searchId-send-actions").show();
+                            $("#searchId-cancel-actions").show();
+                            console.log(action);
+
+                        });
+
+                        $("#searchId-cancel-actions").unbind();
+                        $("#searchId-cancel-actions").disableTextSelect();
+                        $("#searchId-cancel-actions").click(function(){
+                            $("#searchId-actions-dropdown").show();
+                            $("#searchId-send-actions").hide();
+                            $("#searchId-cancel-actions").hide();
+                        });
+
+                        $("#searchId-send-actions").unbind();
+                        $("#searchId-send-actions").disableTextSelect();
+                        $("#searchId-send-actions").click(function(){
+                            var action = $("#searchId-actions-dropdown").attr("data-action");
+                            var urlToSend = "/api/sct/" + action + "?token=" + options.token;
+                            var objToSend = context.item;
+                            var type = "PUT";
+                            if (action == "register")
+                                type = "POST";
+                            $.ajax({
+                                type: type,
+                                url: urlToSend,
+                                contentType: 'application/json',
+                                data: JSON.stringify(objToSend)
+                            }).done(function(res){
+                                console.log(res);
+                                var context = {
+                                    item: res,
+                                    type: typeSelected
+                                };
+                                loadHtml(context);
+                                $.notify("Success!", "success");
+                                $("#generateIds-send-button").removeClass("disabled");
+                            }).fail(function(err){
+                                console.log(err);
+//                                var context = {
+//                                    item: {},
+//                                    type: typeSelected,
+//                                    errorText: "Error: " + err.responseText
+//                                };
+//                                loadHtml(context);
+                                $("#searchId-cancel-actions").click();
+                                $.notify("Failed!", "error");
+                                $("#text-danger-idsSearch").html("Error: " + err.responseText);
+                            });
+                        });
+                    });
+                }
+                if (getUrl){
+                    $.get(getUrl).done(function(res){
+                        console.log(res);
+                        var context = {
+                            item: res,
+                            type: typeSelected
+                        };
+                        loadHtml(context);
+                    }).fail(function(err){
+                        console.log(err);
+                        var context = {
+                            item: {},
+                            type: typeSelected,
+                            errorText: "Error: " + err.responseText
+                        };
+//                    $("#text-danger-idsSearch").html("Error: " + err.responseText);
+                        loadHtml(context);
+                    });
+                }else{
+                    var context = {
+                        item: {},
+                        type: typeSelected,
+                        errorText: ""
+                    };
+                    loadHtml(context);
+                }
+            }
             $("#configure-namespaces").unbind();
             $("#configure-namespaces").click(function(){
                 loadItems("namespaces", "/api/sct/namespaces", "namespace");
+            });
+
+            $("#snomed-search-ids").unbind();
+            $("#snomed-search-ids").click(function(){
+                searchIds(false, "SCTID");
             });
 
             $("#snomed-generate-ids").unbind();

@@ -1,0 +1,54 @@
+<div class="row">
+    <div class="col-md-9">
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>Search {{type}}</strong>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-offset-2 col-md-4">
+                        <div class="sidebar-search">
+                            <div class="input-group custom-search-form">
+                                <input id="search-input-ids" type="text" class="form-control" placeholder="Search...">
+                                <span class="input-group-btn">
+                                <button id="search-button-ids" class="btn btn-default" type="button">
+                                    <i class="fa fa-search"></i>
+                                </button>
+                            </span>
+                            </div>
+                            <!-- /input-group -->
+                        </div>
+                    </div>
+                    <div class="col-md-6"></div>
+                </div>
+                <br>
+                <form class="form-horizontal">
+                    {{#each item}}
+                        <div data-field="comment" class="form-group">
+                            <label class="control-label col-md-2">{{@key}}:</label>
+                            <div class="col-md-10">
+                                <input value="{{this}}" disabled type="text" class="form-control">
+                            </div>
+                        </div>
+                    {{/each}}
+                </form>
+            </div>
+            <div class="panel-footer">
+                <button style="display: none;" class="btn btn-success" id="searchId-send-actions">Send</button>
+                <button style="display: none;" class="btn btn-danger" id="searchId-cancel-actions">Cancel</button>
+                <div class="btn-group dropup">
+                    <button class="btn btn-success dropdown-toggle" type="button" data-toggle="dropdown" id="searchId-actions-dropdown"><span>Actions</span>&nbsp;<span class="caret"></span></button>
+                    <ul class="dropdown-menu" role="menu">
+                        <li role='presentation'><a class='actionSearchId' data-action="register" role='menuitem' tabindex='-1' href='javascript:void(0);'>register</a></li>
+                        <li role='presentation'><a class='actionSearchId' data-action="release" role='menuitem' tabindex='-1' href='javascript:void(0);'>release</a></li>
+                        <li role='presentation'><a class='actionSearchId' data-action="publish" role='menuitem' tabindex='-1' href='javascript:void(0);'>publish</a></li>
+                        <li role='presentation'><a class='actionSearchId' data-action="deprecate" role='menuitem' tabindex='-1' href='javascript:void(0);'>deprecate</a></li>
+                    </ul>
+                </div>
+                <label style="margin-left: 10px;" class="text-danger" id="text-danger-idsSearch">{{errorText}}</label>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3"></div>
+</div>

@@ -1,116 +1,97 @@
-<div class="panel panel-default">
-    <div class="panel-heading">
-        <strong><span id="generationId-title-main">Generating</span> a {{type}}</strong>
+<div class="row">
+    <div class="col-md-9">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong><span id="generationId-title-main">Generating</span> a {{type}}</strong>
+            </div>
+            <div class="panel-body">
+                <form class="form-horizontal" id="generateIds-form-{{type}}">
+                    <div class="form-group">
+                        <label class="control-label col-md-2">Action</label>
+                        <div class="col-md-10">
+                            <select id="action-toDo-generateId" class="form-control">
+                                <option value="generate">generate</option>
+                                <option value="register">register</option>
+                                <option value="reserve">reserve</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    {{#if_eq type "SCTID"}}
+                        <div data-field="sctid" class="form-group">
+                            <label class="control-label col-md-2">SCTID:</label>
+                            <div class="col-md-10">
+                                <input data-field="sctid" placeholder="SCTID" type="text" class="form-control">
+                            </div>
+                        </div>
+                        <div data-field="namespace" class="form-group">
+                            <label class="control-label col-md-2">Namespace:</label>
+                            <div class="col-md-10">
+                                <select data-field="namespace" class="form-control"></select>
+                            </div>
+                        </div>
+                        <div data-field="partitionId" class="form-group">
+                            <label class="control-label col-md-2">Partition ID:</label>
+                            <div class="col-md-10">
+                                <select data-field="partitionId" class="form-control"></select>
+                            </div>
+                        </div>
+                        <div data-field="generateLegacyIds" class="form-group">
+                            <label class="control-label col-md-2">Generate Legacy Ids:</label>
+                            <div class="col-md-10">
+                                <select data-field="generateLegacyIds" class="form-control">
+                                    <option value="false">false</option>
+                                    <option value="true">true</option>
+                                </select>
+                            </div>
+                        </div>
+                    {{/if_eq}}
+
+                    {{#if_eq type "schemeId"}}
+                        <div data-field="schemeName" class="form-group">
+                            <label class="control-label col-md-2">Scheme Name:</label>
+                            <div class="col-md-10">
+                                <select data-field="schemeName" class="form-control"></select>
+                            </div>
+                        </div>
+                        <div data-field="schemeId" class="form-group">
+                            <label class="control-label col-md-2">Scheme ID:</label>
+                            <div class="col-md-10">
+                                <input data-field="schemeId" placeholder="Scheme ID" type="text" class="form-control">
+                            </div>
+                        </div>
+                    {{/if_eq}}
+
+                    <div data-field="systemId" class="form-group">
+                        <label class="control-label col-md-2">System ID:</label>
+                        <div class="col-md-10">
+                            <input data-field="systemId" placeholder="System ID" type="text" class="form-control">
+                        </div>
+                    </div>
+                    <div data-field="expirationDate" class="form-group">
+                        <label class="control-label col-md-2">Expiration Date:</label>
+                        <div class="col-md-10">
+                            <input data-field="expirationDate" placeholder="Expiration Date" type="text" class="form-control">
+                        </div>
+                    </div>
+                    <div data-field="software" class="form-group">
+                        <label class="control-label col-md-2">Software:</label>
+                        <div class="col-md-10">
+                            <input data-field="software" placeholder="Software" type="text" class="form-control">
+                        </div>
+                    </div>
+                    <div data-field="comment" class="form-group">
+                        <label class="control-label col-md-2">Comment:</label>
+                        <div class="col-md-10">
+                            <input data-field="comment" placeholder="Comment" type="text" class="form-control">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="panel-footer">
+                <button class="btn btn-success" id="generateIds-send-button">Send</button>
+            </div>
+        </div>
     </div>
-    <div class="panel-body">
-        <form id="generateIds-form-{{type}}">
-            <div class="form-group">
-                <label class="control-label col-md-2">Action</label>
-                <div class="col-md-10">
-                    <select id="action-toDo-generateId" class="form-control">
-                        <option value="generate">generate</option>
-                        <option value="register">register</option>
-                        <option value="reserve">reserve</option>
-                    </select>
-                </div>
-            </div>
-            <!--TODO SCTID-->
-            <!--TODO generate-->
-            <!--"namespace": 0,-->
-            <!--"partitionId": "string",-->
-            <!--"systemId": "string",-->
-            <!--"generateLegacyIds": "false"-->
-            <!--TODO register-->
-            <!--"sctid": "string",-->
-            <!--"namespace": 0,-->
-            <!--"systemId": "string",-->
-            <!--TODO reserve-->
-            <!--"namespace": 0,-->
-            <!--"partitionId": "string",-->
-            <!--"expirationDate": "string",-->
-
-            <!--TODO SchemeIDs-->
-            <!--TODO generate-->
-            <!--"systemId": "string",-->
-            <!--TODO register-->
-            <!--"schemeId": "string",-->
-            <!--"systemId": "string",-->
-            <!--TODO reserve-->
-            <!--"expirationDate": "string",-->
-
-            {{#if_eq type "SCTID"}}
-                <div data-field="sctid" class="form-group">
-                    <label class="control-label col-md-2">SCTID:</label>
-                    <div class="col-md-10">
-                        <input data-field="sctid" placeholder="SCTID" type="text" class="form-control">
-                    </div>
-                </div>
-                <div data-field="namespace" class="form-group">
-                    <label class="control-label col-md-2">Namespace:</label>
-                    <div class="col-md-10">
-                        <select data-field="namespace" class="form-control"></select>
-                    </div>
-                </div>
-                <div data-field="partitionId" class="form-group">
-                    <label class="control-label col-md-2">Partition ID:</label>
-                    <div class="col-md-10">
-                        <select data-field="partitionId" class="form-control"></select>
-                    </div>
-                </div>
-                <div data-field="generateLegacyIds" class="form-group">
-                    <label class="control-label col-md-2">Generate Legacy Ids:</label>
-                    <div class="col-md-10">
-                        <select data-field="generateLegacyIds" class="form-control">
-                            <option value="false">false</option>
-                            <option value="true">true</option>
-                        </select>
-                    </div>
-                </div>
-
-            {{/if_eq}}
-
-            {{#if_eq type "schemeId"}}
-                <div data-field="schemeName" class="form-group">
-                    <label class="control-label col-md-2">Scheme Name:</label>
-                    <div class="col-md-10">
-                        <select data-field="schemeName" class="form-control"></select>
-                    </div>
-                </div>
-                <div data-field="schemeId" class="form-group">
-                    <label class="control-label col-md-2">Scheme ID:</label>
-                    <div class="col-md-10">
-                        <input data-field="schemeId" placeholder="Scheme ID" type="text" class="form-control">
-                    </div>
-                </div>
-            {{/if_eq}}
-
-            <div data-field="systemId" class="form-group">
-                <label class="control-label col-md-2">System ID:</label>
-                <div class="col-md-10">
-                    <input data-field="systemId" placeholder="System ID" type="text" class="form-control">
-                </div>
-            </div>
-            <div data-field="expirationDate" class="form-group">
-                <label class="control-label col-md-2">Expiration Date:</label>
-                <div class="col-md-10">
-                    <input data-field="expirationDate" placeholder="Expiration Date" type="text" class="form-control">
-                </div>
-            </div>
-            <div data-field="software" class="form-group">
-                <label class="control-label col-md-2">Software:</label>
-                <div class="col-md-10">
-                    <input data-field="software" placeholder="Software" type="text" class="form-control">
-                </div>
-            </div>
-            <div data-field="comment" class="form-group">
-                <label class="control-label col-md-2">Comment:</label>
-                <div class="col-md-10">
-                    <input data-field="comment" placeholder="Comment" type="text" class="form-control">
-                </div>
-            </div>
-        </form>
-    </div>
-    <div class="panel-footer">
-        <button class="btn btn-success" id="generateIds-send-button">Send</button>
-    </div>
+    <div class="col-md-3"></div>
 </div>

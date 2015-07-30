@@ -41,6 +41,8 @@ module.exports.getSchemes = function getSchemes (req, res, next) {
                 if (err)
                     return next(err.message);
                 else{
+                    //CTV3ID	XUsHS
+                    //SNOMEDID	R-FF43C
                     res.setHeader('Content-Type', 'application/json');
                     res.end(JSON.stringify(schemes));
                 }
