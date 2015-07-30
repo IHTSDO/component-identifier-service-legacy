@@ -1342,10 +1342,7 @@
                     "200": {
                         "description": "Operation ready.",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/SCTIDRecord"
-                            }
+                            "$ref": "#/definitions/SCTIDBulkJob"
                         }
                     }
                 }
@@ -1385,10 +1382,7 @@
                     "200": {
                         "description": "Operation ready.",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/SCTIDRecord"
-                            }
+                            "$ref": "#/definitions/SCTIDBulkJob"
                         }
                     }
                 }
@@ -1428,10 +1422,7 @@
                     "200": {
                         "description": "Operation ready.",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/SCTIDRecord"
-                            }
+                            "$ref": "#/definitions/SCTIDBulkJob"
                         }
                     }
                 }
@@ -1471,10 +1462,7 @@
                     "200": {
                         "description": "Operation ready.",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/SCTIDRecord"
-                            }
+                            "$ref": "#/definitions/SCTIDBulkJob"
                         }
                     }
                 }
@@ -1514,10 +1502,7 @@
                     "200": {
                         "description": "Operation ready.",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/SCTIDRecord"
-                            }
+                            "$ref": "#/definitions/SCTIDBulkJob"
                         }
                     }
                 }
@@ -1556,6 +1541,82 @@
                     },
                     "200": {
                         "description": "Operation ready.",
+                        "schema": {
+                            "$ref": "#/definitions/SCTIDBulkJob"
+                        }
+                    }
+                }
+            }
+        },
+        "/sct/bulk/jobs/{jobId}": {
+            "get": {
+                "x-swagger-router-controller": "SctidBulk",
+                "operationId": "getJob",
+                "tags": ["SCTIDS - Bulk Operations"],
+                "description": "Returns a job identifed by the id.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "jobId",
+                        "in": "path",
+                        "description": "The jobId.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Invalid request.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "The job.",
+                        "schema": {
+                            "$ref": "#/definitions/SCTIDBulkJob"
+                        }
+                    }
+                }
+            }
+        },
+        "/sct/bulk/jobs/{jobId}/records": {
+            "get": {
+                "x-swagger-router-controller": "SctidBulk",
+                "operationId": "getJobRecords",
+                "tags": ["SCTIDS - Bulk Operations"],
+                "description": "Returns the id records created or updated by a job identifed by the id.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "jobId",
+                        "in": "path",
+                        "description": "The jobId.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Invalid request.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "The records.",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -3043,6 +3104,28 @@
                 },
                 "password": {
                     "type": "string"
+                }
+            }
+        },
+        "SCTIDBulkJob" : {
+            "properties" : {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "modified_at": {
+                    "type": "string"
+                },
+                "request": {
+                    "type": "object"
                 }
             }
         },
