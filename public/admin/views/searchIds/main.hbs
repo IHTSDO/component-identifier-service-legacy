@@ -20,19 +20,31 @@
                             <!-- /input-group -->
                         </div>
                     </div>
-                    <div class="col-md-6"></div>
+                    <div class="col-md-offset-1 col-md-4">
+                        {{#if_eq type "schemeId"}}
+                            <select id="searchId-schemeName-select" class="form-control">
+                                <option value="CTV3ID">CTV3ID</option>
+                                <option value="SNOMEDID">SNOMEDID</option>
+                            </select>
+                        {{/if_eq}}
+                    </div>
                 </div>
                 <br>
-                <form class="form-horizontal">
+                <form id="searchId-form-fromGet" class="form-horizontal">
                     {{#each item}}
                         <div data-field="comment" class="form-group">
                             <label class="control-label col-md-2">{{@key}}:</label>
                             <div class="col-md-10">
-                                <input value="{{this}}" disabled type="text" class="form-control">
+                                {{#if_eq @key "comment"}}
+                                    <textarea data-field="{{@key}}" disabled type="text" class="form-control">{{emptyCheck this}}</textarea>
+                                {{else}}
+                                    <input data-field="{{@key}}" value="{{emptyCheck this}}" disabled type="text" class="form-control">
+                                {{/if_eq}}
                             </div>
                         </div>
                     {{/each}}
                 </form>
+                <form class="form-horizontal" id="searchId-actions-formToFill"></form>
             </div>
             <div class="panel-footer">
                 <button style="display: none;" class="btn btn-success" id="searchId-send-actions">Send</button>

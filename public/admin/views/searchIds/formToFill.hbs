@@ -1,0 +1,26 @@
+<h2>{{title}}</h2>
+{{#each fields}}
+    {{#if_empty this}}
+        <div class="form-group">
+            <label class="control-label col-md-2">{{@key}}:</label>
+            <div class="col-md-10">
+                {{#if_eq @key "comment"}}
+                    <textarea data-field="{{@key}}" type="text" class="form-control"></textarea>
+                {{else}}
+                    {{#if_eq @key "namespace"}}
+                        <select class="form-control" data-field="{{@key}}"></select>
+                    {{else}}
+                        <input data-field="{{@key}}" value="{{#if_eq @key "software"}}From Component Id Service Admin Panel{{/if_eq}}" type="text" class="form-control">
+                    {{/if_eq}}
+                {{/if_eq}}
+            </div>
+        </div>
+    {{else}}
+        <div style="display: none;" class="form-group">
+            <label class="control-label col-md-2">{{@key}}:</label>
+            <div class="col-md-10">
+                <input data-field="{{@key}}" value="{{this}}" disabled type="text" class="form-control">
+            </div>
+        </div>
+    {{/if_empty}}
+{{/each}}

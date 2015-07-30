@@ -86,9 +86,23 @@
             Handlebars.registerHelper("toLower", function(text){
                 return(text.toLowerCase());
             });
+            Handlebars.registerHelper("emptyCheck", function(text){
+                if (!text || typeof text == "undefined" || text == null || text.Window)
+                    return "";
+                else
+                    return text;
+            });
             Handlebars.registerHelper('if_eq', function (a, b, opts) {
                 if (opts != "undefined") {
                     if (a == b)
+                        return opts.fn(this);
+                    else
+                        return opts.inverse(this);
+                }
+            });
+            Handlebars.registerHelper('if_empty', function (text, opts) {
+                if (opts != "undefined") {
+                    if (!text || typeof text == "undefined" || text == null || text.Window)
                         return opts.fn(this);
                     else
                         return opts.inverse(this);
@@ -688,7 +702,8 @@
                             objToPost["namespace"] = parseInt(objToPost["namespace"]);
                         delete objToPost["schemeName"];
                         var urlToPost = getUrl + "/" + $("#action-toDo-generateId").val() + "?token=" + options.token;
-                        urlToPost = urlToPost.replace("{schemeName}", $("#generateIds-form-" + typeSelected).find("select[data-field=schemeName]").first().val());
+                        var schemeNameToPost = $("#generateIds-form-" + typeSelected).find("select[data-field=schemeName]").first().val();
+                        urlToPost = urlToPost.replace("{schemeName}", schemeNameToPost);
                         $("#generateIds-send-button").addClass("disabled");
                         $.ajax({
                             type: "POST",
@@ -696,8 +711,11 @@
                             contentType: 'application/json',
                             data: JSON.stringify(objToPost)
                         }).done(function(res){
-                            console.log(res.sctid);
-                            searchIds("/api/sct/ids/" + res.sctid + "?token=" + options.token, "SCTID");
+//                            console.log(res);
+                            var urlToSearch = "/api/sct/ids/" + res.sctid + "?token=" + options.token;
+                            if (typeSelected == "schemeId")
+                                urlToSearch = "/api/scheme/" + schemeNameToPost + "/ids/" + res.schemeId + "?token=" + options.token;
+                            searchIds(urlToSearch, typeSelected);
                             $.notify("Created!", "success");
                             $("#generateIds-send-button").removeClass("disabled");
                         }).fail(function(err){
@@ -716,12 +734,17 @@
                         var template = Handlebars.compile(src);
                         $("#page-wrapper").html(template(context));
 
+                        if (typeSelected == "schemeId" && getUrl && getUrl.indexOf("SNOMEDID") != -1)
+                            $("#searchId-schemeName-select").val("SNOMEDID");
+
                         $("#search-button-ids").unbind();
                         $("#search-button-ids").disableTextSelect();
                         $("#search-button-ids").click(function(){
                             var url = "/api/sct/ids/{id}?token=" + options.token;
-                            if (typeSelected == "schemeId")
-                                url = "";
+                            if (typeSelected == "schemeId"){
+                                url = "/api/scheme/{schemeName}/ids/{id}?token=" + options.token;
+                                url = url.replace("{schemeName}", $("#searchId-schemeName-select").val());
+                            }
                             url = url.replace("{id}", $.trim($("#search-input-ids").val()));
                             searchIds(url, typeSelected);
                         });
@@ -729,13 +752,12 @@
                         $("#search-input-ids").unbind();
                         $("#search-input-ids").keyup(function(e){
                             if (e.keyCode == 13){
-                                var url = "/api/sct/ids/{id}?token=" + options.token;
-                                if (typeSelected == "schemeId")
-                                    url = "";
-                                url = url.replace("{id}", $.trim($("#search-input-ids").val()));
-                                searchIds(url, typeSelected);
+                                $("#search-button-ids").click();
                             }
                         });
+
+                        if ($.isEmptyObject(context.item))
+                            $("#page-wrapper").find(".actionSearchId").first().closest("div").hide();
 
                         $("#page-wrapper").find(".actionSearchId").unbind();
                         $("#page-wrapper").find(".actionSearchId").click(function(e){
@@ -744,8 +766,28 @@
                             $("#searchId-actions-dropdown").hide();
                             $("#searchId-send-actions").show();
                             $("#searchId-cancel-actions").show();
-                            console.log(action);
+                            function loadFormToFill(contextToUse){
+                                $.get("../views/searchIds/formToFill.hbs").then(function(src){
+                                    var template = Handlebars.compile(src);
+                                    $("#searchId-actions-formToFill").html(template(contextToUse));
+                                });
+                            }
+                            var contextToUse = {
+                                title: action.charAt(0).toUpperCase() + action.slice(1),//typeh
+                                fields: {
+                                    "software": context.item["software"],
+                                    "comment": context.item["comment"]
+                                }
+                            };
+                            if (typeSelected == "SCTID"){
+                                contextToUse.fields["namespace"] = context.item["namespace"] + "";
+                                contextToUse.fields["sctid"] = context.item["sctid"];
+                            }else
+                                contextToUse.fields["schemeId"] = context.item["schemeId"];
 
+                            if (action == "register")
+                                contextToUse.fields["systemId"] = context.item["systemId"];
+                            loadFormToFill(contextToUse);
                         });
 
                         $("#searchId-cancel-actions").unbind();
@@ -754,6 +796,7 @@
                             $("#searchId-actions-dropdown").show();
                             $("#searchId-send-actions").hide();
                             $("#searchId-cancel-actions").hide();
+                            $("#searchId-actions-formToFill").html("");
                         });
 
                         $("#searchId-send-actions").unbind();
@@ -761,17 +804,26 @@
                         $("#searchId-send-actions").click(function(){
                             var action = $("#searchId-actions-dropdown").attr("data-action");
                             var urlToSend = "/api/sct/" + action + "?token=" + options.token;
-                            var objToSend = context.item;
+                            if (typeSelected == "schemeId")
+                                urlToSend = "/api/scheme/" + $("#searchId-schemeName-select").val() + "/" + action + "?token=" + options.token;
+                            var objToSend = {};//context.item;
+                            $.each($("#searchId-actions-formToFill").find(".form-control"), function (i, item){
+                                var field = $(item).attr("data-field"), value = $(item).val();
+                                objToSend[field] = value;
+                            });
+                            if (objToSend["namespace"])
+                                objToSend["namespace"] = parseInt(objToSend["namespace"]);
                             var type = "PUT";
                             if (action == "register")
                                 type = "POST";
+//                            console.log(objToSend);
                             $.ajax({
                                 type: type,
                                 url: urlToSend,
                                 contentType: 'application/json',
                                 data: JSON.stringify(objToSend)
                             }).done(function(res){
-                                console.log(res);
+//                                console.log(res);
                                 var context = {
                                     item: res,
                                     type: typeSelected
@@ -780,13 +832,7 @@
                                 $.notify("Success!", "success");
                                 $("#generateIds-send-button").removeClass("disabled");
                             }).fail(function(err){
-                                console.log(err);
-//                                var context = {
-//                                    item: {},
-//                                    type: typeSelected,
-//                                    errorText: "Error: " + err.responseText
-//                                };
-//                                loadHtml(context);
+//                                console.log(err);
                                 $("#searchId-cancel-actions").click();
                                 $.notify("Failed!", "error");
                                 $("#text-danger-idsSearch").html("Error: " + err.responseText);
@@ -796,7 +842,6 @@
                 }
                 if (getUrl){
                     $.get(getUrl).done(function(res){
-                        console.log(res);
                         var context = {
                             item: res,
                             type: typeSelected
@@ -833,9 +878,7 @@
             $("#search-sctid-fromHome").unbind();
             $("#search-sctid-fromHome").keyup(function(e){
                 if (e.keyCode == 13){
-                    var url = "/api/sct/ids/{id}?token=" + options.token;
-                    url = url.replace("{id}", $.trim($("#search-sctid-fromHome").val()));
-                    searchIds(url, "SCTID");
+                    $("#button-sctid-fromHome").click();
                 }
             });
 
