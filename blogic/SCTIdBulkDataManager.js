@@ -395,7 +395,7 @@ function setNewSCTIdRecord(operation,thisPartition,action,callback) {
                 sctIdRecord.software = operation.software;
                 sctIdRecord.expirationDate = operation.expirationDate;
                 sctIdRecord.comment = operation.comment;
-
+                sctIdRecord.jobId=operation.jobId;
                 var updatedRecord = sctIdRecord.save.sync(null);
                 callback(null, updatedRecord);
             } else {
@@ -440,15 +440,16 @@ function getSCTIDRecord(objQuery, callback){
 var generateSctids=function (operation, callback) {
     getModel(function (err) {
         if (err) {
-            callback(err, null);
+            callback(err);
         } else {
-            var sctIdRecords = [];
+            //var sctIdRecords = [];
             var cont = 0;
             var key=[parseInt(operation.namespace),operation.partitionId.toString()];
-            console.log("key:" + JSON.stringify(key));
+            //console.log("key:" + JSON.stringify(key));
+
             getPartition(key,function(err,data) {
                 if (err){
-                    callback(err,null);
+                    callback(err);
                 }else {
                     var thisPartition=data;
                     console.log("getting partition :" + JSON.stringify(thisPartition) + " for key:" + JSON.stringify(key));
@@ -456,16 +457,16 @@ var generateSctids=function (operation, callback) {
 
                         Sync(function () {
                             operation.systemId = operation.systemIds[i];
-                            var sctIdRecord = generateSctid.sync(null, operation, thisPartition);
-                            sctIdRecords.push(sctIdRecord);
+                            generateSctid.sync(null, operation, thisPartition);
+                            //sctIdRecords.push(sctIdRecord);
                             cont++;
                             if (operation.quantity == cont) {
                                 thisPartition.save(function (err) {
                                     if (err) {
-                                        callback(err, null);
+                                        callback(err);
                                     } else {
                                         console.log("saving partition :" + JSON.stringify(thisPartition) + " for key:" + JSON.stringify(key));
-                                        callback(null, sctIdRecords);
+                                        callback(null);
                                     }
                                 });
                             }
