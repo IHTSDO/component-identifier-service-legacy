@@ -67,7 +67,7 @@ var getSctids=function (sctidArray, callback){
                     var cont=0;
                     diff.forEach(function(rec){
 
-                        getFreeRecord(sctid, function (err, record) {
+                        getFreeRecord(sctid, null,function (err, record) {
                             if (err) {
                                 callback(err, null);
                             } else {
