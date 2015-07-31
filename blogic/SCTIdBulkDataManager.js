@@ -64,7 +64,7 @@ var getSctids=function (sctidArray, callback){
 
                 if (diff && diff.length>0){
                     var cont=0;
-                    diff.forEach(function(rec){
+                    diff.forEach(function(sctid){
 
                         getFreeRecord(sctid, null,function (err, record) {
                             if (err) {
@@ -74,7 +74,7 @@ var getSctids=function (sctidArray, callback){
                                 sctIdRecords.push(record);
                                 //console.log("getSctId record:" + JSON.stringify(record));
                                 if (cont==diff.length) {
-                                    callback(null, record);
+                                    callback(null, sctIdRecords);
                                     return;
                                 }
                             }
