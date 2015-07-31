@@ -80,7 +80,6 @@ module.exports.createNamespace = function createNamespace(objNamespace, callback
                     if (partitionsOfObj && partitionsOfObj.length)
                         partitions = partitionsOfObj;
                     else{
-
                         if (objNamespace.namespace==0){
                             partitions = [{
                                 namespace: objNamespace.namespace,

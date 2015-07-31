@@ -1,11 +1,14 @@
-<thead>
-    <tr>
+{{#if headLoaded}}
+{{else}}
+    <thead>
+        <tr>
         {{#each fields}}
             <th>{{this}}</th>
         {{/each}}
-    </tr>
-</thead>
-<tbody>
+        </tr>
+    </thead>
+    <tbody>
+{{/if}}
 {{#each items}}
     <tr>
         {{#each ../fields}}
@@ -23,4 +26,7 @@
         {{/each}}
     </tr>
 {{/each}}
-</tbody>
+{{#if headLoaded}}
+{{else}}
+    </tbody>
+{{/if}}

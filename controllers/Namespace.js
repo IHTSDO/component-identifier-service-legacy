@@ -95,14 +95,18 @@ module.exports.createNamespace = function createNamespace (req, res, next) {
             return next(err.message);
         else{
             if (isAbleToEdit("false", data.user.name)){
-                namespace.createNamespace(namespaceData,function(err) {
-                    if (err)
-                        return next(err.message);
-                    else{
-                        res.setHeader('Content-Type', 'application/json');
-                        res.end(JSON.stringify({message: "Success"}));
-                    }
-                });
+                var namespaceString = namespaceData.namespace + '';
+                if (namespaceString.length == 7){
+                    namespace.createNamespace(namespaceData,function(err) {
+                        if (err)
+                            return next(err.message);
+                        else{
+                            res.setHeader('Content-Type', 'application/json');
+                            res.end(JSON.stringify({message: "Success"}));
+                        }
+                    });
+                }else
+                    return next("Invalid namespace");
             }else
                 return next("No permission for the selected operation");
         }

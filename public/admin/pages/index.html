@@ -68,7 +68,13 @@
     }
     function loadStats(username){
         $.get("/api/stats?token=" + options.token + "&username=" + username).done(function(res){
-            $("#namespaces-count-stats").html(res.namespaces);
+            var data= [];
+            $.each(res.namespaces, function(i, field){
+                if (i != "total")
+                    data.push({data: field, label: i});
+            });
+            drawPieChart(data);
+            $("#namespaces-count-stats").html(res.namespaces.total);
             $("#schemes-count-stats").html(res.schemes);
             $("#users-count-stats").html(res.users);
         }).fail(function(err){
@@ -90,7 +96,7 @@
             });
             ensureAuthenticated("index.html", function(credentials){
                 setupDashboard(credentials);
-                drawPieChart();
+//                drawPieChart();
             });
         };
         function setupDashboard(credentials){
@@ -105,6 +111,20 @@
             });
             Handlebars.registerHelper("fieldOfObject", function(obj, field){
                 return obj[field];
+            });
+            Handlebars.registerHelper("getHowLongAgo", function(time){
+                var d = new Date(time).getTime();
+                var currentTimeStamp = new Date().getTime();
+                var elapsed = currentTimeStamp - d;
+                if (elapsed < 60000) {
+                    return "just now";
+                } else if (elapsed < 3600000) {
+                    return Math.round(elapsed/60000) + " minutes ago";
+                } else if (elapsed < 86400000) {
+                    return Math.round(elapsed/3600000) + " hours ago";
+                } else {
+                    return Math.round(elapsed/86400000) + " days ago";
+                }
             });
             Handlebars.registerHelper('if_eq', function (a, b, opts) {
                 if (opts != "undefined") {
@@ -331,7 +351,7 @@
                                         };
                                         if (itemLoaded.new){
                                             objEdit["namespace"] = parseInt($.trim($("#edit-namespace-value").val()));
-                                            if (isNaN(objEdit.namespace)){
+                                            if (isNaN(objEdit.namespace) || $.trim($("#edit-namespace-value").val()).length != 7){
                                                 $.notify("Invalid namespace", 'error');
                                                 $("#item-" + typeSelected + "-details").find(".btn").removeClass("disabled");
                                                 return 0;
@@ -925,7 +945,7 @@
                             var template = Handlebars.compile(src), fields = ["namespace", "sctid", "status", "author", "modified_at"];
                             if (typeSelected == "schemeId")
                                 fields = ["scheme", "schemeId", "status", "author", "modified_at"];
-                            $("#table-items-reports").html(template({first: res[0], items: res, fields: fields}));
+                            $("#table-items-reports").html(template({items: res, fields: fields}));
 
                             $("#table-items-reports").find(".schemeLink").unbind();
                             $("#table-items-reports").find(".schemeLink").click(function(e){
@@ -989,6 +1009,73 @@
                 });
             }
 
+            function bulkJobs(){
+                $.get("../views/bulk/main.hbs").then(function(src){
+                    var template = Handlebars.compile(src);
+                    $("#page-wrapper").html(template());
+                    //load jobs, load first one details
+                    function loadJobId(jobId){
+                        $("#jobs-bulk-details").html("<div class='text-center'><i class='fa fa-spinner fa-spin fa-2x'></i></div>");
+                        $.get("/api/sct/bulk/jobs/" + jobId + "?token=" + options.token).done(function(res){
+                            $.get("../views/bulk/details.hbs").then(function(src){
+                                var template = Handlebars.compile(src);
+                                $("#jobs-bulk-details").html(template({job: res}));
+                                //records-details-bulk-job
+                                $("#records-get-button-bulk").unbind();
+                                $("#records-get-button-bulk").disableTextSelect();
+                                $("#records-get-button-bulk").click(function(){
+                                    $("#records-get-button-bulk").addClass("disabled");
+                                    var fields = ["namespace", "sctid", "status", "author", "modified_at"], headLoaded = false;
+                                    if ($("#records-details-bulk-job").html() != "")
+                                        headLoaded = true;
+//                                    if (typeSelected == "schemeId")
+//                                        fields = ["scheme", "schemeId", "status", "author", "modified_at"];
+                                    $.get("/api/sct/bulk/jobs/" + jobId + "/records?token=" + options.token).done(function(records){
+                                        $("#records-get-button-bulk").hide();
+                                        $.get("../views/bulk/records.hbs").then(function(src){
+//                                            console.log(records);
+                                            var template = Handlebars.compile(src);
+                                            if (!headLoaded)
+                                                $("#records-details-bulk-job").html(template({items: records, fields: fields, headLoaded: headLoaded}));
+                                            else
+                                                $("#records-details-bulk-job").find("tbody").first().append(template({items: records, fields: fields, headLoaded: headLoaded}));
+                                            $("#records-details-bulk-job").find(".sctidLink").unbind();
+                                            $("#records-details-bulk-job").find(".sctidLink").click(function(e){
+                                                var id = $(e.target).attr("data-id");
+                                                var url = "/api/sct/ids/" + id + "?token=" + options.token;
+                                                searchIds(url, "SCTID");
+                                            });
+                                        });
+                                    }).fail(function(err){
+                                        console.log(err);
+                                    });
+                                });
+                            });
+                        }).fail(function(err){
+                            console.log(err);
+                        });
+                    }
+                    function loadJobs(){
+                        $.get("/api/sct/bulk/jobs?token=" + options.token).done(function(res){
+                            $.get("../views/bulk/list.hbs").then(function(src){
+                                var template = Handlebars.compile(src);
+                                $("#jobs-bulk-list").html(template({jobs: res}));
+                                $("#jobs-bulk-list").find(".job-link").unbind();
+                                $("#jobs-bulk-list").find(".job-link").click(function(e){
+                                    var id = $(e.target).attr("data-id");
+                                    loadJobId(id);
+                                });
+                                if ($("#jobs-bulk-list").find(".job-link")[0])
+                                    $("#jobs-bulk-list").find(".job-link").first().click();
+                            });
+                        }).fail(function(err){
+                            console.log(err);
+                        });
+                    }
+                    loadJobs();
+                });
+            }
+
             $("#button-sctid-fromHome").unbind();
             $("#button-sctid-fromHome").disableTextSelect();
             $("#button-sctid-fromHome").click(function(){
@@ -998,6 +1085,7 @@
             });
 
             $("#search-sctid-fromHome").unbind();
+            $("#search-sctid-fromHome").disableTextSelect();
             $("#search-sctid-fromHome").keyup(function(e){
                 if (e.keyCode == 13){
                     $("#button-sctid-fromHome").click();
@@ -1005,46 +1093,61 @@
             });
 
             $("#configure-namespaces").unbind();
+            $("#configure-namespaces").disableTextSelect();
             $("#configure-namespaces").click(function(){
                 loadItems("namespaces", "/api/sct/namespaces", "namespace");
             });
 
             $("#snomed-search-ids").unbind();
+            $("#snomed-search-ids").disableTextSelect();
             $("#snomed-search-ids").click(function(){
                 searchIds(false, "SCTID");
             });
 
             $("#snomed-generate-ids").unbind();
+            $("#snomed-generate-ids").disableTextSelect();
             $("#snomed-generate-ids").click(function(){
                 generateIds("SCTID", "/api/sct");
             });
 
             $("#snomed-reports").unbind();
+            $("#snomed-reports").disableTextSelect();
             $("#snomed-reports").click(function(){
                 reportsOf("/api/sct/ids", "SCTID", "namespace");
             });
 
             $("#configure-schemes").unbind();
+            $("#configure-schemes").disableTextSelect();
             $("#configure-schemes").click(function(){
                 loadItems("schemes", "/api/schemes", "scheme");
             });
 
             $("#schemes-generate-ids").unbind();
+            $("#schemes-generate-ids").disableTextSelect();
             $("#schemes-generate-ids").click(function(){
                 generateIds("schemeId", "/api/scheme/{schemeName}");
             });
 
             $("#schemes-search-ids").unbind();
+            $("#schemes-search-ids").disableTextSelect();
             $("#schemes-search-ids").click(function(){
                 searchIds(false, "schemeId");
             });
 
             $("#schemes-reports").unbind();
+            $("#schemes-reports").disableTextSelect();
             $("#schemes-reports").click(function(){
                 reportsOf("/api/scheme/ids", "schemeId", "scheme");
             });
 
+            $("#bulk-requests").unbind();
+            $("#bulk-requests").disableTextSelect();
+            $("#bulk-requests").click(function(){
+                bulkJobs();
+            });
+
             $("#admin-users").unbind();
+            $("#admin-users").disableTextSelect();
             $("#admin-users").click(function(){
                setupAdminPanel();
             });
@@ -1197,21 +1300,7 @@
             };
         }
 
-        function drawPieChart() {
-
-            var data = [{
-                label: "UY Edition",
-                data: 5245
-            }, {
-                label: "DK Edition",
-                data: 14532
-            }, {
-                label: "UK Edition",
-                data: 132922
-            }, {
-                label: "Int Edition",
-                data: 412000
-            }];
+        function drawPieChart(data) {
             var plotObj = $.plot($("#flot-pie-chart"), data, {
                 series: {
                     pie: {
@@ -1496,7 +1585,7 @@
                             <a href="index.html"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
                         </li>
                         <li>
-                            <a href="#"><i class="fa fa-bar-chart-o fa-fw"></i> SNOMED CT Identifiers<span class="fa arrow"></span></a>
+                            <a href="#"><i class="fa fa-bookmark fa-fw"></i> SNOMED CT Identifiers<span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
                                 <li>
                                     <a id="configure-namespaces" href="javascript:void(0);">Configure Namespaces</a>
@@ -1514,7 +1603,7 @@
                             <!-- /.nav-second-level -->
                         </li>
                         <li>
-                            <a href="#"><i class="fa fa-bar-chart-o fa-fw"></i> Identifier Schemes<span class="fa arrow"></span></a>
+                            <a href="#"><i class="fa fa-bookmark-o fa-fw"></i> Identifier Schemes<span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
                                 <li>
                                     <a id="configure-schemes" href="javascript:void(0);">Configure Schemes</a>
@@ -1532,16 +1621,22 @@
                             <!-- /.nav-second-level -->
                         </li>
                         <li>
-                            <a href="/docs" target="_blank"><i class="fa fa-table fa-fw"></i> API Documentation</a>
+                            <a id="bulk-requests" href="#" ><i class="fa fa-truck fa-fw"></i> Bulk requests</a>
                         </li>
                         <li>
-                            <a href="https://confluence.ihtsdotools.org/x/DICQ" target="_blank"><i class="fa fa-edit fa-fw"></i> Confluence Site</a>
+                            <a href="/docs" target="_blank"><i class="fa fa-code fa-fw"></i> API Documentation</a>
                         </li>
                         <li>
-                            <a href="https://jira.ihtsdotools.org/projects/ICIS" target="_blank"><i class="fa fa-edit fa-fw"></i> Jira Site</a>
+                            <a href="https://confluence.ihtsdotools.org/x/DICQ" target="_blank"><i class="fa fa-book fa-fw"></i> Confluence Site</a>
                         </li>
                         <li>
-                            <a href="javascript:void(0);" id="admin-users">Admin</a>
+                            <a href="https://jira.ihtsdotools.org/projects/ICIS" target="_blank"><i class="fa fa-tags fa-fw"></i> Jira Site</a>
+                        </li>
+                        <li>
+                            <a href="https://github.com/termMed/component-identifier-service" target="_blank"><i class="fa fa-github fa-fw"></i> GitHub</a>
+                        </li>
+                        <li>
+                            <a href="javascript:void(0);" id="admin-users"><i class="fa fa-tasks fa-fw"></i> Admin</a>
                             <!-- /.nav-second-level -->
                         </li>
                     </ul>
@@ -1654,7 +1749,7 @@
                 <div class="col-lg-8">
                 <div class="panel panel-default">
                     <div class="panel-heading">
-                        Namespaces distribution <span class="text-muted small">(sample data)</span>
+                        Namespaces distribution
                     </div>
                     <!-- /.panel-heading -->
                     <div class="panel-body">
