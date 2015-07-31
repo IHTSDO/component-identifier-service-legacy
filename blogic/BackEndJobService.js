@@ -67,7 +67,11 @@ function processJob(record){
         idDM.generateSctids(request, function(err){
             if (err){
                 record.status="3";
-                record.log=err;
+                if (typeof err=="object"){
+                    record.log=JSON.stringify(err);
+                }else {
+                    record.log = err;
+                }
             }else{
                 record.status="2";
             }
@@ -85,7 +89,11 @@ function processJob(record){
         idDM.registerSctids(request, function(err){
             if (err){
                 record.status="3";
-                record.log=err;
+                if (typeof err=="object"){
+                    record.log=JSON.stringify(err);
+                }else {
+                    record.log = err;
+                }
             }else{
                 record.status="2";
             }
@@ -110,7 +118,11 @@ function processJob(record){
         idDM.generateSctids(request, function(err){
             if (err){
                 record.status="3";
-                record.log=err;
+                if (typeof err=="object"){
+                    record.log=JSON.stringify(err);
+                }else {
+                    record.log = err;
+                }
             }else{
                 record.status="2";
             }
@@ -128,7 +140,11 @@ function processJob(record){
         idDM.updateSctids(request, function(err){
             if (err){
                 record.status="3";
-                record.log=err;
+                if (typeof err=="object"){
+                    record.log=JSON.stringify(err);
+                }else {
+                    record.log = err;
+                }
             }else{
                 record.status="2";
             }
@@ -146,7 +162,11 @@ function processJob(record){
         idDM.updateSctids(request, function(err){
             if (err){
                 record.status="3";
-                record.log=err;
+                if (typeof err=="object"){
+                    record.log=JSON.stringify(err);
+                }else {
+                    record.log = err;
+                }
             }else{
                 record.status="2";
             }
@@ -164,7 +184,11 @@ function processJob(record){
         idDM.updateSctids(request, function(err){
             if (err){
                 record.status="3";
-                record.log=err;
+                if (typeof err=="object"){
+                    record.log=JSON.stringify(err);
+                }else {
+                    record.log = err;
+                }
             }else{
                 record.status="2";
             }
