@@ -103,6 +103,9 @@
                 else
                     return text;
             });
+            Handlebars.registerHelper("fieldOfObject", function(obj, field){
+                return obj[field];
+            });
             Handlebars.registerHelper('if_eq', function (a, b, opts) {
                 if (opts != "undefined") {
                     if (a == b)
@@ -895,7 +898,7 @@
                         };
                         loadHtml(context);
                     }).fail(function(err){
-                        console.log(err);
+//                        console.log(err);
                         var context = {
                             item: {},
                             type: typeSelected,
@@ -919,8 +922,10 @@
                     $("#table-items-reports").html('<tr><td><i class="fa fa-spinner fa-spin"></i></td></tr>');
                     $.get(urlToGet).done(function(res){
                         $.get("../views/reports/body.hbs").then(function(src){
-                            var template = Handlebars.compile(src);
-                            $("#table-items-reports").html(template({first: res[0], items: res}));
+                            var template = Handlebars.compile(src), fields = ["namespace", "sctid", "status", "author", "modified_at"];
+                            if (typeSelected == "schemeId")
+                                fields = ["scheme", "schemeId", "status", "author", "modified_at"];
+                            $("#table-items-reports").html(template({first: res[0], items: res, fields: fields}));
 
                             $("#table-items-reports").find(".schemeLink").unbind();
                             $("#table-items-reports").find(".schemeLink").click(function(e){
