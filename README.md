@@ -25,9 +25,9 @@ Start the Service:
 
 Now the web service and the admin tool will be available:
 
-REST Api: http://localhost:3000/api
-Swagger Docs: http://localhost:3000/docs
-Admin tool: http://localhost:3000/admin
+- REST Api: http://localhost:3000/api
+- Swagger Docs: http://localhost:3000/docs
+- Admin tool: http://localhost:3000/admin
 
 ## Component Identifiers
 
@@ -90,3 +90,21 @@ A similar model is used for Scheme Identifiers.
 Identifiers are generated or regsitered using the Api, and they will change status to represent publications, reservations and other events that may make the identifer to be available again or to be defitively linked with a terminology component.
 
 The set of valid statuses and actions are represented in the State Machine diagram included in this git project as a pdf file.
+
+## Authentication
+
+The Application is integrated with Atlassian Crowd for authentication. Admin permissions are assgined using Crowd groups, and resources permissions.
+
+## Example REST Api calls
+
+Integrating this service into an application will require to perform http calls to the Api, for example:
+
+#### Retrieving the available namespaces for a user
+GET http://localhost:3000/api/users/USERNAME/namespaces/?token=hdaskjdhakjdgy7
+
+#### Generating a new SCTID for a concept in namespace 1000179
+POST http://localhost:3000/api/sct/generate?token=hdaskjdhakjdgy7
+
+(Ids metadata, like namespace and parititon is passed in the body)
+
+See the full API Documentation in the Swagger Docs.
