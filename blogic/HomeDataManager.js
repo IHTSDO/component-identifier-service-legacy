@@ -52,7 +52,7 @@ module.exports.getStats = function getStats(username, callback){
                                             callback(err, null);
                                         else{
                                             done++;
-                                            result.namespaces[namespaceR.namespace] = namespaceCount;
+                                            result.namespaces[namespaceR.organizationName + " (" + namespaceR.namespace + ")"] = namespaceCount;
                                             if (total == done){
                                                 callback(null, result);
                                             }
@@ -81,7 +81,7 @@ module.exports.getStats = function getStats(username, callback){
                                             callback(err, null);
                                         else{
                                             done++;
-                                            result.namespaces[namespaceR.namespace] = namespaceCount;
+                                            result.namespaces[namespaceR.organizationName + " (" + namespaceR.namespace + ")"] = namespaceCount;
                                             if (total == done){
                                                 callback(null, result);
                                             }
