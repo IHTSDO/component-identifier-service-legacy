@@ -367,15 +367,18 @@ function setNewSCTIdRecord(operation,thisPartition,callback) {
     });
 };
 
-function getPartition(key,callback){
-        model.partitions.get(key,function(err,partitions) {
-            if (err){
-                callback(err,null);
-            }else {
-                //partition=partitions;
+function getPartition(key,callback) {
+    model.partitions.get(key, function (err, partitions) {
+        if (err) {
+            callback(err, null);
+        } else {
+            if (!partitions) {
+                callback("Partition not found for key:" + JSON.stringify(key), null);
+            } else {
                 callback(null, partitions);
             }
-        });
+        }
+    });
 };
 function getSCTIDRecord(objQuery, callback){
     Sync(function() {
@@ -403,6 +406,9 @@ var generateSctids=function (operation, callback) {
                 if (err){
                     callback(err);
                 }else {
+                    if (!data){
+                        callback("Partition not found for key:" + JSON.stringify(key));
+                    }
                     var thisPartition=data;
                     console.log("getting partition :" + JSON.stringify(thisPartition) + " for key:" + JSON.stringify(key));
                     for (var i = 0; i < operation.quantity; i++) {
