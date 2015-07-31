@@ -1,0 +1,32 @@
+{{#if headLoaded}}
+{{else}}
+    <thead>
+        <tr>
+        {{#each fields}}
+            <th>{{this}}</th>
+        {{/each}}
+        </tr>
+    </thead>
+    <tbody>
+{{/if}}
+{{#each items}}
+    <tr>
+        {{#each ../fields}}
+            <td>
+                {{#if_eq this "schemeId"}}
+                    <a class="schemeLink" data-scheme="{{../../scheme}}" href="javascript:void(0);" data-id="{{../../schemeId}}">{{../../schemeId}}</a>
+                {{else}}
+                    {{#if_eq this "sctid"}}
+                        <a class="sctidLink" href="javascript:void(0);" data-id="{{../../../sctid}}">{{../../../sctid}}</a>
+                    {{else}}
+                        {{fieldOfObject ../../../this ../../this}}
+                    {{/if_eq}}
+                {{/if_eq}}
+            </td>
+        {{/each}}
+    </tr>
+{{/each}}
+{{#if headLoaded}}
+{{else}}
+    </tbody>
+{{/if}}

@@ -1005,11 +1005,26 @@
                                 $("#records-get-button-bulk").disableTextSelect();
                                 $("#records-get-button-bulk").click(function(){
                                     $("#records-get-button-bulk").addClass("disabled");
-                                    $.get("/api/sct/bulk/jobs/" + jobId + "?token=" + options.token).done(function(records){
+                                    var fields = ["namespace", "sctid", "status", "author", "modified_at"], headLoaded = false;
+                                    if ($("#records-details-bulk-job").html() != "")
+                                        headLoaded = true;
+//                                    if (typeSelected == "schemeId")
+//                                        fields = ["scheme", "schemeId", "status", "author", "modified_at"];
+                                    $.get("/api/sct/bulk/jobs/" + jobId + "/records?token=" + options.token).done(function(records){
+                                        $("#records-get-button-bulk").hide();
                                         $.get("../views/bulk/records.hbs").then(function(src){
-                                            console.log(records);
+//                                            console.log(records);
                                             var template = Handlebars.compile(src);
-                                            $("#records-details-bulk-job").html(template({records: records}));
+                                            if (!headLoaded)
+                                                $("#records-details-bulk-job").html(template({items: records, fields: fields, headLoaded: headLoaded}));
+                                            else
+                                                $("#records-details-bulk-job").find("tbody").first().append(template({items: records, fields: fields, headLoaded: headLoaded}));
+                                            $("#records-details-bulk-job").find(".sctidLink").unbind();
+                                            $("#records-details-bulk-job").find(".sctidLink").click(function(e){
+                                                var id = $(e.target).attr("data-id");
+                                                var url = "/api/sct/ids/" + id + "?token=" + options.token;
+                                                searchIds(url, "SCTID");
+                                            });
                                         });
                                     }).fail(function(err){
                                         console.log(err);
