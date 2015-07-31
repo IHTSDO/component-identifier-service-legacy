@@ -925,7 +925,7 @@
                             var template = Handlebars.compile(src), fields = ["namespace", "sctid", "status", "author", "modified_at"];
                             if (typeSelected == "schemeId")
                                 fields = ["scheme", "schemeId", "status", "author", "modified_at"];
-                            $("#table-items-reports").html(template({first: res[0], items: res, fields: fields}));
+                            $("#table-items-reports").html(template({items: res, fields: fields}));
 
                             $("#table-items-reports").find(".schemeLink").unbind();
                             $("#table-items-reports").find(".schemeLink").click(function(e){
@@ -1530,6 +1530,9 @@
                                 </li>
                             </ul>
                             <!-- /.nav-second-level -->
+                        </li>
+                        <li>
+                            <a href="#" ><i class="fa fa-table fa-fw"></i> Bulk requests</a>
                         </li>
                         <li>
                             <a href="/docs" target="_blank"><i class="fa fa-table fa-fw"></i> API Documentation</a>
