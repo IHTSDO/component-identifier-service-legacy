@@ -1071,10 +1071,21 @@
                         $.get("/api/sct/bulk/jobs?token=" + options.token).done(function(res){
                             $.get("../views/bulk/list.hbs").then(function(src){
                                 var template = Handlebars.compile(src);
+                                res.sort(function(a, b){
+                                    var aTime = new Date(a.created_at).getTime();
+                                    var bTime = new Date(b.created_at).getTime();
+                                    if (aTime < bTime)
+                                        return -1;
+                                    if (aTime > bTime)
+                                        return 1;
+                                    return 0;
+                                });
                                 $("#jobs-bulk-list").html(template({jobs: res}));
                                 $("#jobs-bulk-list").find(".job-link").unbind();
                                 $("#jobs-bulk-list").find(".job-link").click(function(e){
+                                    $("#jobs-bulk-list").find("li").removeClass("active");
                                     var id = $(e.target).closest("a").attr("data-id");
+                                    $(e.target).closest("li").addClass("active");
                                     loadJobId(id);
                                 });
                                 if ($("#jobs-bulk-list").find(".job-link")[0])
