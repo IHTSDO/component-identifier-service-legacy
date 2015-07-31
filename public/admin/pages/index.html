@@ -66,6 +66,17 @@
             //console.log("users:", users);
         });
     }
+    function loadStats(username){
+        $.get("/api/stats?token=" + options.token + "&username=" + username).done(function(res){
+            $("#namespaces-count-stats").html(res.namespaces);
+            $("#schemes-count-stats").html(res.schemes);
+            $("#users-count-stats").html(res.users);
+        }).fail(function(err){
+            $("#namespaces-count-stats").html("-");
+            $("#schemes-count-stats").html("-");
+            $("#users-count-stats").html("-");
+        });
+    }
         function start() {
             $(function() {
                 $.extend($.fn.disableTextSelect = function() {
@@ -109,6 +120,7 @@
                 }
             });
             loadUsers();
+            loadStats(credentials.username);
             $("#username-label").html(credentials.username);
 //            var iconData = new Identicon(CryptoJS.MD5(credentials.username).toString(), 20).toString();
             $("#user-avatar").html('<img src="http://robohash.org/' + credentials.username + '?size=20x20&bgset=bg1" alt="User Avatar" class="img-circle" />');
@@ -324,8 +336,10 @@
                                             objEdit.partitions = [];
                                             $.each($("#item-" + typeSelected + "-details").find("tbody").first().find("tr"), function (i, field){
                                                 var partition = $($(field).find("td")[1]).attr("data-id");
-                                                var newPart = "0" + partition[1];
-                                                partition = newPart;
+                                                if (objEdit.namespace == 0){
+                                                    var newPart = "0" + partition[1];
+                                                    partition = newPart;
+                                                }
                                                 var value = parseInt($($(field).find("td")[1]).attr("data-value"));
                                                 objEdit.partitions.push({
                                                     namespace: objEdit.namespace,
@@ -569,6 +583,7 @@
                     console.log(err);
                 });
             }
+
             function generateIds(typeSelected, getUrl){
                 $("#page-wrapper").html('<br><br><br><br><div class="text-center"><i class="fa fa-spinner fa-spin fa-4x"></i></div>');
                 $.get("../views/generateIds/main.hbs").then(function(src){
@@ -576,6 +591,7 @@
                     $("#page-wrapper").html(template({type: typeSelected}));
 
                     function loadPartitions(namespace){
+                        $("#generateIds-send-button").addClass("disabled");
                         $.get("/api/sct/namespaces/" + namespace + "?token=" + options.token).done(function(res){
                             console.log(res);
                             var partitionsHtml = "";
@@ -583,11 +599,13 @@
                                 partitionsHtml+= '<option value="' + partition.partitionId + '">' + partition.partitionId + '</option>';
                             });
                             $("#generateIds-form-" + typeSelected).find("select[data-field=partitionId]").first().html(partitionsHtml);
+                            $("#generateIds-send-button").removeClass("disabled");
                         }).fail(function(err){
                             console.log(err);
                         });
                     }
 
+                    $("#generateIds-send-button").addClass("disabled");
                     if (typeSelected == "schemeId"){
                         var itemsUrl = "/api/users/" + options.username + "/schemes/?token=" + options.token;
                         if (options.adminUser)
@@ -598,6 +616,7 @@
                                 schemesHtml+= '<option value="' + item.scheme + '">' + item.scheme + '</option>';
                             });
                             $("#generateIds-form-" + typeSelected).find("select[data-field=schemeName]").first().html(schemesHtml);
+                            $("#generateIds-send-button").removeClass("disabled");
                         }).fail(function(err){
                             console.log(err);
                         });
@@ -612,6 +631,7 @@
                             });
                             loadPartitions(result[0].namespace);
                             $("#generateIds-form-" + typeSelected).find("select[data-field=namespace]").first().html(namespacesHtml);
+                            $("#generateIds-send-button").removeClass("disabled");
                         }).fail(function(err){
                             console.log(err);
                         });
@@ -727,6 +747,7 @@
                     });
                 });
             }
+
             function searchIds(getUrl, typeSelected){
                 $("#page-wrapper").html('<br><br><br><br><div class="text-center"><i class="fa fa-spinner fa-spin fa-4x"></i></div>');
                 function loadHtml(context){
@@ -842,6 +863,32 @@
                 }
                 if (getUrl){
                     $.get(getUrl).done(function(res){
+                        if (typeSelected == "SCTID" && (!res.namespace || res.namespace == null)){
+                            function getPartition(sctid){
+                                if (sctid){
+                                    var tmp=sctid.toString();
+                                    if ( tmp.length>3){
+                                        return tmp.substr(tmp.length-3,2);
+                                    }
+                                    return null
+                                }
+                                return null;
+                            }
+                            function getNamespace(sctid){
+                                var tmp=sctid.toString();
+                                var partition=getPartition(tmp);
+                                if (partition.substr(0,1)=="1" ){
+                                    if ( tmp.length<11){
+                                        return 0;
+                                    }else{
+                                        return parseInt(tmp.substr(tmp.length-10,7));
+                                    }
+                                }
+
+                                return  0;
+                            }
+                            res.namespace = getNamespace(res.sctid);
+                        }
                         var context = {
                             item: res,
                             type: typeSelected
@@ -865,6 +912,76 @@
                     };
                     loadHtml(context);
                 }
+            }
+
+            function reportsOf(getUrl, typeSelected, filter){
+                function loadItems(urlToGet){
+                    $("#table-items-reports").html('<tr><td><i class="fa fa-spinner fa-spin"></i></td></tr>');
+                    $.get(urlToGet).done(function(res){
+                        $.get("../views/reports/body.hbs").then(function(src){
+                            var template = Handlebars.compile(src);
+                            $("#table-items-reports").html(template({first: res[0], items: res}));
+
+                            $("#table-items-reports").find(".schemeLink").unbind();
+                            $("#table-items-reports").find(".schemeLink").click(function(e){
+                                var scheme = $(e.target).attr("data-scheme"), id = $(e.target).attr("data-id");
+                                var url = "/api/scheme/" + scheme + "/ids/" +  id+ "?token=" + options.token;
+                                searchIds(url, typeSelected);
+                            });
+
+                            $("#table-items-reports").find(".sctidLink").unbind();
+                            $("#table-items-reports").find(".sctidLink").click(function(e){
+                                var id = $(e.target).attr("data-id");
+                                var url = "/api/sct/ids/" + id + "?token=" + options.token;
+                                searchIds(url, typeSelected);
+                            });
+                        });
+                    }).fail(function(err){
+                        console.log(err);
+                    });
+                }
+                $.get("../views/reports/main.hbs").then(function(src){
+                    var template = Handlebars.compile(src);
+                    $("#page-wrapper").html(template({type: typeSelected, filter: filter}));
+                    $("#generateIds-send-button").addClass("disabled");
+                    if (typeSelected == "schemeId"){
+                        var itemsUrl = "/api/users/" + options.username + "/schemes/?token=" + options.token;
+                        if (options.adminUser)
+                            itemsUrl = "/api/schemes?token=" + options.token;
+                        $.get(itemsUrl).done(function(result){
+                            var schemesHtml = "<option value='*'>All</option>";
+                            result.forEach(function(item){
+                                schemesHtml+= '<option value="' + item.scheme + '">' + item.scheme + '</option>';
+                            });
+                            $("#filters-reports-list").html(schemesHtml);
+                        }).fail(function(err){
+                            console.log(err);
+                        });
+                    }else if (typeSelected == "SCTID"){
+                        var itemsUrl = "/api/users/" + options.username + "/namespaces/?token=" + options.token;
+                        if (options.adminUser)
+                            itemsUrl = "/api/sct/namespaces?token=" + options.token;
+                        $.get(itemsUrl).done(function(result){
+                            var namespacesHtml = "<option value='*'>All</option>";
+                            result.forEach(function(item){
+                                namespacesHtml+= '<option value="' + item.namespace + '">' + item.namespace + '</option>';
+                            });
+                            $("#filters-reports-list").html(namespacesHtml);
+                        }).fail(function(err){
+                            console.log(err);
+                        });
+                    }
+                    $("#filters-reports-list").unbind();
+                    $("#filters-reports-list").change(function(){
+                        $("#filters-reports-list").blur();
+                        var filterA = $("#filters-reports-list").val();
+                        if (filterA == "*")
+                            loadItems(getUrl + "?token=" + options.token);
+                        else
+                            loadItems(getUrl + "?token=" + options.token + "&" + filter + "=" + filterA);
+                    });
+                    loadItems(getUrl + "?token=" + options.token);
+                });
             }
 
             $("#button-sctid-fromHome").unbind();
@@ -899,7 +1016,7 @@
 
             $("#snomed-reports").unbind();
             $("#snomed-reports").click(function(){
-
+                reportsOf("/api/sct/ids", "SCTID", "namespace");
             });
 
             $("#configure-schemes").unbind();
@@ -919,7 +1036,7 @@
 
             $("#schemes-reports").unbind();
             $("#schemes-reports").click(function(){
-
+                reportsOf("/api/scheme/ids", "schemeId", "scheme");
             });
 
             $("#admin-users").unbind();
@@ -1446,7 +1563,7 @@
                                     <i class="fa fa-inbox fa-5x"></i>
                                 </div>
                                 <div class="col-xs-9 text-right">
-                                    <div class="huge">7</div>
+                                    <div id="namespaces-count-stats" class="huge"><i class="fa fa-spinner fa-spin"></i></div>
                                     <div>Namespaces</div>
                                 </div>
                             </div>
@@ -1468,7 +1585,7 @@
                                     <i class="fa fa-tag fa-5x"></i>
                                 </div>
                                 <div class="col-xs-9 text-right">
-                                    <div class="huge">2</div>
+                                    <div id="schemes-count-stats" class="huge"><i class="fa fa-spinner fa-spin"></i></div>
                                     <div>Identifier Schemes</div>
                                 </div>
                             </div>
@@ -1512,7 +1629,7 @@
                                     <i class="fa fa-users fa-5x"></i>
                                 </div>
                                 <div class="col-xs-9 text-right">
-                                    <div class="huge">12</div>
+                                    <div id="users-count-stats" class="huge"><i class="fa fa-spinner fa-spin"></i></div>
                                     <div>Users</div>
                                 </div>
                             </div>

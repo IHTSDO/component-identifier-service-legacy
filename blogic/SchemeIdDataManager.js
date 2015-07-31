@@ -81,6 +81,31 @@ var getSchemeId=function (scheme,schemeId, callback){
     });
 };
 
+var getSchemeIds=function (query, limit, skip, callback){
+    var objQuery={};
+    var limitR = 100;
+    var skipTo = 1;
+    if (limit)
+        limitR = limit;
+    if (skip)
+        skipTo = skip;
+    if (query)
+        objQuery = query;
+    getModel(function(err) {
+        if (err) {
+            callback(err, null);
+        }else {
+            model.schemeId.find(objQuery, {limit:limitR}, function (err, sctids) {
+                if (err) {
+                    callback(err,null);
+                }else {
+                    callback(null, sctids);
+                }
+            });
+        }
+    });
+};
+
 function getFreeRecord(scheme, schemeId, callback){
     var schemeIdRecord= getNewRecord(scheme, schemeId);
     schemeIdRecord.status= stateMachine.statuses.available;
@@ -440,4 +465,5 @@ module.exports.generateSchemeId=generateSchemeId;
 module.exports.reserveSchemeId=reserveSchemeId;
 module.exports.getSchemeIdBySystemId=getSchemeIdBySystemId;
 module.exports.getSchemeId=getSchemeId;
+module.exports.getSchemeIds=getSchemeIds;
 module.exports.initializeScheme=initializeScheme;

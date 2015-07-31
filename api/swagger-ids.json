@@ -9,6 +9,47 @@
     "host": "localhost:3000",
     "basePath": "/api",
     "paths": {
+        "/stats": {
+            "get": {
+                "x-swagger-router-controller": "Home",
+                "operationId": "getStats",
+                "tags": ["Stats"],
+                "description": "Retrieves stats for user.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "username",
+                        "in": "query",
+                        "description": "The User requesting stats.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Error.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Users list.",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/login": {
             "post": {
                 "x-swagger-router-controller": "Login",
@@ -896,6 +937,58 @@
                 }
             }
         },
+        "/sct/ids": {
+            "get": {
+                "x-swagger-router-controller": "Sctid",
+                "operationId": "getSctids",
+                "tags": ["SCTIDS"],
+                "description": "Returns the SCTIDs Record.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "How many.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "skip",
+                        "in": "query",
+                        "description": "Where starts.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "namespace",
+                        "in": "query",
+                        "description": "Namespace ID.",
+                        "required": false,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Invalid request.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Successful request.",
+                        "schema": {
+                            "$ref": "#/definitions/SCTIDRecord"
+                        }
+                    }
+                }
+            }
+        },
         "/sct/ids/{sctid}": {
             "get": {
                 "x-swagger-router-controller": "Sctid",
@@ -1678,6 +1771,62 @@
                     },
                     "200": {
                         "description": "Operation ready.",
+                        "schema": {
+                            "$ref": "#/definitions/SchemeIdRecord"
+                        }
+                    }
+                }
+            }
+        },
+        "/scheme/ids": {
+            "get": {
+                "x-swagger-router-controller": "SchemeId",
+                "operationId": "getSchemeIds",
+                "tags": ["SchemeIds"],
+                "description": "Returns the SchemeIds Record.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "How many.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "skip",
+                        "in": "query",
+                        "description": "Where starts.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "scheme",
+                        "in": "query",
+                        "description": "The Scheme Name.",
+                        "required": false,
+                        "type": "string",
+                        "enum": [
+                            "SNOMEDID",
+                            "CTV3ID"
+                        ]
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Invalid request.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Successful request.",
                         "schema": {
                             "$ref": "#/definitions/SchemeIdRecord"
                         }
