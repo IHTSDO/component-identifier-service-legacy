@@ -6,6 +6,7 @@ var stateMachine=require("../model/StateMachine");
 var sctIdHelper=require("../utils/SctIdHelper");
 var db;
 var model;
+//var Sync = require('sync');
 
 function getModel(callback){
     if (model){
@@ -282,20 +283,20 @@ var publishSctid=function (operation, callback){
         }
     });
 };
-function setNewSCTIdRecord(operation,action,callback){
-
+function setNewSCTIdRecord(operation,action,callback) {
     getNextNumber( operation, function (err, seq) {
         if (err) {
             callback(err, null);
-        }else {
+        } else {
+
             var newSCTId = computeSCTID(operation, seq);
             //console.log("newSCTId:" + newSCTId);
-            getSctid(newSCTId, function(err,sctIdRecord){
+            getSctid(newSCTId, function (err, sctIdRecord) {
 
                 if (err) {
                     callback(err, null);
 
-                }else {
+                } else {
                     //console.log("sctIdRecord2:" + JSON.stringify(sctIdRecord));
 
                     var newStatus = stateMachine.getNewStatus(sctIdRecord.status, action);
@@ -315,7 +316,7 @@ function setNewSCTIdRecord(operation,action,callback){
 
                             if (err) {
                                 callback(err, null);
-                            }else {
+                            } else {
 
                                 callback(null, updatedRecord);
                             }
@@ -330,11 +331,13 @@ function setNewSCTIdRecord(operation,action,callback){
 };
 
 function getNextNumber( operation, callback){
+
     var key=[parseInt(operation.namespace),operation.partitionId.toString()];
     model.partitions.get(key,function(err, partition){
-        partition.sequence++;
-        var nextNumber=partition.sequence;
 
+        partition.sequence++;
+
+        var nextNumber=partition.sequence;
         partition.save(function(err){
             if (err){
                 callback(err,null);

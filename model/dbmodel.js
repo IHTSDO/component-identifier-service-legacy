@@ -13,7 +13,7 @@ var mUse={
 var sctIdRecord={name: "sctId",
     fields: {
         sctid: { type: 'text', size:18},
-        sequence: Number,
+        sequence: {type: 'integer', size:8},
         namespace: { type: 'integer'},
         partitionId: String,
         checkDigit: { type: 'integer'},
@@ -67,7 +67,10 @@ var partitionRecord={name: "partitions",
     fields: {
         namespace: { type: 'integer', key: true },
         partitionId: { type: 'text', key: true },
-        sequence: Number
+        sequence: {type: 'integer', size:8}
+    }
+    , features:{
+        cache: false
     }
 };
 
@@ -87,7 +90,18 @@ var permissionsSchemeRecord={name: "permissionsScheme",
     }
 };
 
+var bulkJobRecord={name: "bulkJob",
+    fields: {
+        id: {type: 'text', size:40, key:true},
+        name: {type: 'text', size:255},
+        status: {type: 'text', size: 1},
+        request: { type: 'object', size: 10000 }
+    }, features:{
+        timestamp: true
+    }
+};
 var model={
+    bulkJob:bulkJobRecord,
     sctId:sctIdRecord,
     schemeId:schemeIdRecord,
     schemeIdBase:schemeIdBaseRecord,
