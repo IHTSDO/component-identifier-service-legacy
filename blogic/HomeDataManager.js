@@ -46,19 +46,22 @@ module.exports.getStats = function getStats(username, callback){
                             else{
                                 result.namespaces.total = namespaceResult.length;
                                 var total = namespaceResult.length, done = 0;
-                                namespaceResult.forEach(function(namespaceR){
-                                    model.sctId.count({namespace: namespaceR.namespace}, function (err, namespaceCount){
-                                        if (err)
-                                            callback(err, null);
-                                        else{
-                                            done++;
-                                            result.namespaces[namespaceR.namespace] = namespaceCount;
-                                            if (total == done){
-                                                callback(null, result);
+                                if (total > 0){
+                                    namespaceResult.forEach(function(namespaceR){
+                                        model.sctId.count({namespace: namespaceR.namespace}, function (err, namespaceCount){
+                                            if (err)
+                                                callback(err, null);
+                                            else{
+                                                done++;
+                                                result.namespaces[namespaceR.organizationName + " (" + namespaceR.namespace + ")"] = namespaceCount;
+                                                if (total == done){
+                                                    callback(null, result);
+                                                }
                                             }
-                                        }
+                                        });
                                     });
-                                });
+                                }else
+                                    callback(null, result);
                             }
                         });
                     }
@@ -75,19 +78,22 @@ module.exports.getStats = function getStats(username, callback){
                             else{
                                 result.namespaces.total = namespaceResult.length;
                                 var total = namespaceResult.length, done = 0;
-                                namespaceResult.forEach(function(namespaceR){
-                                    model.sctId.count({namespace: namespaceR.namespace}, function (err, namespaceCount){
-                                        if (err)
-                                            callback(err, null);
-                                        else{
-                                            done++;
-                                            result.namespaces[namespaceR.namespace] = namespaceCount;
-                                            if (total == done){
-                                                callback(null, result);
+                                if (total > 0){
+                                    namespaceResult.forEach(function(namespaceR){
+                                        model.sctId.count({namespace: namespaceR.namespace}, function (err, namespaceCount){
+                                            if (err)
+                                                callback(err, null);
+                                            else{
+                                                done++;
+                                                result.namespaces[namespaceR.organizationName + " (" + namespaceR.namespace + ")"] = namespaceCount;
+                                                if (total == done){
+                                                    callback(null, result);
+                                                }
                                             }
-                                        }
+                                        });
                                     });
-                                });
+                                }else
+                                    callback(null, result);
                             }
                         });
                     }

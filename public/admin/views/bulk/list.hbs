@@ -1,3 +1,5 @@
 {{#each jobs}}
-    <li class="list-group-item"><a style="color: inherit;" href="javascript:void(0);" data-id="{{id}}" class="job-link">{{name}} - <span class="text-muted">{{getHowLongAgo created_at}}</span></a></li>
+    <li class="list-group-item"><a style="color: inherit;" href="javascript:void(0);" data-id="{{id}}" class="job-link">{{name}} - <small>{{getHowLongAgo created_at}}</small>
+        <i class="fa fa-{{#if_eq status "1"}}circle-o-notch fa-spin{{/if_eq}}{{#if_eq status "2"}}check-circle{{/if_eq}}{{#if_eq status "3"}}times-circle{{/if_eq}}"></i>
+    </a></li>
 {{/each}}
