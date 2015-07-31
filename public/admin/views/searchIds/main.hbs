@@ -38,7 +38,15 @@
                                 {{#if_eq @key "comment"}}
                                     <textarea data-field="{{@key}}" disabled type="text" class="form-control">{{emptyCheck this}}</textarea>
                                 {{else}}
-                                    <input data-field="{{@key}}" value="{{emptyCheck this}}" disabled type="text" class="form-control">
+                                    {{#if_eq @key "additionalIds"}}
+                                        <ul class="list-group">
+                                            {{#each ../../this}}
+                                                <li class="list-group-item">{{scheme}} - <a href="javascript:void(0);" class="schemeLink" data-id="{{schemeId}}" data-scheme="{{scheme}}">{{schemeId}}</a></li>
+                                            {{/each}}
+                                        </ul>
+                                    {{else}}
+                                        <input data-field="{{@key}}" value="{{emptyCheck this}}" disabled type="text" class="form-control">
+                                    {{/if_eq}}
                                 {{/if_eq}}
                             </div>
                         </div>

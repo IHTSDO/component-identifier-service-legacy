@@ -96,7 +96,9 @@ module.exports.createNamespace = function createNamespace (req, res, next) {
         else{
             if (isAbleToEdit("false", data.user.name)){
                 var namespaceString = namespaceData.namespace + '';
-                if (namespaceString.length == 7){
+                if (namespaceString.length != 7 && namespaceString != "0"){
+                    return next("Invalid namespace");
+                }else{
                     namespace.createNamespace(namespaceData,function(err) {
                         if (err)
                             return next(err.message);
@@ -105,8 +107,7 @@ module.exports.createNamespace = function createNamespace (req, res, next) {
                             res.end(JSON.stringify({message: "Success"}));
                         }
                     });
-                }else
-                    return next("Invalid namespace");
+                }
             }else
                 return next("No permission for the selected operation");
         }

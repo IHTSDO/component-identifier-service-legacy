@@ -73,7 +73,8 @@
                 if (i != "total")
                     data.push({data: field, label: i});
             });
-            drawPieChart(data);
+            if (data.length)
+                drawPieChart(data);
             $("#namespaces-count-stats").html(res.namespaces.total);
             $("#schemes-count-stats").html(res.schemes);
             $("#users-count-stats").html(res.users);
@@ -351,7 +352,7 @@
                                         };
                                         if (itemLoaded.new){
                                             objEdit["namespace"] = parseInt($.trim($("#edit-namespace-value").val()));
-                                            if (isNaN(objEdit.namespace) || $.trim($("#edit-namespace-value").val()).length != 7){
+                                            if (isNaN(objEdit.namespace) || ($.trim($("#edit-namespace-value").val()).length != 7 && $.trim($("#edit-namespace-value").val()) != "0")){
                                                 $.notify("Invalid namespace", 'error');
                                                 $("#item-" + typeSelected + "-details").find(".btn").removeClass("disabled");
                                                 return 0;
@@ -758,7 +759,7 @@
                             var urlToSearch = "/api/sct/ids/" + res.sctid + "?token=" + options.token;
                             if (typeSelected == "schemeId")
                                 urlToSearch = "/api/scheme/" + schemeNameToPost + "/ids/" + res.schemeId + "?token=" + options.token;
-                            searchIds(urlToSearch, typeSelected);
+                            searchIds(urlToSearch + "&includeAdditionalIds=true", typeSelected);
                             $.notify("Created!", "success");
                             $("#generateIds-send-button").removeClass("disabled");
                         }).fail(function(err){
@@ -793,7 +794,7 @@
                                     url = url.replace("{schemeName}", $("#searchId-schemeName-select").val());
                                 }
                                 url = url.replace("{id}", $.trim($("#search-input-ids").val()));
-                                searchIds(url, typeSelected);
+                                searchIds(url + "&includeAdditionalIds=true", typeSelected);
                             }
                         });
 
@@ -806,6 +807,13 @@
 
                         if ($.isEmptyObject(context.item))
                             $("#page-wrapper").find(".actionSearchId").first().closest("div").hide();
+
+                        $("#page-wrapper").find(".schemeLink").unbind();
+                        $("#page-wrapper").find(".schemeLink").click(function(e){
+                            var scheme = $(e.target).attr("data-scheme"), id = $(e.target).attr("data-id");
+                            var url = "/api/scheme/" + scheme + "/ids/" +  id + "?token=" + options.token;
+                            searchIds(url, "schemeId");
+                        });
 
                         $("#page-wrapper").find(".actionSearchId").unbind();
                         $("#page-wrapper").find(".actionSearchId").click(function(e){
@@ -962,7 +970,7 @@
                             $("#table-items-reports").find(".sctidLink").click(function(e){
                                 var id = $(e.target).attr("data-id");
                                 var url = "/api/sct/ids/" + id + "?token=" + options.token;
-                                searchIds(url, typeSelected);
+                                searchIds(url + "&includeAdditionalIds=true", typeSelected);
                             });
                         });
                     }).fail(function(err){
@@ -1047,7 +1055,7 @@
                                             $("#records-details-bulk-job").find(".sctidLink").click(function(e){
                                                 var id = $(e.target).attr("data-id");
                                                 var url = "/api/sct/ids/" + id + "?token=" + options.token;
-                                                searchIds(url, "SCTID");
+                                                searchIds(url + "&includeAdditionalIds=true", "SCTID");
                                             });
                                         });
                                     }).fail(function(err){
@@ -1066,7 +1074,7 @@
                                 $("#jobs-bulk-list").html(template({jobs: res}));
                                 $("#jobs-bulk-list").find(".job-link").unbind();
                                 $("#jobs-bulk-list").find(".job-link").click(function(e){
-                                    var id = $(e.target).attr("data-id");
+                                    var id = $(e.target).closest("a").attr("data-id");
                                     loadJobId(id);
                                 });
                                 if ($("#jobs-bulk-list").find(".job-link")[0])
@@ -1088,7 +1096,7 @@
                 }else{
                     var url = "/api/sct/ids/{id}?token=" + options.token;
                     url = url.replace("{id}", $.trim($("#search-sctid-fromHome").val()));
-                    searchIds(url, "SCTID");
+                    searchIds(url + "&includeAdditionalIds=true", "SCTID");
                 }
             });
 
