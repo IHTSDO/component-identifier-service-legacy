@@ -74,14 +74,14 @@ var getDB=function (callback ) {
                 if (err) {
                     callback(err, null, null);
                 } else {
-                    dbr.sync(function (err) {
-                        if (err) throw err;
+                    //dbr.sync(function (err) {
+                    //    if (err) throw err;
 
 //                   console.log("Initializing model");
                         gModel = model;
                         gdb = dbr;
                         callback(null, dbr, model);
-                    });
+                    //});
                 }
             });
         }
@@ -93,6 +93,10 @@ var getDB=function (callback ) {
 //    process.exit(code = 0);
 //});
 
+/*
+ALTER TABLE `test`.`sctId`
+CHANGE COLUMN `sequence` `sequence` BIGINT(18) NULL DEFAULT NULL ;
+*/
 module.exports.dbDefine=dbDefine;
 module.exports.dbTablesCreate=dbTablesCreate;
 module.exports.getDB=getDB;
