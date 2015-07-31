@@ -989,6 +989,59 @@
                 });
             }
 
+            function bulkJobs(){
+                $.get("../views/bulk/main.hbs").then(function(src){
+                    var template = Handlebars.compile(src);
+                    $("#page-wrapper").html(template());
+                    //load jobs, load first one details
+                    function loadJobId(jobId){
+                        $("#jobs-bulk-details").html("<div class='text-center'><i class='fa fa-spinner fa-spin fa-2x'></i></div>");
+                        $.get("/api/sct/bulk/jobs/" + jobId + "?token=" + options.token).done(function(res){
+                            $.get("../views/bulk/details.hbs").then(function(src){
+                                var template = Handlebars.compile(src);
+                                $("#jobs-bulk-details").html(template({job: res}));
+                                //records-details-bulk-job
+                                $("#records-get-button-bulk").unbind();
+                                $("#records-get-button-bulk").disableTextSelect();
+                                $("#records-get-button-bulk").click(function(){
+                                    $("#records-get-button-bulk").addClass("disabled");
+                                    $.get("/api/sct/bulk/jobs/" + jobId + "?token=" + options.token).done(function(records){
+                                        $.get("../views/bulk/records.hbs").then(function(src){
+                                            console.log(records);
+                                            var template = Handlebars.compile(src);
+                                            $("#records-details-bulk-job").html(template({records: records}));
+                                        });
+                                    }).fail(function(err){
+                                        console.log(err);
+                                    });
+                                });
+                            });
+                        }).fail(function(err){
+                            console.log(err);
+                        });
+                    }
+                    function loadJobs(){
+                        $.get("/api/sct/bulk/jobs?token=" + options.token).done(function(res){
+                            console.log(res);
+                            $.get("../views/bulk/list.hbs").then(function(src){
+                                var template = Handlebars.compile(src);
+                                $("#jobs-bulk-list").html(template({jobs: res}));
+                                $("#jobs-bulk-list").find(".job-link").unbind();
+                                $("#jobs-bulk-list").find(".job-link").click(function(e){
+                                    var id = $(e.target).attr("data-id");
+                                    loadJobId(id);
+                                });
+                                if ($("#jobs-bulk-list").find(".job-link")[0])
+                                    $("#jobs-bulk-list").find(".job-link").first().click();
+                            });
+                        }).fail(function(err){
+                            console.log(err);
+                        });
+                    }
+                    loadJobs();
+                });
+            }
+
             $("#button-sctid-fromHome").unbind();
             $("#button-sctid-fromHome").disableTextSelect();
             $("#button-sctid-fromHome").click(function(){
@@ -998,6 +1051,7 @@
             });
 
             $("#search-sctid-fromHome").unbind();
+            $("#search-sctid-fromHome").disableTextSelect();
             $("#search-sctid-fromHome").keyup(function(e){
                 if (e.keyCode == 13){
                     $("#button-sctid-fromHome").click();
@@ -1005,46 +1059,61 @@
             });
 
             $("#configure-namespaces").unbind();
+            $("#configure-namespaces").disableTextSelect();
             $("#configure-namespaces").click(function(){
                 loadItems("namespaces", "/api/sct/namespaces", "namespace");
             });
 
             $("#snomed-search-ids").unbind();
+            $("#snomed-search-ids").disableTextSelect();
             $("#snomed-search-ids").click(function(){
                 searchIds(false, "SCTID");
             });
 
             $("#snomed-generate-ids").unbind();
+            $("#snomed-generate-ids").disableTextSelect();
             $("#snomed-generate-ids").click(function(){
                 generateIds("SCTID", "/api/sct");
             });
 
             $("#snomed-reports").unbind();
+            $("#snomed-reports").disableTextSelect();
             $("#snomed-reports").click(function(){
                 reportsOf("/api/sct/ids", "SCTID", "namespace");
             });
 
             $("#configure-schemes").unbind();
+            $("#configure-schemes").disableTextSelect();
             $("#configure-schemes").click(function(){
                 loadItems("schemes", "/api/schemes", "scheme");
             });
 
             $("#schemes-generate-ids").unbind();
+            $("#schemes-generate-ids").disableTextSelect();
             $("#schemes-generate-ids").click(function(){
                 generateIds("schemeId", "/api/scheme/{schemeName}");
             });
 
             $("#schemes-search-ids").unbind();
+            $("#schemes-search-ids").disableTextSelect();
             $("#schemes-search-ids").click(function(){
                 searchIds(false, "schemeId");
             });
 
             $("#schemes-reports").unbind();
+            $("#schemes-reports").disableTextSelect();
             $("#schemes-reports").click(function(){
                 reportsOf("/api/scheme/ids", "schemeId", "scheme");
             });
 
+            $("#bulk-requests").unbind();
+            $("#bulk-requests").disableTextSelect();
+            $("#bulk-requests").click(function(){
+                bulkJobs();
+            });
+
             $("#admin-users").unbind();
+            $("#admin-users").disableTextSelect();
             $("#admin-users").click(function(){
                setupAdminPanel();
             });
@@ -1532,7 +1601,7 @@
                             <!-- /.nav-second-level -->
                         </li>
                         <li>
-                            <a href="#" ><i class="fa fa-table fa-fw"></i> Bulk requests</a>
+                            <a id="bulk-requests" href="#" ><i class="fa fa-table fa-fw"></i> Bulk requests</a>
                         </li>
                         <li>
                             <a href="/docs" target="_blank"><i class="fa fa-table fa-fw"></i> API Documentation</a>
