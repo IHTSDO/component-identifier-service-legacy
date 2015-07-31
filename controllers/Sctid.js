@@ -5,6 +5,7 @@
 
 var security = require("./../blogic/Security");
 var idDM = require("./../blogic/SCTIdDataManager");
+var sIdDM = require("./../blogic/SchemeIdDataManager");
 var namespace = require("./../blogic/NamespaceDataManager");
 var schemeIdDM = require("./../blogic/SchemeIdDataManager");
 var sctIdHelper = require("./../utils/SctIdHelper");
@@ -63,11 +64,11 @@ module.exports.getSctids = function getSctids (req, res, next) {
 module.exports.getSctid = function getSctid (req, res, next) {
     var token = req.swagger.params.token.value;
     var sctid = req.swagger.params.sctid.value;
+    var includeAdditionalIds = req.swagger.params.includeAdditionalIds.value;
     security.authenticate(token, function(err, data) {
         if (err) {
             return next(err.message);
         }
-        //getNamespace(sctid)
         var namespace = sctIdHelper.getNamespace(sctid);
         if (namespace){
             if (isAbleUser(namespace, data.user.name)){
@@ -75,8 +76,19 @@ module.exports.getSctid = function getSctid (req, res, next) {
                     if (err) {
                         return next(err.message);
                     }
-                    res.setHeader('Content-Type', 'application/json');
-                    res.end(JSON.stringify(sctIdRecord));
+                    if (includeAdditionalIds && includeAdditionalIds == "true") {
+                        sIdDM.getSchemeIds({"systemId": sctIdRecord.systemId },10,0,function(err, schemeIdRecords){
+                            if (err) {
+                                return next(err.message);
+                            }
+                            sctIdRecord.additionalIds = schemeIdRecords;
+                            res.setHeader('Content-Type', 'application/json');
+                            res.end(JSON.stringify(sctIdRecord));
+                        });
+                    } else {
+                        res.setHeader('Content-Type', 'application/json');
+                        res.end(JSON.stringify(sctIdRecord));
+                    }
                 });
             }else
                 return next("No permission for the selected operation");
@@ -85,8 +97,19 @@ module.exports.getSctid = function getSctid (req, res, next) {
                 if (err) {
                     return next(err.message);
                 }
-                res.setHeader('Content-Type', 'application/json');
-                res.end(JSON.stringify(sctIdRecord));
+                if (includeAdditionalIds && includeAdditionalIds == "true") {
+                    sIdDM.getSchemeIds({"systemId": sctIdRecord.systemId },10,0,function(err, schemeIdRecords){
+                        if (err) {
+                            return next(err.message);
+                        }
+                        sctIdRecord.additionalIds = schemeIdRecords;
+                        res.setHeader('Content-Type', 'application/json');
+                        res.end(JSON.stringify(sctIdRecord));
+                    });
+                } else {
+                    res.setHeader('Content-Type', 'application/json');
+                    res.end(JSON.stringify(sctIdRecord));
+                }
             });
         }
     });
