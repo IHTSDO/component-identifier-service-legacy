@@ -54,6 +54,32 @@ module.exports.getSchemeId = function getSchemeId (req, res, next) {
     });
 };
 
+module.exports.getSchemeIds = function getSchemeIds (req, res, next) {
+    var token = req.swagger.params.token.value;
+    var skip = req.swagger.params.skip.value;
+    var limit = req.swagger.params.limit.value;
+    var schemeName = req.swagger.params.scheme.value;
+    security.authenticate(token, function(err, data) {
+        if (err) {
+            return next(err.message);
+        }
+        if (isAbleUser("false", data.user.name)){
+            var objQuery = false;
+            if (schemeName)
+                objQuery = {scheme: schemeName};
+            idDM.getSchemeIds(objQuery, limit, skip, function(err,SchemeIdRecord){
+                if (err) {
+                    return next(err.message);
+                }else{
+                    res.setHeader('Content-Type', 'application/json');
+                    res.end(JSON.stringify(SchemeIdRecord));
+                }
+            });
+        }else
+            return next("No permission for the selected operation");
+    });
+};
+
 module.exports.getSchemeIdBySystemId = function getSchemeIdBySystemId (req, res, next) {
     var token = req.swagger.params.token.value;
     var schemeName = req.swagger.params.schemeName.value;

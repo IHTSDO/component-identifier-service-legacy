@@ -34,6 +34,32 @@ function isAbleUser(namespaceId, user){
         return able;
 }
 
+module.exports.getSctids = function getSctids (req, res, next) {
+    var token = req.swagger.params.token.value;
+    var namespace = req.swagger.params.namespace.value;
+    var skip = req.swagger.params.skip.value;
+    var limit = req.swagger.params.limit.value;
+    security.authenticate(token, function(err, data) {
+        if (err) {
+            return next(err.message);
+        }
+        if (isAbleUser("false", data.user.name)){
+            var objQuery = false;
+            if (namespace)
+                objQuery = {namespace: namespace};
+            idDM.getSctids(objQuery, limit, skip, function(err,sctIdRecord){
+                if (err) {
+                    return next(err.message);
+                }else{
+                    res.setHeader('Content-Type', 'application/json');
+                    res.end(JSON.stringify(sctIdRecord));
+                }
+            });
+        }else
+            return next("No permission for the selected operation");
+    });
+};
+
 module.exports.getSctid = function getSctid (req, res, next) {
     var token = req.swagger.params.token.value;
     var sctid = req.swagger.params.sctid.value;

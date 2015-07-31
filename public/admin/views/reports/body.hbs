@@ -1,0 +1,26 @@
+<thead>
+<tr>
+    {{#each first}}
+        <th>{{@key}}</th>
+    {{/each}}
+</tr>
+</thead>
+<tbody>
+{{#each items}}
+    <tr>
+        {{#each this}}
+            <td>
+                {{#if_eq @key "schemeId"}}
+                    <a class="schemeLink" data-scheme="{{../../scheme}}" href="javascript:void(0);" data-id="{{this}}">{{this}}</a>
+                {{else}}
+                    {{#if_eq @key "sctid"}}
+                        <a class="sctidLink" href="javascript:void(0);" data-id="{{this}}">{{this}}</a>
+                    {{else}}
+                        {{emptyCheck this}}
+                    {{/if_eq}}
+                {{/if_eq}}
+            </td>
+        {{/each}}
+    </tr>
+{{/each}}
+</tbody>

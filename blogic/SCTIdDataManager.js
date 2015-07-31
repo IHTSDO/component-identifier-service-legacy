@@ -33,6 +33,31 @@ var throwErrMessage=function(msg){
     return err;
 };
 
+var getSctids = function (query, limit, skip, callback){
+    var objQuery={};
+    var limitR = 100;
+    var skipTo = 1;
+    if (limit)
+        limitR = limit;
+    if (skip)
+        skipTo = skip;
+    if (query)
+        objQuery = query;
+    getModel(function(err) {
+        if (err) {
+            callback(err, null);
+        }else {
+            model.sctId.find(objQuery, {limit:limitR}, function (err, sctids) {
+                if (err) {
+                    callback(err,null);
+                }else {
+                    callback(null, sctids);
+                }
+            });
+        }
+    });
+};
+
 var getSctid=function (sctid, callback){
     if (!sctIdHelper.validSCTId(sctid)){
         callback(throwErrMessage("Not valid SCTID."),null);
@@ -422,3 +447,4 @@ module.exports.generateSctid=generateSctid;
 module.exports.reserveSctid=reserveSctid;
 module.exports.getSctidBySystemId=getSctidBySystemId;
 module.exports.getSctid=getSctid;
+module.exports.getSctids=getSctids;
