@@ -4,6 +4,7 @@ var app = require('connect')();
 var http = require('http');
 var swaggerTools = require('swagger-tools');
 var serveStatic = require('serve-static');
+var backEndJobService = require('./blogic/BackEndJobService');
 
 var serverPort = 3000;
 

@@ -6,7 +6,7 @@
 var security = require("./../blogic/Security");
 var idDM=require("./../blogic/SCTIdBulkDataManager");
 var bulkDM=require("./../blogic/BulkJobDataManager");
-//var schemeIdDM=require("./../blogic/SchemeIdBulkDataManager");
+var job=require("../model/JobType");
 var namespace = require("./../blogic/NamespaceDataManager");
 
 function isAbleUser(namespaceId, user){
@@ -117,7 +117,7 @@ module.exports.generateSctids = function generateSctids (req, res, next) {
                 return next("SystemIds quantity is not equal to quantity requirement");
             }
             generationData.author=data.user.name;
-            bulkDM.saveJob(generationData,"Generate SctIds",function(err,bulkJobRecord){
+            bulkDM.saveJob(generationData,job.JOBTYPE.generateSctids,function(err,bulkJobRecord){
                 if (err) {
 
                     return next(err.message);
@@ -145,7 +145,7 @@ module.exports.registerSctids = function registerSctids (req, res, next) {
                 return next("Records property cannot be empty.");
             }
             registrationData.author=data.user.name;
-            bulkDM.saveJob(registrationData,"Register SctIds",function(err,bulkJobRecord){
+            bulkDM.saveJob(registrationData,job.JOBTYPE.registerSctids,function(err,bulkJobRecord){
                 if (err) {
 
                     return next(err.message);
@@ -172,7 +172,7 @@ module.exports.reserveSctids = function reserveSctids (req, res, next) {
                 return next("Quantity property cannot be lower to 1.");
             }
             reservationData.author=data.user.name;
-            bulkDM.saveJob(reservationData,"Reserve SctIds",function(err,bulkJobRecord){
+            bulkDM.saveJob(reservationData,job.JOBTYPE.reserveSctids,function(err,bulkJobRecord){
                 if (err) {
 
                     return next(err.message);
@@ -199,7 +199,7 @@ module.exports.deprecateSctids = function deprecateSctids (req, res, next) {
                 return next("Sctids property cannot be empty.");
             }
             deprecationData.author=data.user.name;
-            bulkDM.saveJob(deprecationData,"Deprecate SctIds",function(err,bulkJobRecord){
+            bulkDM.saveJob(deprecationData,job.JOBTYPE.deprecateSctids,function(err,bulkJobRecord){
                 if (err) {
 
                     return next(err.message);
@@ -226,7 +226,7 @@ module.exports.releaseSctids = function releaseSctids (req, res, next) {
                 return next("Sctids property cannot be empty.");
             }
             releaseData.author=data.user.name;
-            bulkDM.saveJob(releaseData,"Release SctIds",function(err,bulkJobRecord){
+            bulkDM.saveJob(releaseData,job.JOBTYPE.releaseSctids,function(err,bulkJobRecord){
                 if (err) {
 
                     return next(err.message);
@@ -253,7 +253,7 @@ module.exports.publishSctids = function publishSctids (req, res, next) {
                 return next("Sctids property cannot be empty.");
             }
             publicationData.author=data.user.name;
-            bulkDM.saveJob(publicationData,"Publish SctIds",function(err,bulkJobRecord){
+            bulkDM.saveJob(publicationData,job.JOBTYPE.publishSctids,function(err,bulkJobRecord){
                 if (err) {
 
                     return next(err.message);
