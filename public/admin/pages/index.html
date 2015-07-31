@@ -1074,9 +1074,9 @@
                                 res.sort(function(a, b){
                                     var aTime = new Date(a.created_at).getTime();
                                     var bTime = new Date(b.created_at).getTime();
-                                    if (aTime < bTime)
-                                        return -1;
                                     if (aTime > bTime)
+                                        return -1;
+                                    if (aTime < bTime)
                                         return 1;
                                     return 0;
                                 });
