@@ -64,7 +64,7 @@ function getJob(jobId, callback) {
 
         }
 
-        model.bulkJob.get({id: jobId}, function (err, bulkJobRecord) {
+        model.bulkJob.get(parseInt(jobId), function (err, bulkJobRecord) {
             if (err) {
                 callback(err, null);
                 return;
@@ -82,7 +82,7 @@ function getJobRecords(jobId, callback) {
 
         }
 
-        model.sctId.find({jobId: jobId},function( err, sctids) {
+        model.sctId.find({jobId: parseInt(jobId)},function( err, sctids) {
             if (!sctids || sctids.length==0){
 
                 callback(null,null);
