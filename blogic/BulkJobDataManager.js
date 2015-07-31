@@ -106,34 +106,56 @@ function getJobRecords(jobId, callback) {
                 callback(null,null);
                 return;
             }
-            for (var i=0;i<sctids.length;i++) {
-                sctids[i].additionalIds = [];
-                schIdDM.getSchemeIdBySystemId("CTV3ID", sctids[i].systemId, function (err, schemeIdRecord) {
-                    if (err) {
-                        callback(err, null);
-                        return;
-                    }
-                    if (schemeIdRecord) {
-                        sctids[i].additionalIds.push(schemeIdRecord);
-                    }
-
-                    schIdDM.getSchemeIdBySystemId("SNOMEDID", sctids[i].systemId, function (err, schemeIdRecord) {
-                        if (err) {
-                            callback(err, null);
-                            return;
-                        }
-                        if (schemeIdRecord) {
-                            sctids[i].additionalIds.push(schemeIdRecord);
-                        }
-                        if (i == sctids.length - 1) {
-                            callback(err, sctids);
-                            return;
-
-                        }
-                    });
-
-                });
-            }
+            callback(null, sctids);
+            return;
+            //var cont=0;
+            //var error=false;
+            //for (var i=0;i<sctids.length;i++) {
+            //    sctids[i].additionalIds = [];
+            //    console.log("sctids[" + i + "].systemId:" + sctids[i].systemId);
+            //    var systemId=sctids[i].systemId;
+            //    if (error){
+            //        return;
+            //    }
+            //    schIdDM.getSchemeIdBySystemId("CTV3ID", systemId, function (err, schemeIdRecord) {
+            //        if (err) {
+            //            error=true;
+            //            callback("snomedid search :" + err, null);
+            //            return;
+            //        }
+            //        if (schemeIdRecord) {
+            //            sctids[i].additionalIds.push(schemeIdRecord);
+            //            var systemId2 = schemeIdRecord.systemId;
+            //            //console.log("cont i:" + i);
+            //            console.log(systemId2);
+            //            schIdDM.getSchemeIdBySystemId("SNOMEDID", systemId2, function (err, schemeIdRecord2) {
+            //                if (err) {
+            //                    error=true;
+            //                    callback(err, null);
+            //                    return;
+            //                }
+            //                if (schemeIdRecord2) {
+            //                    sctids[i].additionalIds.push(schemeIdRecord2);
+            //                }
+            //                cont++;
+            //                if (cont == sctids.length) {
+            //                    callback(null, sctids);
+            //                    return;
+            //
+            //                }
+            //            });
+            //        }else{
+            //
+            //            cont++;
+            //            if (cont == sctids.length) {
+            //                callback(null, sctids);
+            //                return;
+            //
+            //            }
+            //        }
+            //
+            //    });
+            //}
         });
     });
 }

@@ -96,7 +96,8 @@ var bulkJobRecord={name: "bulkJob",
         id: {type: 'integer', size:4},
         name: {type: 'text', size:255},
         status: {type: 'text', size: 1},
-        request: { type: 'object', size: 10000 }
+        request: { type: 'object', size: 10000 },
+        log:{type:'text', size:10000}
     }, features:{
         cache   : false,
         timestamp: true

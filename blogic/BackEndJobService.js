@@ -59,6 +59,7 @@ var runner = function (){
 
 function processJob(record){
     var request=record.request;
+    request.jobId=record.id;
 
     if (request.type==job.JOBTYPE.generateSctids) {
         if (!request.systemIds || request.systemIds.length==0){
@@ -68,7 +69,6 @@ function processJob(record){
             }
             request.systemIds=arrayUuids;
         }
-        request.jobId=record.id;
         idDM.generateSctids(request, function(err){
             if (err){
                 record.status="3";
@@ -86,14 +86,92 @@ function processJob(record){
             });
         });
     }else if (request.type==job.JOBTYPE.registerSctids){
+
+        idDM.registerSctids(request, function(err){
+            if (err){
+                record.status="3";
+                record.log=err.toString();
+            }else{
+                record.status="2";
+            }
+            record.save(function(err){
+                if (err){
+                    console.log("Error-3 in back end service:" + err);
+                    return;
+                }else{
+                    console.log("Normal end job " + record.name + " - id:" + record.id);
+                }
+            });
+        });
     }else if (request.type==job.JOBTYPE.reserveSctids){
+        idDM.reserveSctids(request, function(err){
+            if (err){
+                record.status="3";
+                record.log=err.toString();
+            }else{
+                record.status="2";
+            }
+            record.save(function(err){
+                if (err){
+                    console.log("Error-4 in back end service:" + err);
+                    return;
+                }else{
+                    console.log("Normal end job " + record.name + " - id:" + record.id);
+                }
+            });
+        });
     }else if (request.type==job.JOBTYPE.deprecateSctids){
+        idDM.deprecateSctids(request, function(err){
+            if (err){
+                record.status="3";
+                record.log=err.toString();
+            }else{
+                record.status="2";
+            }
+            record.save(function(err){
+                if (err){
+                    console.log("Error-4 in back end service:" + err);
+                    return;
+                }else{
+                    console.log("Normal end job " + record.name + " - id:" + record.id);
+                }
+            });
+        });
     }else if (request.type==job.JOBTYPE.releaseSctids){
+        idDM.releaseSctids(request, function(err){
+            if (err){
+                record.status="3";
+                record.log=err.toString();
+            }else{
+                record.status="2";
+            }
+            record.save(function(err){
+                if (err){
+                    console.log("Error-5 in back end service:" + err);
+                    return;
+                }else{
+                    console.log("Normal end job " + record.name + " - id:" + record.id);
+                }
+            });
+        });
     }else if (request.type==job.JOBTYPE.publishSctids) {
+        idDM.publishSctids(request, function(err){
+            if (err){
+                record.status="3";
+                record.log=err.toString();
+            }else{
+                record.status="2";
+            }
+            record.save(function(err){
+                if (err){
+                    console.log("Error-6 in back end service:" + err);
+                    return;
+                }else{
+                    console.log("Normal end job " + record.name + " - id:" + record.id);
+                }
+            });
+        });
     }
-
-
-    console.log("End process");
 
 }
 
