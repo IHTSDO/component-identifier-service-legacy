@@ -7,7 +7,6 @@ var dbInit=require("../config/dbInit");
 var job=require("../model/JobType");
 var idDM = require("./../blogic/SCTIdBulkDataManager");
 var stateMachine=require("../model/StateMachine");
-var sctIdHelper=require("../utils/SctIdHelper");
 var db;
 var model;
 
@@ -25,11 +24,6 @@ function getModel(){
     }
 }
 
-var throwErrMessage=function(msg){
-    var err={};
-    err.message=msg;
-    return err;
-};
 getModel();
 
 var runner = function (){
@@ -69,10 +63,11 @@ function processJob(record){
             }
             request.systemIds=arrayUuids;
         }
+        request.action=stateMachine.actions.generate;
         idDM.generateSctids(request, function(err){
             if (err){
                 record.status="3";
-                record.log=err.toString();
+                record.log=err;
             }else{
                 record.status="2";
             }
@@ -90,13 +85,13 @@ function processJob(record){
         idDM.registerSctids(request, function(err){
             if (err){
                 record.status="3";
-                record.log=err.toString();
+                record.log=err;
             }else{
                 record.status="2";
             }
             record.save(function(err){
                 if (err){
-                    console.log("Error-3 in back end service:" + err);
+                    console.log("Error-3 in back end service:" + JSON.stringify(err));
                     return;
                 }else{
                     console.log("Normal end job " + record.name + " - id:" + record.id);
@@ -104,10 +99,18 @@ function processJob(record){
             });
         });
     }else if (request.type==job.JOBTYPE.reserveSctids){
-        idDM.reserveSctids(request, function(err){
+        if (!request.systemIds || request.systemIds.length==0){
+            var arrayUuids=[];
+            for (var i=0;i<request.quantity;i++){
+                arrayUuids.push(guid());
+            }
+            request.systemIds=arrayUuids;
+        }
+        request.action=stateMachine.actions.reserve;
+        idDM.generateSctids(request, function(err){
             if (err){
                 record.status="3";
-                record.log=err.toString();
+                record.log=err;
             }else{
                 record.status="2";
             }
@@ -121,10 +124,11 @@ function processJob(record){
             });
         });
     }else if (request.type==job.JOBTYPE.deprecateSctids){
-        idDM.deprecateSctids(request, function(err){
+        request.action=stateMachine.actions.deprecate;
+        idDM.updateSctids(request, function(err){
             if (err){
                 record.status="3";
-                record.log=err.toString();
+                record.log=err;
             }else{
                 record.status="2";
             }
@@ -138,10 +142,11 @@ function processJob(record){
             });
         });
     }else if (request.type==job.JOBTYPE.releaseSctids){
-        idDM.releaseSctids(request, function(err){
+        request.action=stateMachine.actions.release;
+        idDM.updateSctids(request, function(err){
             if (err){
                 record.status="3";
-                record.log=err.toString();
+                record.log=err;
             }else{
                 record.status="2";
             }
@@ -155,10 +160,11 @@ function processJob(record){
             });
         });
     }else if (request.type==job.JOBTYPE.publishSctids) {
-        idDM.publishSctids(request, function(err){
+        request.action=stateMachine.actions.publish;
+        idDM.updateSctids(request, function(err){
             if (err){
                 record.status="3";
-                record.log=err.toString();
+                record.log=err;
             }else{
                 record.status="2";
             }
