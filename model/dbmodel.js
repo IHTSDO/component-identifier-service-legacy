@@ -22,7 +22,8 @@ var sctIdRecord={name: "sctId",
         author: String,
         software: String,
         expirationDate: Date,
-        comment: String
+        comment: String,
+        jobId:{ type: 'integer'}
     }, features:{
         id: 'sctid',
         timestamp: true
@@ -92,7 +93,7 @@ var permissionsSchemeRecord={name: "permissionsScheme",
 
 var bulkJobRecord={name: "bulkJob",
     fields: {
-        id: {type: 'text', size:40, key:true},
+        id: {type: 'integer', size:4},
         name: {type: 'text', size:255},
         status: {type: 'text', size: 1},
         request: { type: 'object', size: 10000 }
@@ -100,6 +101,7 @@ var bulkJobRecord={name: "bulkJob",
         timestamp: true
     }
 };
+
 var model={
     bulkJob:bulkJobRecord,
     sctId:sctIdRecord,
