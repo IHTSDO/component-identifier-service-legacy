@@ -605,7 +605,7 @@
                 }).fail(function(err){
                     console.log(err);
                 });
-            }
+            };
 
             function generateIds(typeSelected, getUrl){
                 $("#page-wrapper").html('<br><br><br><br><div class="text-center"><i class="fa fa-spinner fa-spin fa-4x"></i></div>');
@@ -616,7 +616,7 @@
                     function loadPartitions(namespace){
                         $("#generateIds-send-button").addClass("disabled");
                         $.get("/api/sct/namespaces/" + namespace + "?token=" + options.token).done(function(res){
-                            console.log(res);
+                            //console.log(res);
                             var partitionsHtml = "";
                             res.partitions.forEach(function(partition){
                                 partitionsHtml+= '<option value="' + partition.partitionId + '">' + partition.partitionId + '</option>';
