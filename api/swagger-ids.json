@@ -1641,6 +1641,40 @@
                 }
             }
         },
+        "/sct/bulk/jobs": {
+            "get": {
+                "x-swagger-router-controller": "SctidBulk",
+                "operationId": "getJobs",
+                "tags": ["SCTIDS - Bulk Operations"],
+                "description": "Returns all jobs.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Invalid request.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "The jobs",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/SCTIDBulkJob"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/sct/bulk/jobs/{jobId}": {
             "get": {
                 "x-swagger-router-controller": "SctidBulk",
