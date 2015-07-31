@@ -1,22 +1,22 @@
 <thead>
 <tr>
-    {{#each first}}
-        <th>{{@key}}</th>
+    {{#each fields}}
+        <th>{{this}}</th>
     {{/each}}
 </tr>
 </thead>
 <tbody>
 {{#each items}}
     <tr>
-        {{#each this}}
+        {{#each ../fields}}
             <td>
-                {{#if_eq @key "schemeId"}}
-                    <a class="schemeLink" data-scheme="{{../../scheme}}" href="javascript:void(0);" data-id="{{this}}">{{this}}</a>
+                {{#if_eq this "schemeId"}}
+                    <a class="schemeLink" data-scheme="{{../../scheme}}" href="javascript:void(0);" data-id="{{../../schemeId}}">{{../../schemeId}}</a>
                 {{else}}
-                    {{#if_eq @key "sctid"}}
-                        <a class="sctidLink" href="javascript:void(0);" data-id="{{this}}">{{this}}</a>
+                    {{#if_eq this "sctid"}}
+                        <a class="sctidLink" href="javascript:void(0);" data-id="{{../../../sctid}}">{{../../../sctid}}</a>
                     {{else}}
-                        {{emptyCheck this}}
+                        {{fieldOfObject ../../../this ../../this}}
                     {{/if_eq}}
                 {{/if_eq}}
             </td>

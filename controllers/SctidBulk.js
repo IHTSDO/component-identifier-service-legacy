@@ -71,6 +71,22 @@ module.exports.getSctidBySystemIds = function getSctidBySystemIds (req, res, nex
     });
 };
 
+module.exports.getJobs =function getJobs(req, res, next) {
+    var token = req.swagger.params.token.value;
+    security.authenticate(token, function(err, data) {
+        if (err) {
+            return next(err.message);
+        }
+        bulkDM.getJobs(function(err,records){
+            if (err){
+                return next(err.message);
+            }
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(records));
+        });
+    });
+};
+
 module.exports.getJob=function getJob(req, res, next) {
     var token = req.swagger.params.token.value;
     var jobId = req.swagger.params.jobId.value;
