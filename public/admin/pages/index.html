@@ -784,13 +784,17 @@
                         $("#search-button-ids").unbind();
                         $("#search-button-ids").disableTextSelect();
                         $("#search-button-ids").click(function(){
-                            var url = "/api/sct/ids/{id}?token=" + options.token;
-                            if (typeSelected == "schemeId"){
-                                url = "/api/scheme/{schemeName}/ids/{id}?token=" + options.token;
-                                url = url.replace("{schemeName}", $("#searchId-schemeName-select").val());
+                            if ($.trim($("#search-input-ids").val()) == ""){
+                                $.notify("Please put a " + typeSelected, "info");
+                            }else{
+                                var url = "/api/sct/ids/{id}?token=" + options.token;
+                                if (typeSelected == "schemeId"){
+                                    url = "/api/scheme/{schemeName}/ids/{id}?token=" + options.token;
+                                    url = url.replace("{schemeName}", $("#searchId-schemeName-select").val());
+                                }
+                                url = url.replace("{id}", $.trim($("#search-input-ids").val()));
+                                searchIds(url, typeSelected);
                             }
-                            url = url.replace("{id}", $.trim($("#search-input-ids").val()));
-                            searchIds(url, typeSelected);
                         });
 
                         $("#search-input-ids").unbind();
@@ -1079,13 +1083,16 @@
             $("#button-sctid-fromHome").unbind();
             $("#button-sctid-fromHome").disableTextSelect();
             $("#button-sctid-fromHome").click(function(){
-                var url = "/api/sct/ids/{id}?token=" + options.token;
-                url = url.replace("{id}", $.trim($("#search-sctid-fromHome").val()));
-                searchIds(url, "SCTID");
+                if ($.trim($("#search-sctid-fromHome").val()) == ""){
+                    $.notify("Please put a SCTID", "info");
+                }else{
+                    var url = "/api/sct/ids/{id}?token=" + options.token;
+                    url = url.replace("{id}", $.trim($("#search-sctid-fromHome").val()));
+                    searchIds(url, "SCTID");
+                }
             });
 
             $("#search-sctid-fromHome").unbind();
-            $("#search-sctid-fromHome").disableTextSelect();
             $("#search-sctid-fromHome").keyup(function(e){
                 if (e.keyCode == 13){
                     $("#button-sctid-fromHome").click();
