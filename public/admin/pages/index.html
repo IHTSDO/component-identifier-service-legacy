@@ -68,7 +68,13 @@
     }
     function loadStats(username){
         $.get("/api/stats?token=" + options.token + "&username=" + username).done(function(res){
-            $("#namespaces-count-stats").html(res.namespaces);
+            var data= [];
+            $.each(res.namespaces, function(i, field){
+                if (i != "total")
+                    data.push({data: field, label: i});
+            });
+            drawPieChart(data);
+            $("#namespaces-count-stats").html(res.namespaces.total);
             $("#schemes-count-stats").html(res.schemes);
             $("#users-count-stats").html(res.users);
         }).fail(function(err){
@@ -90,7 +96,7 @@
             });
             ensureAuthenticated("index.html", function(credentials){
                 setupDashboard(credentials);
-                drawPieChart();
+//                drawPieChart();
             });
         };
         function setupDashboard(credentials){
@@ -1294,21 +1300,7 @@
             };
         }
 
-        function drawPieChart() {
-
-            var data = [{
-                label: "UY Edition",
-                data: 5245
-            }, {
-                label: "DK Edition",
-                data: 14532
-            }, {
-                label: "UK Edition",
-                data: 132922
-            }, {
-                label: "Int Edition",
-                data: 412000
-            }];
+        function drawPieChart(data) {
             var plotObj = $.plot($("#flot-pie-chart"), data, {
                 series: {
                     pie: {
@@ -1593,7 +1585,7 @@
                             <a href="index.html"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
                         </li>
                         <li>
-                            <a href="#"><i class="fa fa-bar-chart-o fa-fw"></i> SNOMED CT Identifiers<span class="fa arrow"></span></a>
+                            <a href="#"><i class="fa fa-bookmark fa-fw"></i> SNOMED CT Identifiers<span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
                                 <li>
                                     <a id="configure-namespaces" href="javascript:void(0);">Configure Namespaces</a>
@@ -1611,7 +1603,7 @@
                             <!-- /.nav-second-level -->
                         </li>
                         <li>
-                            <a href="#"><i class="fa fa-bar-chart-o fa-fw"></i> Identifier Schemes<span class="fa arrow"></span></a>
+                            <a href="#"><i class="fa fa-bookmark-o fa-fw"></i> Identifier Schemes<span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
                                 <li>
                                     <a id="configure-schemes" href="javascript:void(0);">Configure Schemes</a>
@@ -1629,19 +1621,22 @@
                             <!-- /.nav-second-level -->
                         </li>
                         <li>
-                            <a id="bulk-requests" href="#" ><i class="fa fa-table fa-fw"></i> Bulk requests</a>
+                            <a id="bulk-requests" href="#" ><i class="fa fa-truck fa-fw"></i> Bulk requests</a>
                         </li>
                         <li>
-                            <a href="/docs" target="_blank"><i class="fa fa-table fa-fw"></i> API Documentation</a>
+                            <a href="/docs" target="_blank"><i class="fa fa-code fa-fw"></i> API Documentation</a>
                         </li>
                         <li>
-                            <a href="https://confluence.ihtsdotools.org/x/DICQ" target="_blank"><i class="fa fa-edit fa-fw"></i> Confluence Site</a>
+                            <a href="https://confluence.ihtsdotools.org/x/DICQ" target="_blank"><i class="fa fa-book fa-fw"></i> Confluence Site</a>
                         </li>
                         <li>
-                            <a href="https://jira.ihtsdotools.org/projects/ICIS" target="_blank"><i class="fa fa-edit fa-fw"></i> Jira Site</a>
+                            <a href="https://jira.ihtsdotools.org/projects/ICIS" target="_blank"><i class="fa fa-tags fa-fw"></i> Jira Site</a>
                         </li>
                         <li>
-                            <a href="javascript:void(0);" id="admin-users">Admin</a>
+                            <a href="https://github.com/termMed/component-identifier-service" target="_blank"><i class="fa fa-github fa-fw"></i> GitHub</a>
+                        </li>
+                        <li>
+                            <a href="javascript:void(0);" id="admin-users"><i class="fa fa-tasks fa-fw"></i> Admin</a>
                             <!-- /.nav-second-level -->
                         </li>
                     </ul>
@@ -1754,7 +1749,7 @@
                 <div class="col-lg-8">
                 <div class="panel panel-default">
                     <div class="panel-heading">
-                        Namespaces distribution <span class="text-muted small">(sample data)</span>
+                        Namespaces distribution
                     </div>
                     <!-- /.panel-heading -->
                     <div class="panel-body">

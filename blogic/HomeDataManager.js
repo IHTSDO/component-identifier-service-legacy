@@ -11,7 +11,7 @@ module.exports.getStats = function getStats(username, callback){
             throw err;
         else{
             var result = {
-                namespaces:0,
+                namespaces:{},
                 schemes: 2,
                 users: 0
             }, adminU = false, users = [];
@@ -40,12 +40,25 @@ module.exports.getStats = function getStats(username, callback){
                         callback(err, null);
                     else{
                         result.schemes = schemesCount;
-                        model.namespace.count({}, function (err, namespaceCount) {
+                        model.namespace.find({}, function (err, namespaceResult) {
                             if (err)
                                 callback(err, null);
                             else{
-                                result.namespaces = namespaceCount;
-                                callback(null, result);
+                                result.namespaces.total = namespaceResult.length;
+                                var total = namespaceResult.length, done = 0;
+                                namespaceResult.forEach(function(namespaceR){
+                                    model.sctId.count({namespace: namespaceR.namespace}, function (err, namespaceCount){
+                                        if (err)
+                                            callback(err, null);
+                                        else{
+                                            done++;
+                                            result.namespaces[namespaceR.namespace] = namespaceCount;
+                                            if (total == done){
+                                                callback(null, result);
+                                            }
+                                        }
+                                    });
+                                });
                             }
                         });
                     }
@@ -56,12 +69,25 @@ module.exports.getStats = function getStats(username, callback){
                         callback(err, null);
                     else{
                         result.schemes = schemesCount;
-                        model.permissionsNamespace.count({username: username}, function (err, namespaceCount) {
+                        model.permissionsNamespace.find({username: username}, function (err, namespaceResult) {
                             if (err)
                                 callback(err, null);
                             else{
-                                result.namespaces = namespaceCount;
-                                callback(null, result);
+                                result.namespaces.total = namespaceResult.length;
+                                var total = namespaceResult.length, done = 0;
+                                namespaceResult.forEach(function(namespaceR){
+                                    model.sctId.count({namespace: namespaceR.namespace}, function (err, namespaceCount){
+                                        if (err)
+                                            callback(err, null);
+                                        else{
+                                            done++;
+                                            result.namespaces[namespaceR.namespace] = namespaceCount;
+                                            if (total == done){
+                                                callback(null, result);
+                                            }
+                                        }
+                                    });
+                                });
                             }
                         });
                     }
