@@ -56,6 +56,24 @@ function getNewBulkJobObject(operation, type) {
     return bulkJobRecord;
 }
 
+function getJobs(callback) {
+    getModel(function (err) {
+        if (err) {
+            callback(err, null);
+            return;
+
+        }
+
+        model.bulkJob.all(function (err, bulkJobRecords) {
+            if (err) {
+                callback(err, null);
+                return;
+            }
+            callback(null, bulkJobRecords);
+        });
+    });
+}
+
 function getJob(jobId, callback) {
     getModel(function (err) {
         if (err) {
@@ -123,3 +141,4 @@ function getJobRecords(jobId, callback) {
 module.exports.saveJob=saveJob;
 module.exports.getJobRecords=getJobRecords;
 module.exports.getJob=getJob;
+module.exports.getJobs=getJobs;
