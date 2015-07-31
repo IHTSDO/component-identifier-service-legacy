@@ -9,47 +9,6 @@
     "host": "localhost:3000",
     "basePath": "/api",
     "paths": {
-        "/stats": {
-            "get": {
-                "x-swagger-router-controller": "Home",
-                "operationId": "getStats",
-                "tags": ["Stats"],
-                "description": "Retrieves stats for user.",
-                "parameters": [
-                    {
-                        "name": "token",
-                        "in": "query",
-                        "description": "The security access token.",
-                        "required": true,
-                        "type": "string"
-                    },
-                    {
-                        "name": "username",
-                        "in": "query",
-                        "description": "The User requesting stats.",
-                        "required": true,
-                        "type": "string"
-                    }
-                ],
-                "responses": {
-                    "default": {
-                        "description": "Error.",
-                        "schema": {
-                            "$ref": "#/definitions/Error"
-                        }
-                    },
-                    "200": {
-                        "description": "Users list.",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/login": {
             "post": {
                 "x-swagger-router-controller": "Login",
@@ -2703,6 +2662,47 @@
                             "type": "array",
                             "items": {
                                 "$ref": "#/definitions/SchemeIdRecord"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/stats": {
+            "get": {
+                "x-swagger-router-controller": "Home",
+                "operationId": "getStats",
+                "tags": ["Stats"],
+                "description": "Retrieves stats for user.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "username",
+                        "in": "query",
+                        "description": "The User requesting stats.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Error.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Users list.",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
                             }
                         }
                     }

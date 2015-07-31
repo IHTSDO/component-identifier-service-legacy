@@ -106,6 +106,20 @@
             Handlebars.registerHelper("fieldOfObject", function(obj, field){
                 return obj[field];
             });
+            Handlebars.registerHelper("getHowLongAgo", function(time){
+                var d = new Date(time).getTime();
+                var currentTimeStamp = new Date().getTime();
+                var elapsed = currentTimeStamp - d;
+                if (elapsed < 60000) {
+                    return "just now";
+                } else if (elapsed < 3600000) {
+                    return Math.round(elapsed/60000) + " minutes ago";
+                } else if (elapsed < 86400000) {
+                    return Math.round(elapsed/3600000) + " hours ago";
+                } else {
+                    return Math.round(elapsed/86400000) + " days ago";
+                }
+            });
             Handlebars.registerHelper('if_eq', function (a, b, opts) {
                 if (opts != "undefined") {
                     if (a == b)
@@ -1037,7 +1051,6 @@
                     }
                     function loadJobs(){
                         $.get("/api/sct/bulk/jobs?token=" + options.token).done(function(res){
-                            console.log(res);
                             $.get("../views/bulk/list.hbs").then(function(src){
                                 var template = Handlebars.compile(src);
                                 $("#jobs-bulk-list").html(template({jobs: res}));
