@@ -331,7 +331,7 @@
                                         };
                                         if (itemLoaded.new){
                                             objEdit["namespace"] = parseInt($.trim($("#edit-namespace-value").val()));
-                                            if (isNaN(objEdit.namespace)){
+                                            if (isNaN(objEdit.namespace) || $.trim($("#edit-namespace-value").val()).length != 7){
                                                 $.notify("Invalid namespace", 'error');
                                                 $("#item-" + typeSelected + "-details").find(".btn").removeClass("disabled");
                                                 return 0;
