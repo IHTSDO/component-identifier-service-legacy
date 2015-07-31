@@ -968,6 +968,13 @@
                         "description": "The required id.",
                         "required": true,
                         "type": "string"
+                    },
+                    {
+                        "name": "includeAdditionalIds",
+                        "in": "query",
+                        "description": "To include related additional ids in the result. Values \"true\" / \"false\"",
+                        "required": false,
+                        "type": "string"
                     }
                 ],
                 "responses": {
