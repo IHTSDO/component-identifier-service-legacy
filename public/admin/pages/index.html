@@ -1028,7 +1028,7 @@
                     //load jobs, load first one details
                     function loadJobId(jobId){
                         $("#jobs-bulk-details").html("<div class='text-center'><i class='fa fa-spinner fa-spin fa-2x'></i></div>");
-                        $.get("/api/sct/bulk/jobs/" + jobId + "?token=" + options.token).done(function(res){
+                        $.get("/api/bulk/jobs/" + jobId + "?token=" + options.token).done(function(res){
                             $.get("../views/bulk/details.hbs").then(function(src){
                                 var template = Handlebars.compile(src);
                                 $("#jobs-bulk-details").html(template({job: res}));
@@ -1042,7 +1042,7 @@
                                         headLoaded = true;
 //                                    if (typeSelected == "schemeId")
 //                                        fields = ["scheme", "schemeId", "status", "author", "modified_at"];
-                                    $.get("/api/sct/bulk/jobs/" + jobId + "/records?token=" + options.token).done(function(records){
+                                    $.get("/api/bulk/jobs/" + jobId + "/records?token=" + options.token).done(function(records){
                                         $("#records-get-button-bulk").hide();
                                         $.get("../views/bulk/records.hbs").then(function(src){
 //                                            console.log(records);
@@ -1068,7 +1068,7 @@
                         });
                     }
                     function loadJobs(){
-                        $.get("/api/sct/bulk/jobs?token=" + options.token).done(function(res){
+                        $.get("/api/bulk/jobs?token=" + options.token).done(function(res){
                             $.get("../views/bulk/list.hbs").then(function(src){
                                 var template = Handlebars.compile(src);
                                 res.sort(function(a, b){
