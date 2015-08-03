@@ -265,7 +265,7 @@ var updateSctids=function (operation, callback){
 var getSctid=function (sctid, systemId, callback) {
     Sync(function () {
         if (!sctIdHelper.validSCTId(sctid)) {
-            callback("Not valid SCTID:"  + sctid,err);
+            callback("Not valid SCTID:"  + sctid,null);
             return;
         }
         var objQuery = {sctid: sctid};
