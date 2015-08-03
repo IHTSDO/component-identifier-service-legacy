@@ -1401,7 +1401,7 @@
                     "200": {
                         "description": "Operation ready.",
                         "schema": {
-                            "$ref": "#/definitions/SCTIDBulkJob"
+                            "$ref": "#/definitions/BulkJob"
                         }
                     }
                 }
@@ -1441,7 +1441,7 @@
                     "200": {
                         "description": "Operation ready.",
                         "schema": {
-                            "$ref": "#/definitions/SCTIDBulkJob"
+                            "$ref": "#/definitions/BulkJob"
                         }
                     }
                 }
@@ -1481,7 +1481,7 @@
                     "200": {
                         "description": "Operation ready.",
                         "schema": {
-                            "$ref": "#/definitions/SCTIDBulkJob"
+                            "$ref": "#/definitions/BulkJob"
                         }
                     }
                 }
@@ -1521,7 +1521,7 @@
                     "200": {
                         "description": "Operation ready.",
                         "schema": {
-                            "$ref": "#/definitions/SCTIDBulkJob"
+                            "$ref": "#/definitions/BulkJob"
                         }
                     }
                 }
@@ -1561,7 +1561,7 @@
                     "200": {
                         "description": "Operation ready.",
                         "schema": {
-                            "$ref": "#/definitions/SCTIDBulkJob"
+                            "$ref": "#/definitions/BulkJob"
                         }
                     }
                 }
@@ -1601,17 +1601,17 @@
                     "200": {
                         "description": "Operation ready.",
                         "schema": {
-                            "$ref": "#/definitions/SCTIDBulkJob"
+                            "$ref": "#/definitions/BulkJob"
                         }
                     }
                 }
             }
         },
-        "/sct/bulk/jobs": {
+        "/bulk/jobs": {
             "get": {
-                "x-swagger-router-controller": "SctidBulk",
+                "x-swagger-router-controller": "BulkJob",
                 "operationId": "getJobs",
-                "tags": ["SCTIDS - Bulk Operations"],
+                "tags": ["Bulk Jobs"],
                 "description": "Returns all jobs.",
                 "parameters": [
                     {
@@ -1634,18 +1634,18 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/SCTIDBulkJob"
+                                "$ref": "#/definitions/BulkJob"
                             }
                         }
                     }
                 }
             }
         },
-        "/sct/bulk/jobs/{jobId}": {
+        "/bulk/jobs/{jobId}": {
             "get": {
-                "x-swagger-router-controller": "SctidBulk",
+                "x-swagger-router-controller": "BulkJob",
                 "operationId": "getJob",
-                "tags": ["SCTIDS - Bulk Operations"],
+                "tags": ["Bulk Jobs"],
                 "description": "Returns a job identifed by the id.",
                 "parameters": [
                     {
@@ -1673,17 +1673,17 @@
                     "200": {
                         "description": "The job.",
                         "schema": {
-                            "$ref": "#/definitions/SCTIDBulkJob"
+                            "$ref": "#/definitions/BulkJob"
                         }
                     }
                 }
             }
         },
-        "/sct/bulk/jobs/{jobId}/records": {
+        "/bulk/jobs/{jobId}/records": {
             "get": {
-                "x-swagger-router-controller": "SctidBulk",
+                "x-swagger-router-controller": "BulkJob",
                 "operationId": "getJobRecords",
-                "tags": ["SCTIDS - Bulk Operations"],
+                "tags": ["Bulk Jobs"],
                 "description": "Returns the id records created or updated by a job identifed by the id.",
                 "parameters": [
                     {
@@ -1713,7 +1713,8 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/SCTIDRecord"
+                                "$ref": "#/definitions/SCTIDRecord",
+                              "$ref": "#/definitions/SchemeIdRecord"
                             }
                         }
                     }
@@ -2394,13 +2395,10 @@
                         }
                     },
                     "200": {
-                        "description": "Operation ready.",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/SchemeIdRecord"
-                            }
-                        }
+                      "description": "Operation ready.",
+                      "schema": {
+                        "$ref": "#/definitions/BulkJob"
+                      }
                     }
                 }
             }
@@ -2448,13 +2446,10 @@
                         }
                     },
                     "200": {
-                        "description": "Operation ready.",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/SchemeIdRecord"
-                            }
-                        }
+                      "description": "Operation ready.",
+                      "schema": {
+                        "$ref": "#/definitions/BulkJob"
+                      }
                     }
                 }
             }
@@ -2502,13 +2497,10 @@
                         }
                     },
                     "200": {
-                        "description": "Operation ready.",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/SchemeIdRecord"
-                            }
-                        }
+                      "description": "Operation ready.",
+                      "schema": {
+                        "$ref": "#/definitions/BulkJob"
+                      }
                     }
                 }
             }
@@ -2556,13 +2548,10 @@
                         }
                     },
                     "200": {
-                        "description": "Operation ready.",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/SchemeIdRecord"
-                            }
-                        }
+                      "description": "Operation ready.",
+                      "schema": {
+                        "$ref": "#/definitions/BulkJob"
+                      }
                     }
                 }
             }
@@ -2610,13 +2599,10 @@
                         }
                     },
                     "200": {
-                        "description": "Operation ready.",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/SchemeIdRecord"
-                            }
-                        }
+                      "description": "Operation ready.",
+                      "schema": {
+                        "$ref": "#/definitions/BulkJob"
+                      }
                     }
                 }
             }
@@ -2664,13 +2650,10 @@
                         }
                     },
                     "200": {
-                        "description": "Operation ready.",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/SchemeIdRecord"
-                            }
-                        }
+                      "description": "Operation ready.",
+                      "schema": {
+                        "$ref": "#/definitions/BulkJob"
+                      }
                     }
                 }
             }
@@ -3297,7 +3280,7 @@
                 }
             }
         },
-        "SCTIDBulkJob" : {
+        "BulkJob" : {
             "properties" : {
                 "id": {
                     "type": "integer"
@@ -3316,6 +3299,9 @@
                 },
                 "request": {
                     "type": "object"
+                },
+                "log": {
+                  "type": "string"
                 }
             }
         },

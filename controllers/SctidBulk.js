@@ -5,6 +5,7 @@
 
 var security = require("./../blogic/Security");
 var idDM=require("./../blogic/SCTIdBulkDataManager");
+var sIdDM=require("./../blogic/SchemeIdBulkDataManager");
 var bulkDM=require("./../blogic/BulkJobDataManager");
 var job=require("../model/JobType");
 var namespace = require("./../blogic/NamespaceDataManager");
@@ -71,56 +72,6 @@ module.exports.getSctidBySystemIds = function getSctidBySystemIds (req, res, nex
     });
 };
 
-module.exports.getJobs =function getJobs(req, res, next) {
-    var token = req.swagger.params.token.value;
-    security.authenticate(token, function(err, data) {
-        if (err) {
-            return next(err.message);
-        }
-        bulkDM.getJobs(function(err,records){
-            if (err){
-                return next(err.message);
-            }
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify(records));
-        });
-    });
-};
-
-module.exports.getJob=function getJob(req, res, next) {
-    var token = req.swagger.params.token.value;
-    var jobId = req.swagger.params.jobId.value;
-    security.authenticate(token, function(err, data) {
-        if (err) {
-            return next(err.message);
-        }
-        bulkDM.getJob(jobId,function(err,record){
-            if (err){
-                return next(err.message);
-            }
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify(record));
-        });
-    });
-};
-
-module.exports.getJobRecords=function getJobRecords(req, res, next) {
-    var token = req.swagger.params.token.value;
-    var jobId = req.swagger.params.jobId.value;
-    security.authenticate(token, function(err, data) {
-        if (err) {
-            return next(err.message);
-        }
-        bulkDM.getJobRecords(jobId,function(err,records){
-            if (err){
-                return next(err.message);
-            }
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify(records));
-        });
-    });
-};
-
 module.exports.generateSctids = function generateSctids (req, res, next) {
     var token = req.swagger.params.token.value;
     var generationData = req.swagger.params.generationData.value;
@@ -133,14 +84,50 @@ module.exports.generateSctids = function generateSctids (req, res, next) {
                 return next("SystemIds quantity is not equal to quantity requirement");
             }
             generationData.author=data.user.name;
-            bulkDM.saveJob(generationData,job.JOBTYPE.generateSctids,function(err,bulkJobRecord){
+            generationData.model=job.MODELS.SctId;
+            if ((!generationData.systemIds || generationData.systemIds.length==0)
+                && (generationData.generateLegacyIds && generationData.generateLegacyIds.toUpperCase()=="TRUE" &&
+                    generationData.partitionId.substr(1,1)=="0")) {
+                var arrayUuids=[];
+                for (var i=0;i<generationData.quantity;i++){
+                    arrayUuids.push(guid());
+                }
+                generationData.systemIds=arrayUuids;
+            }
+                var additionalJobs=[];
+            bulkDM.saveJob(generationData,job.JOBTYPE.generateSctids,function(err,sctIdBulkJobRecord){
                 if (err) {
 
                     return next(err.message);
                 }
 
+                if (generationData.generateLegacyIds && generationData.generateLegacyIds.toUpperCase()=="TRUE" &&
+                    generationData.partitionId.substr(1,1)=="0") {
+                    generationData.model=job.MODELS.SchemeId;
+                    generationData.scheme='SNOMEDID';
+                    bulkDM.saveJob(generationData,job.JOBTYPE.generateSchemeIds,function(err,snoIdBulkJobRecord) {
+                        if (err) {
+
+                            return next(err.message);
+                        }
+                        generationData.model = job.MODELS.SchemeId;
+                        generationData.scheme = 'CTV3ID';
+                        additionalJobs.push(snoIdBulkJobRecord);
+                        bulkDM.saveJob(generationData, job.JOBTYPE.generateSchemeIds, function (err, ctv3IdBulkJobRecord) {
+                            if (err) {
+
+                                return next(err.message);
+                            }
+                            additionalJobs.push(ctv3IdBulkJobRecord);
+                            sctIdBulkJobRecord.additionalJobs=additionalJobs;
+                            res.setHeader('Content-Type', 'application/json');
+                            res.end(JSON.stringify(sctIdBulkJobRecord));
+                        });
+                    });
+                }else {
                     res.setHeader('Content-Type', 'application/json');
                     res.end(JSON.stringify(bulkJobRecord));
+                }
             });
         }else
             return next("No permission for the selected operation");
@@ -161,6 +148,7 @@ module.exports.registerSctids = function registerSctids (req, res, next) {
                 return next("Records property cannot be empty.");
             }
             registrationData.author=data.user.name;
+            registrationData.model=job.MODELS.SctId;
             bulkDM.saveJob(registrationData,job.JOBTYPE.registerSctids,function(err,bulkJobRecord){
                 if (err) {
 
@@ -188,6 +176,7 @@ module.exports.reserveSctids = function reserveSctids (req, res, next) {
                 return next("Quantity property cannot be lower to 1.");
             }
             reservationData.author=data.user.name;
+            reservationData.model=job.MODELS.SctId;
             bulkDM.saveJob(reservationData,job.JOBTYPE.reserveSctids,function(err,bulkJobRecord){
                 if (err) {
 
@@ -215,6 +204,7 @@ module.exports.deprecateSctids = function deprecateSctids (req, res, next) {
                 return next("Sctids property cannot be empty.");
             }
             deprecationData.author=data.user.name;
+            deprecationData.model=job.MODELS.SctId;
             bulkDM.saveJob(deprecationData,job.JOBTYPE.deprecateSctids,function(err,bulkJobRecord){
                 if (err) {
 
@@ -242,6 +232,7 @@ module.exports.releaseSctids = function releaseSctids (req, res, next) {
                 return next("Sctids property cannot be empty.");
             }
             releaseData.author=data.user.name;
+            releaseData.model=job.MODELS.SctId;
             bulkDM.saveJob(releaseData,job.JOBTYPE.releaseSctids,function(err,bulkJobRecord){
                 if (err) {
 
@@ -269,6 +260,7 @@ module.exports.publishSctids = function publishSctids (req, res, next) {
                 return next("Sctids property cannot be empty.");
             }
             publicationData.author=data.user.name;
+            publicationData.model=job.MODELS.SctId;
             bulkDM.saveJob(publicationData,job.JOBTYPE.publishSctids,function(err,bulkJobRecord){
                 if (err) {
 
@@ -282,3 +274,15 @@ module.exports.publishSctids = function publishSctids (req, res, next) {
             return next("No permission for the selected operation");
     });
 };
+
+var guid = (function() {
+    function s4() {
+        return Math.floor((1 + Math.random()) * 0x10000)
+            .toString(16)
+            .substring(1);
+    }
+    return function() {
+        return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+            s4() + '-' + s4() + s4() + s4();
+    };
+})();

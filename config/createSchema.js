@@ -3,6 +3,7 @@
  */
 var dbInit=require("../config/dbInit");
 
-dbInit.dbTablesCreate(function(){
+dbInit.dbTablesCreate(function() {
     process.exit(code = 0);
 });
+

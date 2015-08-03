@@ -6,6 +6,7 @@
 var dbInit=require("../config/dbInit");
 var job=require("../model/JobType");
 var idDM = require("./../blogic/SCTIdBulkDataManager");
+var sIdDM = require("./../blogic/SchemeIdBulkDataManager");
 var stateMachine=require("../model/StateMachine");
 var db;
 var model;
@@ -150,7 +151,7 @@ function processJob(record){
             }
             record.save(function(err){
                 if (err){
-                    console.log("Error-4 in back end service:" + err);
+                    console.log("Error-5 in back end service:" + err);
                     return;
                 }else{
                     console.log("Normal end job " + record.name + " - id:" + record.id);
@@ -172,7 +173,7 @@ function processJob(record){
             }
             record.save(function(err){
                 if (err){
-                    console.log("Error-5 in back end service:" + err);
+                    console.log("Error-6 in back end service:" + err);
                     return;
                 }else{
                     console.log("Normal end job " + record.name + " - id:" + record.id);
@@ -194,7 +195,153 @@ function processJob(record){
             }
             record.save(function(err){
                 if (err){
-                    console.log("Error-6 in back end service:" + err);
+                    console.log("Error-7 in back end service:" + err);
+                    return;
+                }else{
+                    console.log("Normal end job " + record.name + " - id:" + record.id);
+                }
+            });
+        });
+    }else if (request.type==job.JOBTYPE.generateSchemeIds ) {
+        if (!request.systemIds || request.systemIds.length==0){
+            var arrayUuids=[];
+            for (var i=0;i<request.quantity;i++){
+                arrayUuids.push(guid());
+            }
+            request.systemIds=arrayUuids;
+        }
+        request.action=stateMachine.actions.generate;
+        sIdDM.generateSchemeIds( request, function(err){
+            if (err){
+                record.status="3";
+                if (typeof err=="object"){
+                    record.log=JSON.stringify(err);
+                }else {
+                    record.log = err;
+                }
+            }else{
+                record.status="2";
+            }
+            record.save(function(err){
+                if (err){
+                    console.log("Error-8 in back end service:" + err);
+                    return;
+                }else{
+                    console.log("Normal end job " + record.name + " - id:" + record.id);
+                }
+            });
+        });
+    }else if (request.type==job.JOBTYPE.registerSchemeIds){
+
+        sIdDM.registerSchemeIds(request, function(err){
+            if (err){
+                record.status="3";
+                if (typeof err=="object"){
+                    record.log=JSON.stringify(err);
+                }else {
+                    record.log = err;
+                }
+            }else{
+                record.status="2";
+            }
+            record.save(function(err){
+                if (err){
+                    console.log("Error-9 in back end service:" + JSON.stringify(err));
+                    return;
+                }else{
+                    console.log("Normal end job " + record.name + " - id:" + record.id);
+                }
+            });
+        });
+    }else if (request.type==job.JOBTYPE.reserveSchemeIds){
+        if (!request.systemIds || request.systemIds.length==0){
+            var arrayUuids=[];
+            for (var i=0;i<request.quantity;i++){
+                arrayUuids.push(guid());
+            }
+            request.systemIds=arrayUuids;
+        }
+        request.action=stateMachine.actions.reserve;
+        sIdDM.generateSchemeIds(request, function(err){
+            if (err){
+                record.status="3";
+                if (typeof err=="object"){
+                    record.log=JSON.stringify(err);
+                }else {
+                    record.log = err;
+                }
+            }else{
+                record.status="2";
+            }
+            record.save(function(err){
+                if (err){
+                    console.log("Error-10 in back end service:" + err);
+                    return;
+                }else{
+                    console.log("Normal end job " + record.name + " - id:" + record.id);
+                }
+            });
+        });
+    }else if (request.type==job.JOBTYPE.deprecateSchemeIds){
+        request.action=stateMachine.actions.deprecate;
+        sIdDM.updateSchemeIds(request, function(err){
+            if (err){
+                record.status="3";
+                if (typeof err=="object"){
+                    record.log=JSON.stringify(err);
+                }else {
+                    record.log = err;
+                }
+            }else{
+                record.status="2";
+            }
+            record.save(function(err){
+                if (err){
+                    console.log("Error-11 in back end service:" + err);
+                    return;
+                }else{
+                    console.log("Normal end job " + record.name + " - id:" + record.id);
+                }
+            });
+        });
+    }else if (request.type==job.JOBTYPE.releaseSchemeIds){
+        request.action=stateMachine.actions.release;
+        sIdDM.updateSchemeIds(request, function(err){
+            if (err){
+                record.status="3";
+                if (typeof err=="object"){
+                    record.log=JSON.stringify(err);
+                }else {
+                    record.log = err;
+                }
+            }else{
+                record.status="2";
+            }
+            record.save(function(err){
+                if (err){
+                    console.log("Error-12 in back end service:" + err);
+                    return;
+                }else{
+                    console.log("Normal end job " + record.name + " - id:" + record.id);
+                }
+            });
+        });
+    }else if (request.type==job.JOBTYPE.publishSchemeIds) {
+        request.action=stateMachine.actions.publish;
+        sIdDM.updateSchemeIds(request, function(err){
+            if (err){
+                record.status="3";
+                if (typeof err=="object"){
+                    record.log=JSON.stringify(err);
+                }else {
+                    record.log = err;
+                }
+            }else{
+                record.status="2";
+            }
+            record.save(function(err){
+                if (err){
+                    console.log("Error-13 in back end service:" + err);
                     return;
                 }else{
                     console.log("Normal end job " + record.name + " - id:" + record.id);
@@ -202,7 +349,6 @@ function processJob(record){
             });
         });
     }
-
 }
 
 var guid = (function() {

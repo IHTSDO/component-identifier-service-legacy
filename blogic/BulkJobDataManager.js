@@ -3,7 +3,8 @@
  */
 
 var dbInit=require("../config/dbInit");
-var schIdDM = require("./../blogic/SchemeIdDataManager");
+//var schIdDM = require("./../blogic/SchemeIdDataManager");
+var job=require("../model/JobType");
 var db;
 var model;
 //var Sync = require('sync');
@@ -99,63 +100,92 @@ function getJobRecords(jobId, callback) {
             return;
 
         }
-
-        model.sctId.find({jobId: parseInt(jobId)},function( err, sctids) {
-            if (!sctids || sctids.length==0){
-
-                callback(null,null);
+        model.bulkJob.get(jobId, function (err, jobRecord) {
+            if (err) {
+                callback(err, null);
                 return;
             }
-            callback(null, sctids);
-            return;
-            //var cont=0;
-            //var error=false;
-            //for (var i=0;i<sctids.length;i++) {
-            //    sctids[i].additionalIds = [];
-            //    console.log("sctids[" + i + "].systemId:" + sctids[i].systemId);
-            //    var systemId=sctids[i].systemId;
-            //    if (error){
-            //        return;
-            //    }
-            //    schIdDM.getSchemeIdBySystemId("CTV3ID", systemId, function (err, schemeIdRecord) {
-            //        if (err) {
-            //            error=true;
-            //            callback("snomedid search :" + err, null);
-            //            return;
-            //        }
-            //        if (schemeIdRecord) {
-            //            sctids[i].additionalIds.push(schemeIdRecord);
-            //            var systemId2 = schemeIdRecord.systemId;
-            //            //console.log("cont i:" + i);
-            //            console.log(systemId2);
-            //            schIdDM.getSchemeIdBySystemId("SNOMEDID", systemId2, function (err, schemeIdRecord2) {
-            //                if (err) {
-            //                    error=true;
-            //                    callback(err, null);
-            //                    return;
-            //                }
-            //                if (schemeIdRecord2) {
-            //                    sctids[i].additionalIds.push(schemeIdRecord2);
-            //                }
-            //                cont++;
-            //                if (cont == sctids.length) {
-            //                    callback(null, sctids);
-            //                    return;
-            //
-            //                }
-            //            });
-            //        }else{
-            //
-            //            cont++;
-            //            if (cont == sctids.length) {
-            //                callback(null, sctids);
-            //                return;
-            //
-            //            }
-            //        }
-            //
-            //    });
-            //}
+            if (jobRecord) {
+                if (jobRecord.request.model == job.MODELS.SchemeId) {
+                    model.schemeId.find({jobId: parseInt(jobId)}, function (err, schemeIds) {
+                        if (err) {
+                            callback(err, null);
+                            return;
+                        }
+                        if (!schemeIds || schemeIds.length == 0) {
+
+                            callback(null, null);
+                            return;
+                        }
+                        callback(null, schemeIds);
+                        return;
+                    });
+                } else {
+
+                    model.sctId.find({jobId: parseInt(jobId)}, function (err, sctids) {
+                        if (err) {
+                            callback(err, null);
+                            return;
+                        }
+                        if (!sctids || sctids.length == 0) {
+
+                            callback(null, null);
+                            return;
+                        }
+                        callback(null, sctids);
+                        return;
+                    });
+
+                }
+                //var cont=0;
+                //var error=false;
+                //for (var i=0;i<sctids.length;i++) {
+                //    sctids[i].additionalIds = [];
+                //    console.log("sctids[" + i + "].systemId:" + sctids[i].systemId);
+                //    var systemId=sctids[i].systemId;
+                //    if (error){
+                //        return;
+                //    }
+                //    schIdDM.getSchemeIdBySystemId("CTV3ID", systemId, function (err, schemeIdRecord) {
+                //        if (err) {
+                //            error=true;
+                //            callback("snomedid search :" + err, null);
+                //            return;
+                //        }
+                //        if (schemeIdRecord) {
+                //            sctids[i].additionalIds.push(schemeIdRecord);
+                //            var systemId2 = schemeIdRecord.systemId;
+                //            //console.log("cont i:" + i);
+                //            console.log(systemId2);
+                //            schIdDM.getSchemeIdBySystemId("SNOMEDID", systemId2, function (err, schemeIdRecord2) {
+                //                if (err) {
+                //                    error=true;
+                //                    callback(err, null);
+                //                    return;
+                //                }
+                //                if (schemeIdRecord2) {
+                //                    sctids[i].additionalIds.push(schemeIdRecord2);
+                //                }
+                //                cont++;
+                //                if (cont == sctids.length) {
+                //                    callback(null, sctids);
+                //                    return;
+                //
+                //                }
+                //            });
+                //        }else{
+                //
+                //            cont++;
+                //            if (cont == sctids.length) {
+                //                callback(null, sctids);
+                //                return;
+                //
+                //            }
+                //        }
+                //
+                //    });
+                //}
+            }
         });
     });
 }

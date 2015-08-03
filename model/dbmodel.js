@@ -41,7 +41,8 @@ var schemeIdRecord={name: "schemeId",
         author: String,
         software: String,
         expirationDate: Date,
-        comment: String
+        comment: String,
+        jobId:{ type: 'integer'}
     }, features:{
         timestamp: true
     }
@@ -52,7 +53,7 @@ var schemeIdBaseRecord={name: "schemeIdBase",
         scheme: { type: 'text', size:18, key: true},
         idBase : { type: 'text', size:18}
     }, features:{
-        timestamp: true
+        cache: false
     }
 };
 
