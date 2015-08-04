@@ -1038,10 +1038,10 @@
                                 $("#records-get-button-bulk").click(function(){
                                     $("#records-get-button-bulk").addClass("disabled");
                                     var fields = ["namespace", "sctid", "status", "author", "modified_at"], headLoaded = false;
+                                    if (res.request.model == "SchemeId")
+                                        fields = ["scheme", "schemeId", "status", "author", "modified_at"];
                                     if ($("#records-details-bulk-job").html() != "")
                                         headLoaded = true;
-//                                    if (typeSelected == "schemeId")
-//                                        fields = ["scheme", "schemeId", "status", "author", "modified_at"];
                                     $.get("/api/bulk/jobs/" + jobId + "/records?token=" + options.token).done(function(records){
                                         $("#records-get-button-bulk").hide();
                                         $.get("../views/bulk/records.hbs").then(function(src){
@@ -1056,6 +1056,13 @@
                                                 var id = $(e.target).attr("data-id");
                                                 var url = "/api/sct/ids/" + id + "?token=" + options.token;
                                                 searchIds(url + "&includeAdditionalIds=true", "SCTID");
+                                            });
+
+                                            $("#records-details-bulk-job").find(".schemeLink").unbind();
+                                            $("#records-details-bulk-job").find(".schemeLink").click(function(e){
+                                                var scheme = $(e.target).attr("data-scheme"), id = $(e.target).attr("data-id");
+                                                var url = "/api/scheme/" + scheme + "/ids/" +  id+ "?token=" + options.token;
+                                                searchIds(url, "schemeId");
                                             });
                                         });
                                     }).fail(function(err){
