@@ -132,7 +132,7 @@ module.exports.generateSctids = function generateSctids (req, res, next) {
                     });
                 }else {
                     res.setHeader('Content-Type', 'application/json');
-                    res.end(JSON.stringify(bulkJobRecord));
+                    res.end(JSON.stringify(sctIdBulkJobRecord));
                 }
             });
         }else
