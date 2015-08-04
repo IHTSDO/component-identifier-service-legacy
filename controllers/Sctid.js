@@ -215,6 +215,9 @@ module.exports.registerSctid = function registerSctid (req, res, next) {
             return next(err.message);
         }
         var namespace = sctIdHelper.getNamespace(registrationData.sctid);
+        if (namespace!=registrationData.namespace){
+            return next("Namespaces differences between sctid and parameter");
+        }
         if (isAbleUser(namespace, data.user.name)){
             registrationData.author=data.user.name;
             idDM.registerSctid(registrationData,function(err,sctIdRecord){
@@ -237,6 +240,10 @@ module.exports.deprecateSctid = function deprecateSctid (req, res, next) {
             return next(err.message);
         }
         var namespace = sctIdHelper.getNamespace(deprecationData.sctid);
+
+        if (namespace!=deprecationData.namespace){
+            return next("Namespaces differences between sctid and parameter");
+        }
         if (isAbleUser(namespace, data.user.name)){
             deprecationData.author=data.user.name;
             idDM.deprecateSctid(deprecationData,function(err,sctIdRecord){
@@ -259,6 +266,10 @@ module.exports.releaseSctid = function releaseSctid (req, res, next) {
             return next(err.message);
         }
         var namespace = sctIdHelper.getNamespace(releaseData.sctid);
+
+        if (namespace!=releaseData.namespace){
+            return next("Namespaces differences between sctid and parameter");
+        }
         if (isAbleUser(namespace, data.user.name)){
             releaseData.author=data.user.name;
             idDM.releaseSctid(releaseData,function(err,sctIdRecord){
@@ -281,6 +292,10 @@ module.exports.publishSctid = function publishSctid (req, res, next) {
             return next(err.message);
         }
         var namespace = sctIdHelper.getNamespace(publicationData.sctid);
+
+        if (namespace!=publicationData.namespace){
+            return next("Namespaces differences between sctid and parameter");
+        }
         if (isAbleUser(namespace, data.user.name)){
             publicationData.author=data.user.name;
             idDM.publishSctid(publicationData,function(err,sctIdRecord){

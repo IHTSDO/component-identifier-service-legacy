@@ -5,10 +5,10 @@
 
 var security = require("./../blogic/Security");
 var idDM=require("./../blogic/SCTIdBulkDataManager");
-var sIdDM=require("./../blogic/SchemeIdBulkDataManager");
 var bulkDM=require("./../blogic/BulkJobDataManager");
 var job=require("../model/JobType");
 var namespace = require("./../blogic/NamespaceDataManager");
+var sctIdHelper = require("./../utils/SctIdHelper");
 
 function isAbleUser(namespaceId, user){
     var able = false;
@@ -85,6 +85,7 @@ module.exports.generateSctids = function generateSctids (req, res, next) {
             }
             generationData.author=data.user.name;
             generationData.model=job.MODELS.SctId;
+
             if ((!generationData.systemIds || generationData.systemIds.length==0)
                 && (generationData.generateLegacyIds && generationData.generateLegacyIds.toUpperCase()=="TRUE" &&
                     generationData.partitionId.substr(1,1)=="0")) {
@@ -95,6 +96,8 @@ module.exports.generateSctids = function generateSctids (req, res, next) {
                 generationData.systemIds=arrayUuids;
             }
                 var additionalJobs=[];
+
+
             bulkDM.saveJob(generationData,job.JOBTYPE.generateSctids,function(err,sctIdBulkJobRecord){
                 if (err) {
 
@@ -103,17 +106,20 @@ module.exports.generateSctids = function generateSctids (req, res, next) {
 
                 if (generationData.generateLegacyIds && generationData.generateLegacyIds.toUpperCase()=="TRUE" &&
                     generationData.partitionId.substr(1,1)=="0") {
-                    generationData.model=job.MODELS.SchemeId;
-                    generationData.scheme='SNOMEDID';
-                    bulkDM.saveJob(generationData,job.JOBTYPE.generateSchemeIds,function(err,snoIdBulkJobRecord) {
+
+                    var generationMetadata=JSON.parse(JSON.stringify(generationData));
+                    generationMetadata.model=job.MODELS.SchemeId;
+                    generationMetadata.scheme='SNOMEDID';
+                    bulkDM.saveJob(generationMetadata,job.JOBTYPE.generateSchemeIds,function(err,snoIdBulkJobRecord) {
                         if (err) {
 
                             return next(err.message);
                         }
-                        generationData.model = job.MODELS.SchemeId;
-                        generationData.scheme = 'CTV3ID';
+
+                        var generationCTV3IDMetadata=JSON.parse(JSON.stringify(generationMetadata));
+                        generationCTV3IDMetadata.scheme = 'CTV3ID';
                         additionalJobs.push(snoIdBulkJobRecord);
-                        bulkDM.saveJob(generationData, job.JOBTYPE.generateSchemeIds, function (err, ctv3IdBulkJobRecord) {
+                        bulkDM.saveJob(generationCTV3IDMetadata, job.JOBTYPE.generateSchemeIds, function (err, ctv3IdBulkJobRecord) {
                             if (err) {
 
                                 return next(err.message);
@@ -142,11 +148,23 @@ module.exports.registerSctids = function registerSctids (req, res, next) {
         if (err) {
             return next(err.message);
         }
+
         if (isAbleUser(registrationData.namespace, data.user.name)){
             if (!registrationData.records || registrationData.records.length==0){
 
                 return next("Records property cannot be empty.");
             }
+            var namespace;
+            var error=false;
+            registrationData.records.forEach(function(record){
+                if (error) return;
+                namespace = sctIdHelper.getNamespace(record.sctid);
+                if (namespace!=registrationData.namespace){
+                    error=true;
+                    return next("Namespaces differences between sctid: " + record.sctid + " and parameter: " + registrationData.namespace);
+                }
+            });
+            if (error) return;
             registrationData.author=data.user.name;
             registrationData.model=job.MODELS.SctId;
             bulkDM.saveJob(registrationData,job.JOBTYPE.registerSctids,function(err,bulkJobRecord){
@@ -203,6 +221,18 @@ module.exports.deprecateSctids = function deprecateSctids (req, res, next) {
 
                 return next("Sctids property cannot be empty.");
             }
+
+            var namespace;
+            var error=false;
+            deprecationData.sctids.forEach(function(sctid){
+                if (error) return;
+                namespace = sctIdHelper.getNamespace(sctid);
+                if (namespace!=deprecationData.namespace){
+                    error=true;
+                    return next("Namespaces differences between sctid: " + sctid + " and parameter: " + deprecationData.namespace);
+                }
+            });
+            if (error) return;
             deprecationData.author=data.user.name;
             deprecationData.model=job.MODELS.SctId;
             bulkDM.saveJob(deprecationData,job.JOBTYPE.deprecateSctids,function(err,bulkJobRecord){
@@ -231,6 +261,18 @@ module.exports.releaseSctids = function releaseSctids (req, res, next) {
 
                 return next("Sctids property cannot be empty.");
             }
+
+            var namespace;
+            var error=false;
+            releaseData.sctids.forEach(function(sctid){
+                if (error) return;
+                namespace = sctIdHelper.getNamespace(sctid);
+                if (namespace!=releaseData.namespace){
+                    error=true;
+                    return next("Namespaces differences between sctid: " + sctid + " and parameter: " + releaseData.namespace);
+                }
+            });
+            if (error) return;
             releaseData.author=data.user.name;
             releaseData.model=job.MODELS.SctId;
             bulkDM.saveJob(releaseData,job.JOBTYPE.releaseSctids,function(err,bulkJobRecord){
@@ -259,6 +301,18 @@ module.exports.publishSctids = function publishSctids (req, res, next) {
 
                 return next("Sctids property cannot be empty.");
             }
+
+            var namespace;
+            var error=false;
+            publicationData.sctids.forEach(function(sctid){
+                if (error) return;
+                namespace = sctIdHelper.getNamespace(sctid);
+                if (namespace!=publicationData.namespace){
+                    error=true;
+                    return next("Namespaces differences between sctid: " + sctid + " and parameter: " + publicationData.namespace);
+                }
+            });
+            if (error) return;
             publicationData.author=data.user.name;
             publicationData.model=job.MODELS.SctId;
             bulkDM.saveJob(publicationData,job.JOBTYPE.publishSctids,function(err,bulkJobRecord){
