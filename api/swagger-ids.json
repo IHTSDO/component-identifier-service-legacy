@@ -9,6 +9,30 @@
     "host": "107.170.101.181:3000",
     "basePath": "/api",
     "paths": {
+
+      "/testService": {
+        "get": {
+          "x-swagger-router-controller": "Home",
+          "operationId": "testService",
+          "tags": ["Test Service"],
+          "description": "Test service.",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "Test OK.",
+              "schema": {
+                "type": "string"
+              }
+            },
+            "default": {
+              "description": "Error.",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      },
         "/login": {
             "post": {
                 "x-swagger-router-controller": "Login",
