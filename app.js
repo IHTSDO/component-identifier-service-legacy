@@ -9,6 +9,7 @@ var backEndJobService = require('./blogic/BackEndJobService');
 var serverPort = 3000;
 console.log("dir:" + __dirname);
 // swaggerRouter configuration
+console.log(" process.env.NODE_ENV :" + process.env.NODE_ENV);
 var options = {
     controllers: './controllers',
     useStubs: process.env.NODE_ENV === 'development' ? true : false // Conditionally turn on stubs (mock mode)
