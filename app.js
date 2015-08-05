@@ -7,7 +7,7 @@ var serveStatic = require('serve-static');
 var backEndJobService = require('./blogic/BackEndJobService');
 
 var serverPort = 3000;
-
+console.log("dir:" + __dirname);
 // swaggerRouter configuration
 var options = {
     controllers: './controllers',
