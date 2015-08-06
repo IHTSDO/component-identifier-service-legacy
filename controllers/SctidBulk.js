@@ -9,6 +9,7 @@ var bulkDM=require("./../blogic/BulkJobDataManager");
 var job=require("../model/JobType");
 var namespace = require("./../blogic/NamespaceDataManager");
 var sctIdHelper = require("./../utils/SctIdHelper");
+var schemeDM = require("./../blogic/SchemeDataManager");
 
 function isAbleUser(namespaceId, user){
     var able = false;
@@ -34,6 +35,32 @@ function isAbleUser(namespaceId, user){
     }else
         return able;
 }
+
+function isSchemeAbleUser(schemeName, user){
+    var able = false;
+    security.admins.forEach(function(admin){
+        if (admin == user)
+            able = true;
+    });
+    if (!able){
+        if (schemeName != "false"){
+            schemeDM.getPermissions(schemeName, function(err, permissions) {
+                if (err)
+                    return next(err.message);
+                else{
+                    permissions.forEach(function(permission){
+                        if (permission.username == user)
+                            able = true;
+                    });
+                    return able;
+                }
+            });
+        }else
+            return able;
+    }else
+        return able;
+}
+
 
 module.exports.getSctids = function getSctids (req, res, next) {
     var token = req.swagger.params.token.value;
@@ -80,6 +107,10 @@ module.exports.generateSctids = function generateSctids (req, res, next) {
             return next(err.message);
         }
         if (isAbleUser(generationData.namespace, data.user.name)){
+            if ((generationData.namespace==0 && generationData.partitionId.substr(0,1)!="0")
+                || (generationData.namespace!=0 && generationData.partitionId.substr(0,1)!="1")){
+                return next("Namespace and partitionId parameters are not consistent.");
+            }
             if (generationData.systemIds && generationData.systemIds.length!=0 && generationData.systemIds.length!=generationData.quantity){
                 return next("SystemIds quantity is not equal to quantity requirement");
             }
@@ -108,28 +139,62 @@ module.exports.generateSctids = function generateSctids (req, res, next) {
                     generationData.partitionId.substr(1,1)=="0") {
 
                     var generationMetadata=JSON.parse(JSON.stringify(generationData));
+                    delete generationMetadata.namespace;
+                    delete generationMetadata.partitionId;
                     generationMetadata.model=job.MODELS.SchemeId;
-                    generationMetadata.scheme='SNOMEDID';
-                    bulkDM.saveJob(generationMetadata,job.JOBTYPE.generateSchemeIds,function(err,snoIdBulkJobRecord) {
-                        if (err) {
+                    if (!isSchemeAbleUser("SNOMEDID", data.user.name)) {
+                        if (isSchemeAbleUser("CTV3ID", data.user.name)) {
 
-                            return next(err.message);
+                            var generationCTV3IDMetadata=JSON.parse(JSON.stringify(generationMetadata));
+                            generationCTV3IDMetadata.scheme = 'CTV3ID';
+                            bulkDM.saveJob(generationCTV3IDMetadata, job.JOBTYPE.generateSchemeIds, function (err, ctv3IdBulkJobRecord) {
+                                if (err) {
+
+                                    return next(err.message);
+                                }
+                                additionalJobs.push(ctv3IdBulkJobRecord);
+                                sctIdBulkJobRecord.additionalJobs=additionalJobs;
+                                res.setHeader('Content-Type', 'application/json');
+                                res.end(JSON.stringify(sctIdBulkJobRecord));
+                            });
+
+
+                        }else{
+                            res.setHeader('Content-Type', 'application/json');
+                            res.end(JSON.stringify(sctIdBulkJobRecord));
+
                         }
-
-                        var generationCTV3IDMetadata=JSON.parse(JSON.stringify(generationMetadata));
-                        generationCTV3IDMetadata.scheme = 'CTV3ID';
-                        additionalJobs.push(snoIdBulkJobRecord);
-                        bulkDM.saveJob(generationCTV3IDMetadata, job.JOBTYPE.generateSchemeIds, function (err, ctv3IdBulkJobRecord) {
+                    }else {
+                        generationMetadata.scheme = 'SNOMEDID';
+                        bulkDM.saveJob(generationMetadata, job.JOBTYPE.generateSchemeIds, function (err, snoIdBulkJobRecord) {
                             if (err) {
 
                                 return next(err.message);
                             }
-                            additionalJobs.push(ctv3IdBulkJobRecord);
-                            sctIdBulkJobRecord.additionalJobs=additionalJobs;
-                            res.setHeader('Content-Type', 'application/json');
-                            res.end(JSON.stringify(sctIdBulkJobRecord));
+
+                            additionalJobs.push(snoIdBulkJobRecord);
+                            if (!isSchemeAbleUser("CTV3ID", data.user.name)) {
+                                sctIdBulkJobRecord.additionalJobs = additionalJobs;
+                                res.setHeader('Content-Type', 'application/json');
+                                res.end(JSON.stringify(sctIdBulkJobRecord));
+
+                            }else{
+                                var generationCTV3IDMetadata = JSON.parse(JSON.stringify(generationMetadata));
+                                generationCTV3IDMetadata.scheme = 'CTV3ID';
+                                bulkDM.saveJob(generationCTV3IDMetadata, job.JOBTYPE.generateSchemeIds, function (err, ctv3IdBulkJobRecord) {
+                                    if (err) {
+
+                                        return next(err.message);
+                                    }
+                                    additionalJobs.push(ctv3IdBulkJobRecord);
+                                    sctIdBulkJobRecord.additionalJobs = additionalJobs;
+                                    res.setHeader('Content-Type', 'application/json');
+                                    res.end(JSON.stringify(sctIdBulkJobRecord));
+                                });
+                            }
                         });
-                    });
+
+                    }
                 }else {
                     res.setHeader('Content-Type', 'application/json');
                     res.end(JSON.stringify(sctIdBulkJobRecord));
@@ -150,6 +215,7 @@ module.exports.registerSctids = function registerSctids (req, res, next) {
         }
 
         if (isAbleUser(registrationData.namespace, data.user.name)){
+
             if (!registrationData.records || registrationData.records.length==0){
 
                 return next("Records property cannot be empty.");
@@ -189,6 +255,11 @@ module.exports.reserveSctids = function reserveSctids (req, res, next) {
             return next(err.message);
         }
         if (isAbleUser(reservationData.namespace, data.user.name)){
+
+            if ((reservationData.namespace==0 && reservationData.partitionId.substr(0,1)!="0")
+                || (reservationData.namespace!=0 && reservationData.partitionId.substr(0,1)!="1")){
+                return next("Namespace and partitionId parameters are not consistent.");
+            }
             if (!reservationData.quantity || reservationData.quantity<1){
 
                 return next("Quantity property cannot be lower to 1.");
