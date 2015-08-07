@@ -169,7 +169,7 @@ module.exports.generateSctid = function generateSctid (req, res, next) {
         if (err) {
             return next(err.message);
         }
-        if (!isAbleUser(generationData.namespace, data.user.name)){
+        if (isAbleUser(generationData.namespace, data.user.name)){
             console.log("Abled user");
             if ((generationData.namespace==0 && generationData.partitionId.substr(0,1)!="0")
                 || (generationData.namespace!=0 && generationData.partitionId.substr(0,1)!="1")){
