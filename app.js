@@ -11,7 +11,7 @@ console.log("dir:" + __dirname);
 // swaggerRouter configuration
 console.log(" process.env.NODE_ENV :" + process.env.NODE_ENV);
 var options = {
-    controllers: __dirname + '/controllers'
+    controllers: __dirname + '/controllers',
     useStubs: process.env.NODE_ENV === 'development' ? true : false // Conditionally turn on stubs (mock mode)
 };
 
