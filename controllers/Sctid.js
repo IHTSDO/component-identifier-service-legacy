@@ -170,8 +170,10 @@ module.exports.generateSctid = function generateSctid (req, res, next) {
             return next(err.message);
         }
         if (isAbleUser(generationData.namespace, data.user.name)){
+            console.log("Abled user");
             if ((generationData.namespace==0 && generationData.partitionId.substr(0,1)!="0")
                 || (generationData.namespace!=0 && generationData.partitionId.substr(0,1)!="1")){
+                console.log("Namespace and partitionId parameters are not consistent.");
                 return next("Namespace and partitionId parameters are not consistent.");
             }
             if (!generationData.systemId || generationData.systemId.trim()==""){
