@@ -11,7 +11,7 @@ var namespace = require("./../blogic/NamespaceDataManager");
 var sctIdHelper = require("./../utils/SctIdHelper");
 var schemeDM = require("./../blogic/SchemeDataManager");
 
-function isAbleUser(namespaceId, user){
+function isAbleUser(namespaceId, user, res){
     var able = false;
     security.admins.forEach(function(admin){
         if (admin == user)
@@ -20,9 +20,11 @@ function isAbleUser(namespaceId, user){
     if (!able){
         if (namespaceId != "false"){
             namespace.getPermissions(namespaceId, function(err, permissions) {
-                if (err)
-                    return next(err.message);
-                else{
+                if (err){
+                    res.setHeader('Content-Type', 'application/json');
+                    res.status(500);
+                    res.end(JSON.stringify({message: err.message}));
+                }else{
                     permissions.forEach(function(permission){
                         if (permission.username == user)
                             able = true;
@@ -45,9 +47,11 @@ function isSchemeAbleUser(schemeName, user){
     if (!able){
         if (schemeName != "false"){
             schemeDM.getPermissions(schemeName, function(err, permissions) {
-                if (err)
-                    return next(err.message);
-                else{
+                if (err){
+                    res.setHeader('Content-Type', 'application/json');
+                    res.status(500);
+                    res.end(JSON.stringify({message: err.message}));
+                }else{
                     permissions.forEach(function(permission){
                         if (permission.username == user)
                             able = true;
@@ -68,11 +72,15 @@ module.exports.getSctids = function getSctids (req, res, next) {
     var sctidsArray = sctids.replace(/ /g,"").split(",");
     security.authenticate(token, function(err, data) {
         if (err) {
-            return next(err.message);
+            res.setHeader('Content-Type', 'application/json');
+            res.status(400);
+            res.end(JSON.stringify({message: err.message}));
         }
         idDM.getSctids(sctidsArray,function(err,records){
             if (err){
-                return next(err.message);
+                res.setHeader('Content-Type', 'application/json');
+                res.status(500);
+                res.end(JSON.stringify({message: err.message}));
             }
             res.setHeader('Content-Type', 'application/json');
             res.end(JSON.stringify(records));
@@ -87,11 +95,15 @@ module.exports.getSctidBySystemIds = function getSctidBySystemIds (req, res, nex
     var systemIdsArray = systemIds.replace(/ /g,"").split(",");
     security.authenticate(token, function(err, data) {
         if (err) {
-            return next(err.message);
+            res.setHeader('Content-Type', 'application/json');
+            res.status(400);
+            res.end(JSON.stringify({message: err.message}));
         }
         idDM.getSctidBySystemIds(namespaceId,systemIdsArray,function(err,records){
             if (err){
-                return next(err.message);
+                res.setHeader('Content-Type', 'application/json');
+                res.status(500);
+                res.end(JSON.stringify({message: err.message}));
             }
             res.setHeader('Content-Type', 'application/json');
             res.end(JSON.stringify(records));
@@ -104,15 +116,21 @@ module.exports.generateSctids = function generateSctids (req, res, next) {
     var generationData = req.swagger.params.generationData.value;
     security.authenticate(token, function(err, data) {
         if (err) {
-            return next(err.message);
+            res.setHeader('Content-Type', 'application/json');
+            res.status(400);
+            res.end(JSON.stringify({message: err.message}));
         }
-        if (isAbleUser(generationData.namespace, data.user.name)){
+        if (isAbleUser(generationData.namespace, data.user.name, res)){
             if ((generationData.namespace==0 && generationData.partitionId.substr(0,1)!="0")
                 || (generationData.namespace!=0 && generationData.partitionId.substr(0,1)!="1")){
-                return next("Namespace and partitionId parameters are not consistent.");
+                res.setHeader('Content-Type', 'application/json');
+                res.status(400);
+                res.end(JSON.stringify({message: "Namespace and partitionId parameters are not consistent."}));
             }
             if (generationData.systemIds && generationData.systemIds.length!=0 && generationData.systemIds.length!=generationData.quantity){
-                return next("SystemIds quantity is not equal to quantity requirement");
+                res.setHeader('Content-Type', 'application/json');
+                res.status(400);
+                res.end(JSON.stringify({message: "SystemIds quantity is not equal to quantity requirement"}));
             }
             generationData.author=data.user.name;
             generationData.model=job.MODELS.SctId;
@@ -131,8 +149,9 @@ module.exports.generateSctids = function generateSctids (req, res, next) {
 
             bulkDM.saveJob(generationData,job.JOBTYPE.generateSctids,function(err,sctIdBulkJobRecord){
                 if (err) {
-
-                    return next(err.message);
+                    res.setHeader('Content-Type', 'application/json');
+                    res.status(500);
+                    res.end(JSON.stringify({message: err.message}));
                 }
 
                 if (generationData.generateLegacyIds && generationData.generateLegacyIds.toUpperCase()=="TRUE" &&
@@ -149,8 +168,9 @@ module.exports.generateSctids = function generateSctids (req, res, next) {
                             generationCTV3IDMetadata.scheme = 'CTV3ID';
                             bulkDM.saveJob(generationCTV3IDMetadata, job.JOBTYPE.generateSchemeIds, function (err, ctv3IdBulkJobRecord) {
                                 if (err) {
-
-                                    return next(err.message);
+                                    res.setHeader('Content-Type', 'application/json');
+                                    res.status(500);
+                                    res.end(JSON.stringify({message: err.message}));
                                 }
                                 additionalJobs.push(ctv3IdBulkJobRecord);
                                 sctIdBulkJobRecord.additionalJobs=additionalJobs;
@@ -168,8 +188,9 @@ module.exports.generateSctids = function generateSctids (req, res, next) {
                         generationMetadata.scheme = 'SNOMEDID';
                         bulkDM.saveJob(generationMetadata, job.JOBTYPE.generateSchemeIds, function (err, snoIdBulkJobRecord) {
                             if (err) {
-
-                                return next(err.message);
+                                res.setHeader('Content-Type', 'application/json');
+                                res.status(500);
+                                res.end(JSON.stringify({message: err.message}));
                             }
 
                             additionalJobs.push(snoIdBulkJobRecord);
@@ -183,8 +204,9 @@ module.exports.generateSctids = function generateSctids (req, res, next) {
                                 generationCTV3IDMetadata.scheme = 'CTV3ID';
                                 bulkDM.saveJob(generationCTV3IDMetadata, job.JOBTYPE.generateSchemeIds, function (err, ctv3IdBulkJobRecord) {
                                     if (err) {
-
-                                        return next(err.message);
+                                        res.setHeader('Content-Type', 'application/json');
+                                        res.status(500);
+                                        res.end(JSON.stringify({message: err.message}));
                                     }
                                     additionalJobs.push(ctv3IdBulkJobRecord);
                                     sctIdBulkJobRecord.additionalJobs = additionalJobs;
@@ -200,8 +222,11 @@ module.exports.generateSctids = function generateSctids (req, res, next) {
                     res.end(JSON.stringify(sctIdBulkJobRecord));
                 }
             });
-        }else
-            return next("No permission for the selected operation");
+        }else{
+            res.setHeader('Content-Type', 'application/json');
+            res.status(400);
+            res.end(JSON.stringify({message: "No permission for the selected operation"}));
+        }
     });
 };
 
@@ -211,14 +236,17 @@ module.exports.registerSctids = function registerSctids (req, res, next) {
     var registrationData = req.swagger.params.registrationData.value;
     security.authenticate(token, function(err, data) {
         if (err) {
-            return next(err.message);
+            res.setHeader('Content-Type', 'application/json');
+            res.status(400);
+            res.end(JSON.stringify({message: err.message}));
         }
 
-        if (isAbleUser(registrationData.namespace, data.user.name)){
+        if (isAbleUser(registrationData.namespace, data.user.name, res)){
 
             if (!registrationData.records || registrationData.records.length==0){
-
-                return next("Records property cannot be empty.");
+                res.setHeader('Content-Type', 'application/json');
+                res.status(400);
+                res.end(JSON.stringify({message: "Records property cannot be empty."}));
             }
             var namespace;
             var error=false;
@@ -227,7 +255,9 @@ module.exports.registerSctids = function registerSctids (req, res, next) {
                 namespace = sctIdHelper.getNamespace(record.sctid);
                 if (namespace!=registrationData.namespace){
                     error=true;
-                    return next("Namespaces differences between sctid: " + record.sctid + " and parameter: " + registrationData.namespace);
+                    res.setHeader('Content-Type', 'application/json');
+                    res.status(400);
+                    res.end(JSON.stringify({message: "Namespaces differences between sctid: " + record.sctid + " and parameter: " + registrationData.namespace}));
                 }
             });
             if (error) return;
@@ -235,15 +265,19 @@ module.exports.registerSctids = function registerSctids (req, res, next) {
             registrationData.model=job.MODELS.SctId;
             bulkDM.saveJob(registrationData,job.JOBTYPE.registerSctids,function(err,bulkJobRecord){
                 if (err) {
-
-                    return next(err.message);
+                    res.setHeader('Content-Type', 'application/json');
+                    res.status(500);
+                    res.end(JSON.stringify({message: err.message}));
                 }
 
                 res.setHeader('Content-Type', 'application/json');
                 res.end(JSON.stringify(bulkJobRecord));
             });
-        }else
-            return next("No permission for the selected operation");
+        }else{
+            res.setHeader('Content-Type', 'application/json');
+            res.status(400);
+            res.end(JSON.stringify({message: "No permission for the selected operation"}));
+        }
     });
 };
 
@@ -252,31 +286,40 @@ module.exports.reserveSctids = function reserveSctids (req, res, next) {
     var reservationData = req.swagger.params.reservationData.value;
     security.authenticate(token, function(err, data) {
         if (err) {
-            return next(err.message);
+            res.setHeader('Content-Type', 'application/json');
+            res.status(400);
+            res.end(JSON.stringify({message: err.message}));
         }
-        if (isAbleUser(reservationData.namespace, data.user.name)){
+        if (isAbleUser(reservationData.namespace, data.user.name, res)){
 
             if ((reservationData.namespace==0 && reservationData.partitionId.substr(0,1)!="0")
                 || (reservationData.namespace!=0 && reservationData.partitionId.substr(0,1)!="1")){
-                return next("Namespace and partitionId parameters are not consistent.");
+                res.setHeader('Content-Type', 'application/json');
+                res.status(400);
+                res.end(JSON.stringify({message: "Namespace and partitionId parameters are not consistent."}));
             }
             if (!reservationData.quantity || reservationData.quantity<1){
-
-                return next("Quantity property cannot be lower to 1.");
+                res.setHeader('Content-Type', 'application/json');
+                res.status(400);
+                res.end(JSON.stringify({message: "Quantity property cannot be lower to 1."}));
             }
             reservationData.author=data.user.name;
             reservationData.model=job.MODELS.SctId;
             bulkDM.saveJob(reservationData,job.JOBTYPE.reserveSctids,function(err,bulkJobRecord){
                 if (err) {
-
-                    return next(err.message);
+                    res.setHeader('Content-Type', 'application/json');
+                    res.status(500);
+                    res.end(JSON.stringify({message: err.message}));
                 }
 
                 res.setHeader('Content-Type', 'application/json');
                 res.end(JSON.stringify(bulkJobRecord));
             });
-        }else
-            return next("No permission for the selected operation");
+        }else{
+            res.setHeader('Content-Type', 'application/json');
+            res.status(400);
+            res.end(JSON.stringify({message: "No permission for the selected operation"}));
+        }
     });
 };
 
@@ -285,12 +328,15 @@ module.exports.deprecateSctids = function deprecateSctids (req, res, next) {
     var deprecationData = req.swagger.params.deprecationData.value;
     security.authenticate(token, function(err, data) {
         if (err) {
-            return next(err.message);
+            res.setHeader('Content-Type', 'application/json');
+            res.status(400);
+            res.end(JSON.stringify({message: err.message}));
         }
-        if (isAbleUser(deprecationData.namespace, data.user.name)){
+        if (isAbleUser(deprecationData.namespace, data.user.name, res)){
             if (!deprecationData.sctids || deprecationData.sctids.length<1){
-
-                return next("Sctids property cannot be empty.");
+                res.setHeader('Content-Type', 'application/json');
+                res.status(400);
+                res.end(JSON.stringify({message: "Sctids property cannot be empty."}));
             }
 
             var namespace;
@@ -300,7 +346,9 @@ module.exports.deprecateSctids = function deprecateSctids (req, res, next) {
                 namespace = sctIdHelper.getNamespace(sctid);
                 if (namespace!=deprecationData.namespace){
                     error=true;
-                    return next("Namespaces differences between sctid: " + sctid + " and parameter: " + deprecationData.namespace);
+                    res.setHeader('Content-Type', 'application/json');
+                    res.status(400);
+                    res.end(JSON.stringify({message: "Namespaces differences between sctid: " + sctid + " and parameter: " + deprecationData.namespace}));
                 }
             });
             if (error) return;
@@ -308,15 +356,19 @@ module.exports.deprecateSctids = function deprecateSctids (req, res, next) {
             deprecationData.model=job.MODELS.SctId;
             bulkDM.saveJob(deprecationData,job.JOBTYPE.deprecateSctids,function(err,bulkJobRecord){
                 if (err) {
-
-                    return next(err.message);
+                    res.setHeader('Content-Type', 'application/json');
+                    res.status(500);
+                    res.end(JSON.stringify({message: err.message}));
                 }
 
                 res.setHeader('Content-Type', 'application/json');
                 res.end(JSON.stringify(bulkJobRecord));
             });
-        }else
-            return next("No permission for the selected operation");
+        }else{
+            res.setHeader('Content-Type', 'application/json');
+            res.status(400);
+            res.end(JSON.stringify({message: "No permission for the selected operation"}));
+        }
     });
 };
 
@@ -325,12 +377,15 @@ module.exports.releaseSctids = function releaseSctids (req, res, next) {
     var releaseData = req.swagger.params.releaseData.value;
     security.authenticate(token, function(err, data) {
         if (err) {
-            return next(err.message);
+            res.setHeader('Content-Type', 'application/json');
+            res.status(400);
+            res.end(JSON.stringify({message: err.message}));
         }
-        if (isAbleUser(releaseData.namespace, data.user.name)){
+        if (isAbleUser(releaseData.namespace, data.user.name, res)){
             if (!releaseData.sctids || releaseData.sctids.length<1){
-
-                return next("Sctids property cannot be empty.");
+                res.setHeader('Content-Type', 'application/json');
+                res.status(400);
+                res.end(JSON.stringify({message: "Sctids property cannot be empty."}));
             }
 
             var namespace;
@@ -340,7 +395,9 @@ module.exports.releaseSctids = function releaseSctids (req, res, next) {
                 namespace = sctIdHelper.getNamespace(sctid);
                 if (namespace!=releaseData.namespace){
                     error=true;
-                    return next("Namespaces differences between sctid: " + sctid + " and parameter: " + releaseData.namespace);
+                    res.setHeader('Content-Type', 'application/json');
+                    res.status(400);
+                    res.end(JSON.stringify({message: "Namespaces differences between sctid: " + sctid + " and parameter: " + releaseData.namespace}));
                 }
             });
             if (error) return;
@@ -348,15 +405,19 @@ module.exports.releaseSctids = function releaseSctids (req, res, next) {
             releaseData.model=job.MODELS.SctId;
             bulkDM.saveJob(releaseData,job.JOBTYPE.releaseSctids,function(err,bulkJobRecord){
                 if (err) {
-
-                    return next(err.message);
+                    res.setHeader('Content-Type', 'application/json');
+                    res.status(500);
+                    res.end(JSON.stringify({message: err.message}));
                 }
 
                 res.setHeader('Content-Type', 'application/json');
                 res.end(JSON.stringify(bulkJobRecord));
             });
-        }else
-            return next("No permission for the selected operation");
+        }else{
+            res.setHeader('Content-Type', 'application/json');
+            res.status(400);
+            res.end(JSON.stringify({message: "No permission for the selected operation"}));
+        }
     });
 };
 
@@ -365,12 +426,15 @@ module.exports.publishSctids = function publishSctids (req, res, next) {
     var publicationData = req.swagger.params.publicationData.value;
     security.authenticate(token, function(err, data) {
         if (err) {
-            return next(err.message);
+            res.setHeader('Content-Type', 'application/json');
+            res.status(400);
+            res.end(JSON.stringify({message: err.message}));
         }
-        if (isAbleUser(publicationData.namespace, data.user.name)){
+        if (isAbleUser(publicationData.namespace, data.user.name, res)){
             if (!publicationData.sctids || publicationData.sctids.length<1){
-
-                return next("Sctids property cannot be empty.");
+                res.setHeader('Content-Type', 'application/json');
+                res.status(400);
+                res.end(JSON.stringify({message: "Sctids property cannot be empty."}));
             }
 
             var namespace;
@@ -380,7 +444,9 @@ module.exports.publishSctids = function publishSctids (req, res, next) {
                 namespace = sctIdHelper.getNamespace(sctid);
                 if (namespace!=publicationData.namespace){
                     error=true;
-                    return next("Namespaces differences between sctid: " + sctid + " and parameter: " + publicationData.namespace);
+                    res.setHeader('Content-Type', 'application/json');
+                    res.status(400);
+                    res.end(JSON.stringify({message: "Namespaces differences between sctid: " + sctid + " and parameter: " + publicationData.namespace}));
                 }
             });
             if (error) return;
@@ -388,15 +454,19 @@ module.exports.publishSctids = function publishSctids (req, res, next) {
             publicationData.model=job.MODELS.SctId;
             bulkDM.saveJob(publicationData,job.JOBTYPE.publishSctids,function(err,bulkJobRecord){
                 if (err) {
-
-                    return next(err.message);
+                    res.setHeader('Content-Type', 'application/json');
+                    res.status(500);
+                    res.end(JSON.stringify({message: err.message}));
                 }
 
                 res.setHeader('Content-Type', 'application/json');
                 res.end(JSON.stringify(bulkJobRecord));
             });
-        }else
-            return next("No permission for the selected operation");
+        }else{
+            res.setHeader('Content-Type', 'application/json');
+            res.status(400);
+            res.end(JSON.stringify({message: "No permission for the selected operation"}));
+        }
     });
 };
 

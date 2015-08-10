@@ -6,7 +6,7 @@
 var security = require("./../blogic/Security");
 var namespace = require("../blogic/NamespaceDataManager");
 
-function isAbleToEdit(namespaceId, user){
+function isAbleToEdit(namespaceId, user, res){
     var able = false;
     security.admins.forEach(function(admin){
         if (admin == user)
@@ -110,7 +110,7 @@ module.exports.createNamespace = function createNamespace (req, res, next) {
             res.status(400);
             res.end(JSON.stringify({message: err.message}));
         }else{
-            if (isAbleToEdit("false", data.user.name)){
+            if (isAbleToEdit("false", data.user.name, res)){
                 var namespaceString = namespaceData.namespace + '';
                 if (namespaceString.length != 7 && namespaceString != "0"){
                     res.setHeader('Content-Type', 'application/json');
@@ -146,7 +146,7 @@ module.exports.updateNamespace = function updateNamespace (req, res, next) {
             res.status(400);
             res.end(JSON.stringify({message: err.message}));
         }else{
-            if (isAbleToEdit(namespaceData.namespace, data.user.name)){
+            if (isAbleToEdit(namespaceData.namespace, data.user.name, res)){
                 namespace.editNamespace(namespaceData.namespace, namespaceData,function(err) {
                     if (err){
                         res.setHeader('Content-Type', 'application/json');
@@ -175,7 +175,7 @@ module.exports.deleteNamespace = function deleteNamespace (req, res, next) {
             res.status(400);
             res.end(JSON.stringify({message: err.message}));
         }else{
-            if (isAbleToEdit(namespaceId, data.user.name)){
+            if (isAbleToEdit(namespaceId, data.user.name, res)){
                 namespace.deleteNamespace(namespaceId, function(err) {
                     if (err){
                         res.setHeader('Content-Type', 'application/json');
@@ -229,7 +229,7 @@ module.exports.createPermission = function createPermission (req, res, next) {
             res.status(400);
             res.end(JSON.stringify({message: err.message}));
         }else{
-            if (isAbleToEdit(namespaceId, data.user.name)){
+            if (isAbleToEdit(namespaceId, data.user.name, res)){
                 namespace.createPermission({namespace: namespaceId, username: username, role: role}, function(err) {
                     if (err){
                         res.setHeader('Content-Type', 'application/json');
@@ -259,7 +259,7 @@ module.exports.deletePermission = function deletePermission (req, res, next) {
             res.status(400);
             res.end(JSON.stringify({message: err.message}));
         }else{
-            if (isAbleToEdit(namespaceId, data.user.name)){
+            if (isAbleToEdit(namespaceId, data.user.name, res)){
                 namespace.deletePermission(namespaceId, username, function(err) {
                     if (err){
                         res.setHeader('Content-Type', 'application/json');
@@ -290,7 +290,7 @@ module.exports.updatePartitionSequence = function updatePartitionSequence (req, 
             res.status(400);
             res.end(JSON.stringify({message: err.message}));
         }else{
-            if (isAbleToEdit(namespaceId, data.user.name)){
+            if (isAbleToEdit(namespaceId, data.user.name, res)){
                 namespace.editPartition([namespaceId, partitionId], value,function(err) {
                     if (err){
                         res.setHeader('Content-Type', 'application/json');
