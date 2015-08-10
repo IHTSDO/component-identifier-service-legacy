@@ -12,16 +12,12 @@ module.exports.getStats = function getStats (req, res, next) {
     var token = req.swagger.params.token.value;
     var username = req.swagger.params.username.value;
     security.authenticate(token, function(err, data) {
-        if (err){
-            res.setHeader('Content-Type', 'application/json');
-            res.status(400);
-            res.end(JSON.stringify({message: err.message}));
-        }else{
+        if (err)
+            return next(err.message);
+        else{
             home.getStats(username, function(err, result){
                 if (err) {
-                    res.setHeader('Content-Type', 'application/json');
-                    res.status(500);
-                    res.end(JSON.stringify({message: err.message}));
+                    return next(err.message);
                 }else{
                     res.setHeader('Content-Type', 'application/json');
                     res.end(JSON.stringify(result));
