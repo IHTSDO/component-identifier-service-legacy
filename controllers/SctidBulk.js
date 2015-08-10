@@ -125,8 +125,9 @@ module.exports.generateSctids = function generateSctids (req, res, next) {
                     arrayUuids.push(guid());
                 }
                 generationData.systemIds=arrayUuids;
+                generationData.autoSysId=true;
             }
-                var additionalJobs=[];
+            var additionalJobs=[];
 
 
             bulkDM.saveJob(generationData,job.JOBTYPE.generateSctids,function(err,sctIdBulkJobRecord){

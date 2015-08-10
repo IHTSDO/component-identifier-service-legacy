@@ -84,7 +84,7 @@ var getSchemeId=function (scheme,schemeId, callback){
 var getSchemeIds=function (query, limit, skip, callback){
     var objQuery={};
     var limitR = 100;
-    var skipTo = 1;
+    var skipTo = 0;
     if (limit)
         limitR = limit;
     if (skip)
@@ -95,11 +95,11 @@ var getSchemeIds=function (query, limit, skip, callback){
         if (err) {
             callback(err, null);
         }else {
-            model.schemeId.find(objQuery, {limit:limitR}, function (err, sctids) {
+            model.schemeId.find(objQuery).limit(parseInt(limitR)).offset(parseInt(skipTo)).run( function (err, schemeids) {
                 if (err) {
                     callback(err,null);
                 }else {
-                    callback(null, sctids);
+                    callback(null, schemeids);
                 }
             });
         }
@@ -166,13 +166,34 @@ var generateSchemeId=function (scheme, operation, callback){
         if (err) {
             callback(err, null);
         }else {
-            setNewSchemeIdRecord(scheme, operation, stateMachine.actions.generate, function (err, schemeIdRecord) {
-                if (err) {
-                    callback(err, null);
-                }else {
-                    callback(null, schemeIdRecord);
-                }
-            });
+            if (!operation.autoSysId) {
+                getSchemeIdBySystemId(scheme, operation.systemId, function (err, schemeid) {
+                    if (err) {
+                        callback(err, null);
+                    } else if (sctid) {
+
+                        callback(null, schemeid);
+                    } else {
+
+                        setNewSchemeIdRecord(scheme, operation, stateMachine.actions.generate, function (err, schemeIdRecord) {
+                            if (err) {
+                                callback(err, null);
+                            } else {
+                                callback(null, schemeIdRecord);
+                            }
+                        });
+                    }
+                });
+            }else{
+                setNewSchemeIdRecord(scheme, operation, stateMachine.actions.generate, function (err, schemeIdRecord) {
+                    if (err) {
+                        callback(err, null);
+                    }else {
+                        callback(null, schemeIdRecord);
+                    }
+                });
+
+            }
         }
     });
 };
@@ -193,7 +214,7 @@ var reserveSchemeId=function (scheme, operation, callback){
         }
     });
 };
-var registerSchemeId=function (scheme, operation, callback){
+function registerNewSchemeId(scheme, operation, callback){
     getSchemeId(scheme, operation.schemeId,function(err,schemeIdRecord){
 
         if (err) {
@@ -227,6 +248,43 @@ var registerSchemeId=function (scheme, operation, callback){
         }
     });
 };
+
+
+var registerSchemeId=function (scheme, operation, callback){
+
+    if (!operation.autoSysId) {
+        getSchemeIdBySystemId(scheme, operation.systemId, function (err, schemeid) {
+            if (err) {
+                callback(err, null);
+            } else if (sctid) {
+                if (schemeid != operation.schemeId) {
+                    callback(throwErrMessage("SystemId:" + operation.systemId + " already exists with SchemeId:" + schemeid), null);
+                    return;
+                }
+                callback(null, schemeid);
+            } else {
+                registerNewSchemeId(scheme, operation, function (err, newSchemeId) {
+                    if (err) {
+                        callback(err, null);
+                    } else {
+                        callback(null, newSchemeId);
+                    }
+                });
+            }
+        });
+    } else {
+        registerNewSchemeId(scheme, operation, function (err, newSchemeId) {
+            if (err) {
+                callback(err, null);
+            } else {
+                callback(null, newSchemeId);
+            }
+        });
+
+    }
+};
+
+
 var deprecateSchemeId=function (scheme, operation, callback){
     getSchemeId(scheme, operation.schemeId,function(err,schemeIdRecord){
 
