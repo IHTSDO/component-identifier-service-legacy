@@ -434,48 +434,47 @@ var generateSctids=function (operation, callback) {
         } else {
             //var sctIdRecords = [];
             var cont = 0;
-            var key=[parseInt(operation.namespace),operation.partitionId.toString()];
+            var key = [parseInt(operation.namespace), operation.partitionId.toString()];
             //console.log("key:" + JSON.stringify(key));
 
-            getPartition(key,function(err,data) {
-                if (err){
+            getPartition(key, function (err, data) {
+                if (err) {
                     callback(err);
-                }else {
-                    if (!data){
+                } else {
+                    if (!data) {
                         callback("Partition not found for key:" + JSON.stringify(key));
                     }
-                    var thisPartition=data;
+                    var thisPartition = data;
                     var canContinue;
                     console.log("getting partition :" + JSON.stringify(thisPartition) + " for key:" + JSON.stringify(key));
                     for (var i = 0; i < operation.quantity; i++) {
-                        canContinue=true;
+                        canContinue = true;
 
                         Sync(function () {
                             try {
                                 operation.systemId = operation.systemIds[i];
-                                if (!operation.autoSysId){
-                                    var sctIdRecord = getSyncSctidBySystemId.sync(null, operation.namespace,operation.systemId);
-                                    if (sctIdRecord!=null){
-                                        sctIdRecord.jobId=operation.jobId;
+                                if (!operation.autoSysId) {
+                                    var sctIdRecord = getSyncSctidBySystemId.sync(null, operation.namespace, operation.systemId);
+                                    if (sctIdRecord != null) {
+                                        sctIdRecord.jobId = operation.jobId;
                                         sctIdRecord.save.sync(null);
-                                        cont++;
-                                        canContinue=false;
+                                        canContinue = false;
                                     }
                                 }
                                 if (canContinue) {
                                     generateSctid.sync(null, operation, thisPartition);
                                     //sctIdRecords.push(sctIdRecord);
-                                    cont++;
-                                    if (operation.quantity == cont) {
-                                        thisPartition.save(function (err) {
-                                            if (err) {
-                                                callback(err);
-                                            } else {
-                                                console.log("saving partition :" + JSON.stringify(thisPartition) + " for key:" + JSON.stringify(key));
-                                                callback(null);
-                                            }
-                                        });
-                                    }
+                                }
+                                cont++;
+                                if (operation.quantity == cont) {
+                                    thisPartition.save(function (err) {
+                                        if (err) {
+                                            callback(err);
+                                        } else {
+                                            console.log("saving partition :" + JSON.stringify(thisPartition) + " for key:" + JSON.stringify(key));
+                                            callback(null);
+                                        }
+                                    });
                                 }
                             } catch (e) {
                                 console.error("generateSctids error:" + e); // something went wrong
