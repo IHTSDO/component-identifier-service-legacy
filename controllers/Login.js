@@ -27,7 +27,7 @@ module.exports.logout = function logout (req, res, next) {
             return next(err.message);
         }
         res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify({}));
+        res.end({});
     });
 };
 

@@ -7,11 +7,10 @@ var serveStatic = require('serve-static');
 var backEndJobService = require('./blogic/BackEndJobService');
 
 var serverPort = 3000;
-console.log("dir:" + __dirname);
+
 // swaggerRouter configuration
-console.log(" process.env.NODE_ENV :" + process.env.NODE_ENV);
 var options = {
-    controllers: __dirname + '/controllers',
+    controllers: './controllers',
     useStubs: process.env.NODE_ENV === 'development' ? true : false // Conditionally turn on stubs (mock mode)
 };
 
@@ -32,7 +31,7 @@ swaggerTools.initializeMiddleware(swaggerDoc, function (middleware) {
     // Serve the Swagger documents and Swagger UI
     app.use(middleware.swaggerUi());
 
-    app.use(serveStatic(__dirname + '/public'));
+    app.use(serveStatic('public'));
 
     // Start the server
     http.createServer(app).listen(serverPort, function () {

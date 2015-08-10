@@ -26,8 +26,3 @@ module.exports.getStats = function getStats (req, res, next) {
         }
     });
 };
-
-module.exports.testService = function testService (req, res, next) {
-    res.setHeader('Content-Type', 'text/html');
-    res.end('Service Ok.');
-};

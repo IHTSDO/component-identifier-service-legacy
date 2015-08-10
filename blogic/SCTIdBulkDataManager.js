@@ -90,15 +90,11 @@ var getSctids=function (sctidArray, callback){
 
 function getFreeRecord(sctid, systemId, callback){
     Sync(function() {
-        try {
-            var sctIdRecord = getNewRecord(sctid, systemId);
-            sctIdRecord.status = stateMachine.statuses.available;
-            var newRecord = insertSCTIDRecord.sync(null, sctIdRecord);
+        var sctIdRecord = getNewRecord(sctid, systemId);
+        sctIdRecord.status = stateMachine.statuses.available;
+        var newRecord = insertSCTIDRecord.sync(null, sctIdRecord);
 
-            callback(null, newRecord);
-        }catch (e){
-            callback(e,null);
-        }
+        callback(null, newRecord);
     });
 }
 function getNewRecord(sctid, systemId){
@@ -269,20 +265,15 @@ var updateSctids=function (operation, callback){
 var getSctid=function (sctid, systemId, callback) {
     Sync(function () {
         if (!sctIdHelper.validSCTId(sctid)) {
-            callback("Not valid SCTID:" + sctid, null);
+            callback("Not valid SCTID:"  + sctid,null);
             return;
         }
         var objQuery = {sctid: sctid};
         getModel.sync(null);
         var sctIdRecord = getSCTIDRecord.sync(null, objQuery);
         if (!sctIdRecord) {
-
-            try {
-                var record = getFreeRecord.sync(null, sctid, systemId);
-                callback(null, record);
-            } catch (e) {
-                callback(e, null);
-            }
+            var record = getFreeRecord.sync(null, sctid, systemId);
+            callback(null, record);
         } else {
             callback(null, sctIdRecord);
         }
@@ -292,12 +283,8 @@ var getSctid=function (sctid, systemId, callback) {
 
 function insertSCTIDRecord(newSctidRecord, callback){
     Sync(function() {
-        try {
-            var newSctidRecord2 = model.sctId.create.sync(null, newSctidRecord);
-            callback(null, newSctidRecord2);
-        }catch(e){
-            callback(e,null);
-        }
+        var newSctidRecord2 = model.sctId.create.sync(null, newSctidRecord);
+        callback(null, newSctidRecord2);
     });
 }
 
@@ -396,7 +383,7 @@ function getPartition(key,callback) {
 function getSCTIDRecord(objQuery, callback){
     Sync(function() {
         var sctids = model.sctId.find.sync(null, objQuery);
-        if (sctids && sctids.length > 0) {
+        if (sctids.length > 0) {
             callback(null, sctids[0]);
         } else {
             callback(null, null);
