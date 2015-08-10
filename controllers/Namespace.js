@@ -15,11 +15,9 @@ function isAbleToEdit(namespaceId, user){
     if (!able){
         if (namespaceId != "false"){
             namespace.getPermissions(namespaceId, function(err, permissions) {
-                if (err){
-                    res.setHeader('Content-Type', 'application/json');
-                    res.status(500);
-                    res.end(JSON.stringify({message:err.message}));
-                }else{
+                if (err)
+                    return next(err.message);
+                else{
                     permissions.forEach(function(permission){
                         if (permission.role == "manager" && permission.username == user)
                             able = true;
@@ -37,17 +35,13 @@ module.exports.getNamespace = function getNamespace (req, res, next) {
     var token = req.swagger.params.token.value;
     var namespaceId = req.swagger.params.namespaceId.value;
     security.authenticate(token, function(err, data) {
-        if (err){
-            res.setHeader('Content-Type', 'application/json');
-            res.status(400);
-            res.end(JSON.stringify({message: err.message}));
-        }else{
+        if (err)
+            return next(err.message);
+        else{
             namespace.getNamespace(namespaceId, function(err, namespaces) {
-                if (err){
-                    res.setHeader('Content-Type', 'application/json');
-                    res.status(500);
-                    res.end(JSON.stringify({message:err.message}));
-                }else{
+                if (err)
+                    return next(err.message);
+                else{
                     res.setHeader('Content-Type', 'application/json');
                     res.end(JSON.stringify(namespaces[0]));
                 }
@@ -59,17 +53,13 @@ module.exports.getNamespace = function getNamespace (req, res, next) {
 module.exports.getNamespaces = function getNamespaces (req, res, next) {
     var token = req.swagger.params.token.value;
     security.authenticate(token, function(err, data) {
-        if (err){
-            res.setHeader('Content-Type', 'application/json');
-            res.status(400);
-            res.end(JSON.stringify({message: err.message}));
-        }else{
+        if (err)
+            return next(err.message);
+        else{
             namespace.getNamespaces(function(err, namespaces) {
-                if (err){
-                    res.setHeader('Content-Type', 'application/json');
-                    res.status(500);
-                    res.end(JSON.stringify({message:err.message}));
-                }else{
+                if (err)
+                    return next(err.message);
+                else{
                     res.setHeader('Content-Type', 'application/json');
                     res.end(JSON.stringify(namespaces));
                 }
@@ -82,17 +72,13 @@ module.exports.getNamespacesForUser = function getNamespacesForUser (req, res, n
     var token = req.swagger.params.token.value;
     var username = req.swagger.params.username.value;
     security.authenticate(token, function(err, data) {
-        if (err){
-            res.setHeader('Content-Type', 'application/json');
-            res.status(400);
-            res.end(JSON.stringify({message: err.message}));
-        }else{
+        if (err)
+            return next(err.message);
+        else{
             namespace.getNamespacesForUser(username, function(err, namespaces) {
-                if (err){
-                    res.setHeader('Content-Type', 'application/json');
-                    res.status(500);
-                    res.end(JSON.stringify({message:err.message}));
-                }else{
+                if (err)
+                    return next(err.message);
+                else{
                     res.setHeader('Content-Type', 'application/json');
                     res.end(JSON.stringify(namespaces));
                 }
@@ -105,34 +91,25 @@ module.exports.createNamespace = function createNamespace (req, res, next) {
     var token = req.swagger.params.token.value;
     var namespaceData = req.swagger.params.namespace.value;
     security.authenticate(token, function(err, data) {
-        if (err){
-            res.setHeader('Content-Type', 'application/json');
-            res.status(400);
-            res.end(JSON.stringify({message: err.message}));
-        }else{
+        if (err)
+            return next(err.message);
+        else{
             if (isAbleToEdit("false", data.user.name)){
                 var namespaceString = namespaceData.namespace + '';
                 if (namespaceString.length != 7 && namespaceString != "0"){
-                    res.setHeader('Content-Type', 'application/json');
-                    res.status(500);
-                    res.end(JSON.stringify({message:"Invalid namespace"}));
+                    return next("Invalid namespace");
                 }else{
                     namespace.createNamespace(namespaceData,function(err) {
-                        if (err){
-                            res.setHeader('Content-Type', 'application/json');
-                            res.status(500);
-                            res.end(JSON.stringify({message: err.message}));
-                        }else{
+                        if (err)
+                            return next(err.message);
+                        else{
                             res.setHeader('Content-Type', 'application/json');
                             res.end(JSON.stringify({message: "Success"}));
                         }
                     });
                 }
-            }else{
-                res.setHeader('Content-Type', 'application/json');
-                res.status(400);
-                res.end(JSON.stringify({message: "No permission for the selected operation"}));
-            }
+            }else
+                return next("No permission for the selected operation");
         }
     });
 };
@@ -141,27 +118,20 @@ module.exports.updateNamespace = function updateNamespace (req, res, next) {
     var token = req.swagger.params.token.value;
     var namespaceData = req.swagger.params.namespace.value;
     security.authenticate(token, function(err, data) {
-        if (err){
-            res.setHeader('Content-Type', 'application/json');
-            res.status(400);
-            res.end(JSON.stringify({message: err.message}));
-        }else{
+        if (err)
+            return next(err.message);
+        else{
             if (isAbleToEdit(namespaceData.namespace, data.user.name)){
                 namespace.editNamespace(namespaceData.namespace, namespaceData,function(err) {
-                    if (err){
-                        res.setHeader('Content-Type', 'application/json');
-                        res.status(500);
-                        res.end(JSON.stringify({message:err.message}));
-                    }else{
+                    if (err)
+                        return next(err.message);
+                    else{
                         res.setHeader('Content-Type', 'application/json');
                         res.end(JSON.stringify({message: "Success"}));
                     }
                 });
-            }else{
-                res.setHeader('Content-Type', 'application/json');
-                res.status(400);
-                res.end(JSON.stringify({message: "No permission for the selected operation"}));
-            }
+            }else
+                return next("No permission for the selected operation");
         }
     });
 };
@@ -170,27 +140,20 @@ module.exports.deleteNamespace = function deleteNamespace (req, res, next) {
     var token = req.swagger.params.token.value;
     var namespaceId = req.swagger.params.namespaceId.value;
     security.authenticate(token, function(err, data) {
-        if (err){
-            res.setHeader('Content-Type', 'application/json');
-            res.status(400);
-            res.end(JSON.stringify({message: err.message}));
-        }else{
+        if (err)
+            return next(err.message);
+        else{
             if (isAbleToEdit(namespaceId, data.user.name)){
                 namespace.deleteNamespace(namespaceId, function(err) {
-                    if (err){
-                        res.setHeader('Content-Type', 'application/json');
-                        res.status(500);
-                        res.end(JSON.stringify({message:err.message}));
-                    }else{
+                    if (err)
+                        return next(err.message);
+                    else{
                         res.setHeader('Content-Type', 'application/json');
                         res.end(JSON.stringify({message: "Success"}));
                     }
                 });
-            }else{
-                res.setHeader('Content-Type', 'application/json');
-                res.status(400);
-                res.end(JSON.stringify({message: "No permission for the selected operation"}));
-            }
+            }else
+                return next("No permission for the selected operation");
         }
     });
 };
@@ -200,16 +163,12 @@ module.exports.getPermissions = function getPermissions (req, res, next) {
     var namespaceId = req.swagger.params.namespaceId.value;
     security.authenticate(token, function(err, data) {
         if (err) {
-            res.setHeader('Content-Type', 'application/json');
-            res.status(400);
-            res.end(JSON.stringify({message: err.message}));
+            return next(err.message);
         }else{
             namespace.getPermissions(namespaceId, function(err, permissions) {
-                if (err){
-                    res.setHeader('Content-Type', 'application/json');
-                    res.status(500);
-                    res.end(JSON.stringify({message:err.message}));
-                }else{
+                if (err)
+                    return next(err.message);
+                else{
                     res.setHeader('Content-Type', 'application/json');
                     res.end(JSON.stringify(permissions));
                 }
@@ -225,26 +184,19 @@ module.exports.createPermission = function createPermission (req, res, next) {
     var role = req.swagger.params.role.value;
     security.authenticate(token, function(err, data) {
         if (err) {
-            res.setHeader('Content-Type', 'application/json');
-            res.status(400);
-            res.end(JSON.stringify({message: err.message}));
+            return next(err.message);
         }else{
             if (isAbleToEdit(namespaceId, data.user.name)){
                 namespace.createPermission({namespace: namespaceId, username: username, role: role}, function(err) {
-                    if (err){
-                        res.setHeader('Content-Type', 'application/json');
-                        res.status(500);
-                        res.end(JSON.stringify({message:err.message}));
-                    }else{
+                    if (err)
+                        return next(err.message);
+                    else{
                         res.setHeader('Content-Type', 'application/json');
                         res.end(JSON.stringify({message: "Success"}));
                     }
                 });
-            }else{
-                res.setHeader('Content-Type', 'application/json');
-                res.status(400);
-                res.end(JSON.stringify({message: "No permission for the selected operation"}));
-            }
+            }else
+                return next("No permission for the selected operation");
         }
     });
 };
@@ -255,26 +207,19 @@ module.exports.deletePermission = function deletePermission (req, res, next) {
     var username = req.swagger.params.username.value;
     security.authenticate(token, function(err, data) {
         if (err) {
-            res.setHeader('Content-Type', 'application/json');
-            res.status(400);
-            res.end(JSON.stringify({message: err.message}));
+            return next(err.message);
         }else{
             if (isAbleToEdit(namespaceId, data.user.name)){
                 namespace.deletePermission(namespaceId, username, function(err) {
-                    if (err){
-                        res.setHeader('Content-Type', 'application/json');
-                        res.status(500);
-                        res.end(JSON.stringify({message:err.message}));
-                    }else{
+                    if (err)
+                        return next(err.message);
+                    else{
                         res.setHeader('Content-Type', 'application/json');
                         res.end(JSON.stringify({message: "Success"}));
                     }
                 });
-            }else{
-                res.setHeader('Content-Type', 'application/json');
-                res.status(400);
-                res.end(JSON.stringify({message: "No permission for the selected operation"}));
-            }
+            }else
+                return next("No permission for the selected operation");
         }
     });
 };
@@ -285,27 +230,20 @@ module.exports.updatePartitionSequence = function updatePartitionSequence (req, 
     var namespaceId = req.swagger.params.namespaceId.value;
     var value = req.swagger.params.value.value;
     security.authenticate(token, function(err, data) {
-        if (err){
-            res.setHeader('Content-Type', 'application/json');
-            res.status(400);
-            res.end(JSON.stringify({message: err.message}));
-        }else{
+        if (err)
+            return next(err.message);
+        else{
             if (isAbleToEdit(namespaceId, data.user.name)){
                 namespace.editPartition([namespaceId, partitionId], value,function(err) {
-                    if (err){
-                        res.setHeader('Content-Type', 'application/json');
-                        res.status(500);
-                        res.end(JSON.stringify({message:err.message}));
-                    }else{
+                    if (err)
+                        return next(err.message);
+                    else{
                         res.setHeader('Content-Type', 'application/json');
                         res.end(JSON.stringify({message: "Success"}));
                     }
                 });
-            }else{
-                res.setHeader('Content-Type', 'application/json');
-                res.status(400);
-                res.end(JSON.stringify({message: "No permission for the selected operation"}));
-            }
+            }else
+                return next("No permission for the selected operation");
         }
     });
 };

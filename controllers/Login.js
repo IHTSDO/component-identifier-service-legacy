@@ -11,9 +11,7 @@ module.exports.login = function login (req, res, next) {
     var credentials = req.swagger.params.credentials.value;
     security.createSession(credentials.username, credentials.password, function(err, data) {
         if (err) {
-            res.setHeader('Content-Type', 'application/json');
-            res.status(400);
-            res.end(JSON.stringify({message: err.message}));
+            return next(err.message);
         }
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify({"token":data}));
