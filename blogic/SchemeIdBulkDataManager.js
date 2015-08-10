@@ -107,11 +107,15 @@ console.log("getSchemeIds diff:" +  JSON.stringify(diff));
 
 function getFreeRecord(scheme, schemeId, systemId, callback){
     Sync(function() {
-        var schemeIdRecord = getNewRecord(scheme, schemeId, systemId);
-        schemeIdRecord.status = stateMachine.statuses.available;
-        var newRecord = insertSchemeIdRecord.sync(null, schemeIdRecord);
+        try {
+            var schemeIdRecord = getNewRecord(scheme, schemeId, systemId);
+            schemeIdRecord.status = stateMachine.statuses.available;
+            var newRecord = insertSchemeIdRecord.sync(null, schemeIdRecord);
 
-        callback(null, newRecord);
+            callback(null, newRecord);
+        }catch(e){
+            callback(e,null);
+        }
     });
 }
 function getNewRecord(scheme, schemeId, systemId){
@@ -290,8 +294,12 @@ var getSchemeId=function (scheme, schemeId, systemId, callback) {
         getModel.sync(null);
         var schemeIdRecord = getSchemeIdRecord.sync(null, objQuery);
         if (!schemeIdRecord) {
-            var record = getFreeRecord.sync(null,scheme, schemeId, systemId);
-            callback(null, record);
+            try {
+                var record = getFreeRecord.sync(null, scheme, schemeId, systemId);
+                callback(null, record);
+            }catch(e){
+                callback(e,null);
+            }
         } else {
             callback(null, schemeIdRecord);
         }
@@ -301,8 +309,12 @@ var getSchemeId=function (scheme, schemeId, systemId, callback) {
 
 function insertSchemeIdRecord(newSchemeIdRecord, callback){
     Sync(function() {
-        var newSchemeIdRecord2 = model.schemeId.create.sync(null, newSchemeIdRecord);
-        callback(null, newSchemeIdRecord2);
+        try {
+            var newSchemeIdRecord2 = model.schemeId.create.sync(null, newSchemeIdRecord);
+            callback(null, newSchemeIdRecord2);
+        }catch(e){
+            callback(e,null);
+        }
     });
 }
 

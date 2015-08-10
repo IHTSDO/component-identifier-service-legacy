@@ -360,6 +360,10 @@ function getNextNumber( operation, callback){
     var key=[parseInt(operation.namespace),operation.partitionId.toString()];
     model.partitions.get(key,function(err, partition){
 
+        if (err){
+            callback(throwErrMessage("error getting partition:" + operation.partitionId.toString() + " for namespace:" + operation.namespace + ", err: " + JSON.stringify(err)),null);
+            return;
+        }
         partition.sequence++;
 
         var nextNumber=partition.sequence;
