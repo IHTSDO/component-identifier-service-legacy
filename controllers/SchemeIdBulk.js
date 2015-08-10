@@ -9,7 +9,7 @@ var bulkDM=require("./../blogic/BulkJobDataManager");
 var job=require("../model/JobType");
 var namespace = require("./../blogic/NamespaceDataManager");
 
-function isAbleUser(schemeName, user){
+function isAbleUser(schemeName, user, res){
     var able = false;
     security.admins.forEach(function(admin){
         if (admin == user)
@@ -18,9 +18,11 @@ function isAbleUser(schemeName, user){
     if (!able){
         if (schemeName != "false"){
             scheme.getPermissions(schemeName, function(err, permissions) {
-                if (err)
-                    return next(err.message);
-                else{
+                if (err){
+                    res.setHeader('Content-Type', 'application/json');
+                    res.status(500);
+                    res.end(JSON.stringify({message: err.message}));
+                }else{
                     permissions.forEach(function(permission){
                         if (permission.username == user)
                             able = true;
@@ -41,19 +43,26 @@ module.exports.getSchemeIds = function getSchemeIds (req, res, next) {
     var schemeIdsArray = schemeIds.replace(/ /g,"").split(",");
     security.authenticate(token, function(err, data) {
         if (err) {
-            return next(err.message);
+            res.setHeader('Content-Type', 'application/json');
+            res.status(400);
+            res.end(JSON.stringify({message: err.message}));
         }
 
-        if (isAbleUser(schemeName, data.user.name)){
+        if (isAbleUser(schemeName, data.user.name, res)){
             idDM.getSchemeIds(schemeName, schemeIdsArray,function(err,SchemeIdRecords){
                 if (err) {
-                    return next(err.message);
+                    res.setHeader('Content-Type', 'application/json');
+                    res.status(500);
+                    res.end(JSON.stringify({message: err.message}));
                 }
                 res.setHeader('Content-Type', 'application/json');
                 res.end(JSON.stringify(SchemeIdRecords));
             });
-        }else
-            return next("No permission for the selected operation");
+        }else{
+            res.setHeader('Content-Type', 'application/json');
+            res.status(400);
+            res.end(JSON.stringify({message: "No permission for the selected operation"}));
+        }
     });
 };
 
@@ -63,26 +72,34 @@ module.exports.generateSchemeIds = function generateSchemeIds (req, res, next) {
     var generationMetadata = req.swagger.params.generationMetadata.value;
     security.authenticate(token, function(err, data) {
         if (err) {
-            return next(err.message);
+            res.setHeader('Content-Type', 'application/json');
+            res.status(400);
+            res.end(JSON.stringify({message: err.message}));
         }
-        if (isAbleUser(schemeName, data.user.name)){
+        if (isAbleUser(schemeName, data.user.name, res)){
             if (generationMetadata.systemIds && generationMetadata.systemIds.length!=0 && generationMetadata.systemIds.length!=generationMetadata.quantity){
-                return next("SystemIds quantity is not equal to quantity requirement");
+                res.setHeader('Content-Type', 'application/json');
+                res.status(400);
+                res.end(JSON.stringify({message: "SystemIds quantity is not equal to quantity requirement"}));
             }
             generationMetadata.author=data.user.name;
             generationMetadata.model=job.MODELS.SchemeId;
             generationMetadata.scheme=schemeName;
             bulkDM.saveJob(generationMetadata,job.JOBTYPE.generateSchemeIds,function(err,bulkJobRecord){
                 if (err) {
-
-                    return next(err.message);
+                    res.setHeader('Content-Type', 'application/json');
+                    res.status(500);
+                    res.end(JSON.stringify({message: err.message}));
                 }
 
                 res.setHeader('Content-Type', 'application/json');
                 res.end(JSON.stringify(bulkJobRecord));
             });
-        }else
-            return next("No permission for the selected operation");
+        }else{
+            res.setHeader('Content-Type', 'application/json');
+            res.status(400);
+            res.end(JSON.stringify({message: "No permission for the selected operation"}));
+        }
     });
 };
 
@@ -93,27 +110,34 @@ module.exports.registerSchemeIds = function registerSchemeIds (req, res, next) {
     var registrationMetadata = req.swagger.params.registrationMetadata.value;
     security.authenticate(token, function(err, data) {
         if (err) {
-            return next(err.message);
+            res.setHeader('Content-Type', 'application/json');
+            res.status(400);
+            res.end(JSON.stringify({message: err.message}));
         }
-        if (isAbleUser(schemeName, data.user.name)){
+        if (isAbleUser(schemeName, data.user.name, res)){
             if (!registrationMetadata.records || registrationMetadata.records.length==0){
-
-                return next("Records property cannot be empty.");
+                res.setHeader('Content-Type', 'application/json');
+                res.status(400);
+                res.end(JSON.stringify({message: "Records property cannot be empty."}));
             }
             registrationMetadata.author=data.user.name;
             registrationMetadata.model=job.MODELS.SchemeId;
             registrationMetadata.scheme=schemeName;
             bulkDM.saveJob(registrationMetadata,job.JOBTYPE.registerSchemeIds,function(err,bulkJobRecord){
                 if (err) {
-
-                    return next(err.message);
+                    res.setHeader('Content-Type', 'application/json');
+                    res.status(500);
+                    res.end(JSON.stringify({message: err.message}));
                 }
 
                 res.setHeader('Content-Type', 'application/json');
                 res.end(JSON.stringify(bulkJobRecord));
             });
-        }else
-            return next("No permission for the selected operation");
+        }else{
+            res.setHeader('Content-Type', 'application/json');
+            res.status(400);
+            res.end(JSON.stringify({message: "No permission for the selected operation"}));
+        }
     });
 };
 
@@ -123,27 +147,34 @@ module.exports.reserveSchemeIds = function reserveSchemeIds (req, res, next) {
     var reservationMetadata = req.swagger.params.reservationMetadata.value;
     security.authenticate(token, function(err, data) {
         if (err) {
-            return next(err.message);
+            res.setHeader('Content-Type', 'application/json');
+            res.status(400);
+            res.end(JSON.stringify({message: err.message}));
         }
-        if (isAbleUser(schemeName, data.user.name)){
+        if (isAbleUser(schemeName, data.user.name, res)){
             if (!reservationMetadata.quantity || reservationMetadata.quantity<1){
-
-                return next("Quantity property cannot be lower to 1.");
+                res.setHeader('Content-Type', 'application/json');
+                res.status(400);
+                res.end(JSON.stringify({message: "Quantity property cannot be lower to 1."}));
             }
             reservationMetadata.author=data.user.name;
             reservationMetadata.model=job.MODELS.SchemeId;
             reservationMetadata.scheme=schemeName;
             bulkDM.saveJob(reservationMetadata,job.JOBTYPE.reserveSchemeIds,function(err,bulkJobRecord){
                 if (err) {
-
-                    return next(err.message);
+                    res.setHeader('Content-Type', 'application/json');
+                    res.status(500);
+                    res.end(JSON.stringify({message: err.message}));
                 }
 
                 res.setHeader('Content-Type', 'application/json');
                 res.end(JSON.stringify(bulkJobRecord));
             });
-        }else
-            return next("No permission for the selected operation");
+        }else{
+            res.setHeader('Content-Type', 'application/json');
+            res.status(400);
+            res.end(JSON.stringify({message: "No permission for the selected operation"}));
+        }
     });
 };
 
@@ -153,27 +184,34 @@ module.exports.deprecateSchemeIds = function deprecateSchemeIds (req, res, next)
     var deprecationMetadata = req.swagger.params.deprecationMetadata.value;
     security.authenticate(token, function(err, data) {
         if (err) {
-            return next(err.message);
+            res.setHeader('Content-Type', 'application/json');
+            res.status(400);
+            res.end(JSON.stringify({message: err.message}));
         }
-        if (isAbleUser(schemeName, data.user.name)){
+        if (isAbleUser(schemeName, data.user.name, res)){
             if (!deprecationMetadata.schemeIds || deprecationMetadata.schemeIds.length<1){
-
-                return next("SchemeIds property cannot be empty.");
+                res.setHeader('Content-Type', 'application/json');
+                res.status(400);
+                res.end(JSON.stringify({message: "SchemeIds property cannot be empty."}));
             }
             deprecationMetadata.author=data.user.name;
             deprecationMetadata.model=job.MODELS.SchemeId;
             deprecationMetadata.scheme=schemeName;
             bulkDM.saveJob(deprecationMetadata,job.JOBTYPE.deprecateSchemeIds,function(err,bulkJobRecord){
                 if (err) {
-
-                    return next(err.message);
+                    res.setHeader('Content-Type', 'application/json');
+                    res.status(500);
+                    res.end(JSON.stringify({message: err.message}));
                 }
 
                 res.setHeader('Content-Type', 'application/json');
                 res.end(JSON.stringify(bulkJobRecord));
             });
-        }else
-            return next("No permission for the selected operation");
+        }else{
+            res.setHeader('Content-Type', 'application/json');
+            res.status(400);
+            res.end(JSON.stringify({message: "No permission for the selected operation"}));
+        }
     });
 };
 
@@ -183,27 +221,34 @@ module.exports.releaseSchemeIds = function releaseSchemeIds (req, res, next) {
     var releaseMetadata = req.swagger.params.releaseMetadata.value;
     security.authenticate(token, function(err, data) {
         if (err) {
-            return next(err.message);
+            res.setHeader('Content-Type', 'application/json');
+            res.status(400);
+            res.end(JSON.stringify({message: err.message}));
         }
-        if (isAbleUser(schemeName, data.user.name)){
+        if (isAbleUser(schemeName, data.user.name, res)){
             if (!releaseMetadata.schemeIds || releaseMetadata.schemeIds.length<1){
-
-                return next("SchemeIds property cannot be empty.");
+                res.setHeader('Content-Type', 'application/json');
+                res.status(400);
+                res.end(JSON.stringify({message: "SchemeIds property cannot be empty."}));
             }
             releaseMetadata.author=data.user.name;
             releaseMetadata.model=job.MODELS.SchemeId;
             releaseMetadata.scheme=schemeName;
             bulkDM.saveJob(releaseMetadata,job.JOBTYPE.releaseSchemeIds,function(err,bulkJobRecord){
                 if (err) {
-
-                    return next(err.message);
+                    res.setHeader('Content-Type', 'application/json');
+                    res.status(500);
+                    res.end(JSON.stringify({message: err.message}));
                 }
 
                 res.setHeader('Content-Type', 'application/json');
                 res.end(JSON.stringify(bulkJobRecord));
             });
-        }else
-            return next("No permission for the selected operation");
+        }else{
+            res.setHeader('Content-Type', 'application/json');
+            res.status(400);
+            res.end(JSON.stringify({message: "No permission for the selected operation"}));
+        }
     });
 };
 
@@ -213,26 +258,33 @@ module.exports.publishSchemeIds = function publishSchemeIds (req, res, next) {
     var publicationMetadata = req.swagger.params.publicationMetadata.value;
     security.authenticate(token, function(err, data) {
         if (err) {
-            return next(err.message);
+            res.setHeader('Content-Type', 'application/json');
+            res.status(400);
+            res.end(JSON.stringify({message: err.message}));
         }
-        if (isAbleUser(schemeName, data.user.name)){
+        if (isAbleUser(schemeName, data.user.name, res)){
             if (!publicationMetadata.schemeIds || publicationMetadata.schemeIds.length<1){
-
-                return next("SchemeIds property cannot be empty.");
+                res.setHeader('Content-Type', 'application/json');
+                res.status(400);
+                res.end(JSON.stringify({message: "SchemeIds property cannot be empty."}));
             }
             publicationMetadata.author=data.user.name;
             publicationMetadata.model=job.MODELS.SchemeId;
             publicationMetadata.scheme=schemeName;
             bulkDM.saveJob(publicationMetadata,job.JOBTYPE.publishSchemeIds,function(err,bulkJobRecord){
                 if (err) {
-
-                    return next(err.message);
+                    res.setHeader('Content-Type', 'application/json');
+                    res.status(500);
+                    res.end(JSON.stringify({message: err.message}));
                 }
 
                 res.setHeader('Content-Type', 'application/json');
                 res.end(JSON.stringify(bulkJobRecord));
             });
-        }else
-            return next("No permission for the selected operation");
+        }else{
+            res.setHeader('Content-Type', 'application/json');
+            res.status(400);
+            res.end(JSON.stringify({message: "No permission for the selected operation"}));
+        }
     });
 };
