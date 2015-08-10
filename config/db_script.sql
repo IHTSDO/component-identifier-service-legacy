@@ -33,7 +33,7 @@ CREATE TABLE `bulkJob` (
   `modified_at` datetime DEFAULT NULL,
   `log` varchar(1000) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=43 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=66 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -118,8 +118,8 @@ CREATE TABLE `schemeId` (
   `created_at` datetime DEFAULT NULL,
   `modified_at` datetime DEFAULT NULL,
   PRIMARY KEY (`scheme`,`schemeId`),
-  KEY `jobid` (`jobId`),
-  KEY `sysId` (`systemId`)
+  UNIQUE KEY `sysId` (`systemId`,`scheme`),
+  KEY `jobid` (`jobId`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -160,7 +160,7 @@ CREATE TABLE `sctId` (
   `created_at` datetime DEFAULT NULL,
   `modified_at` datetime DEFAULT NULL,
   PRIMARY KEY (`sctid`),
-  KEY `sysid` (`systemId`),
+  UNIQUE KEY `sysid` (`systemId`),
   KEY `jobid` (`jobId`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -178,4 +178,4 @@ CREATE TABLE `sctId` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2015-08-03 18:29:03
+-- Dump completed on 2015-08-03 20:10:28
