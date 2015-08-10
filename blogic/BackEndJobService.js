@@ -15,7 +15,7 @@ function getModel(){
     if (!model){
         dbInit.getDB(function (err, pdb, podel1) {
             if (err) {
-                throw err;
+                process.nextTick(err.message);
             }else {
 
                 db = pdb;
@@ -81,7 +81,7 @@ function processJob(record){
                     console.log("Error-2 in back end service:" + err);
                     return;
                 }else{
-                    console.log("End job " + record.name + " - id:" + record.id);
+                    console.log("Normal end job " + record.name + " - id:" + record.id);
                 }
             });
         });
@@ -103,7 +103,7 @@ function processJob(record){
                     console.log("Error-3 in back end service:" + JSON.stringify(err));
                     return;
                 }else{
-                    console.log("End job " + record.name + " - id:" + record.id);
+                    console.log("Normal end job " + record.name + " - id:" + record.id);
                 }
             });
         });
@@ -132,7 +132,7 @@ function processJob(record){
                     console.log("Error-4 in back end service:" + err);
                     return;
                 }else{
-                    console.log("End job " + record.name + " - id:" + record.id);
+                    console.log("Normal end job " + record.name + " - id:" + record.id);
                 }
             });
         });
@@ -154,7 +154,7 @@ function processJob(record){
                     console.log("Error-5 in back end service:" + err);
                     return;
                 }else{
-                    console.log("End job " + record.name + " - id:" + record.id);
+                    console.log("Normal end job " + record.name + " - id:" + record.id);
                 }
             });
         });
@@ -176,7 +176,7 @@ function processJob(record){
                     console.log("Error-6 in back end service:" + err);
                     return;
                 }else{
-                    console.log("End job " + record.name + " - id:" + record.id);
+                    console.log("Normal end job " + record.name + " - id:" + record.id);
                 }
             });
         });
@@ -198,7 +198,7 @@ function processJob(record){
                     console.log("Error-7 in back end service:" + err);
                     return;
                 }else{
-                    console.log("End job " + record.name + " - id:" + record.id);
+                    console.log("Normal end job " + record.name + " - id:" + record.id);
                 }
             });
         });
@@ -227,7 +227,7 @@ function processJob(record){
                     console.log("Error-8 in back end service:" + err);
                     return;
                 }else{
-                    console.log("End job " + record.name + " - id:" + record.id);
+                    console.log("Normal end job " + record.name + " - id:" + record.id);
                 }
             });
         });
@@ -249,7 +249,7 @@ function processJob(record){
                     console.log("Error-9 in back end service:" + JSON.stringify(err));
                     return;
                 }else{
-                    console.log("End job " + record.name + " - id:" + record.id);
+                    console.log("Normal end job " + record.name + " - id:" + record.id);
                 }
             });
         });
@@ -278,7 +278,7 @@ function processJob(record){
                     console.log("Error-10 in back end service:" + err);
                     return;
                 }else{
-                    console.log("End job " + record.name + " - id:" + record.id);
+                    console.log("Normal end job " + record.name + " - id:" + record.id);
                 }
             });
         });
@@ -300,7 +300,7 @@ function processJob(record){
                     console.log("Error-11 in back end service:" + err);
                     return;
                 }else{
-                    console.log("End job " + record.name + " - id:" + record.id);
+                    console.log("Normal end job " + record.name + " - id:" + record.id);
                 }
             });
         });
@@ -322,7 +322,7 @@ function processJob(record){
                     console.log("Error-12 in back end service:" + err);
                     return;
                 }else{
-                    console.log("End job " + record.name + " - id:" + record.id);
+                    console.log("Normal end job " + record.name + " - id:" + record.id);
                 }
             });
         });
@@ -344,7 +344,7 @@ function processJob(record){
                     console.log("Error-13 in back end service:" + err);
                     return;
                 }else{
-                    console.log("End job " + record.name + " - id:" + record.id);
+                    console.log("Normal end job " + record.name + " - id:" + record.id);
                 }
             });
         });
