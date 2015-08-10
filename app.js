@@ -34,8 +34,19 @@ swaggerTools.initializeMiddleware(swaggerDoc, function (middleware) {
 
     app.use(serveStatic(__dirname + '/public'));
 
+    app.use(function(err, req, res, next) {
+        if (err) {
+            if (err.statusCode && err.message) {
+                res.setHeader('Content-Type', 'text/html; charset=utf-8');
+                res.statusCode = err.statusCode;
+                res.end(JSON.stringify({"statusCode":err.statusCode, "message":err.message}))
+            }
+        }
+    });
+
     // Start the server
     http.createServer(app).listen(serverPort, function () {
         console.log('Your server is listening on port %d (http://localhost:%d)', serverPort, serverPort);
     });
 });
+
