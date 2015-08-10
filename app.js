@@ -38,7 +38,8 @@ swaggerTools.initializeMiddleware(swaggerDoc, function (middleware) {
             if (err.statusCode && err.message) {
                 res.setHeader('Content-Type', 'text/html; charset=utf-8');
                 res.statusCode = err.statusCode;
-                res.end(JSON.stringify({"statusCode":err.statusCode, "message":err.message}))
+//                res.end(JSON.stringify({"statusCode":err.statusCode, "message":err.message}))
+                res.end({"statusCode":err.statusCode, "message":err.message});
             }
         }
     });
