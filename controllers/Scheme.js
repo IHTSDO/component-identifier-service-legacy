@@ -147,11 +147,8 @@ module.exports.updateScheme = function updateScheme (req, res, next) {
                         res.end(JSON.stringify({message: "Success"}));
                     }
                 });
-            }else{
-                res.setHeader('Content-Type', 'application/json');
-                res.status(400);
-                res.end(JSON.stringify({message: "No permission for the selected operation"}));
-            }
+            }else
+                return next("No permission for the selected operation");
         }
     });
 };
@@ -201,11 +198,8 @@ module.exports.createPermission = function createPermission (req, res, next) {
                         res.end(JSON.stringify({message: "success"}));
                     }
                 });
-            }else{
-                res.setHeader('Content-Type', 'application/json');
-                res.status(400);
-                res.end(JSON.stringify({message: "No permission for the selected operation"}));
-            }
+            }else
+                return next("No permission for the selected operation");
         }
     });
 };
@@ -231,11 +225,8 @@ module.exports.deletePermission = function deletePermission (req, res, next) {
                         res.end(JSON.stringify({message: "success"}));
                     }
                 });
-            }else{
-                res.setHeader('Content-Type', 'application/json');
-                res.status(400);
-                res.end(JSON.stringify({message: "No permission for the selected operation"}));
-            }
+            }else
+                return next("No permission for the selected operation");
         }
     });
 };
