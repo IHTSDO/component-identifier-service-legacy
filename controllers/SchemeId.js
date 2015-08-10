@@ -110,6 +110,11 @@ module.exports.generateSchemeId = function generateSchemeId (req, res, next) {
             return next(err.message);
         }
         if (isAbleUser(schemeName, data.user.name)){
+
+            if (!generationMetadata.systemId || generationMetadata.systemId.trim()==""){
+                generationMetadata.systemId=guid();
+                generationMetadata.autoSysId=true;
+            }
             generationMetadata.author=data.user.name;
             idDM.generateSchemeId(schemeName, generationMetadata,function(err,SchemeIdRecord){
                 if (err) {
@@ -155,6 +160,9 @@ module.exports.registerSchemeId = function registerSchemeId (req, res, next) {
         }
         if (isAbleUser(schemeName, data.user.name)){
             registrationMetadata.author=data.user.name;
+            if (!registrationMetadata.systemId || registrationMetadata.systemId==""){
+                registrationMetadata.autoSysId=true;
+            }
             idDM.registerSchemeId(schemeName, registrationMetadata,function(err,SchemeIdRecord){
                 if (err) {
                     return next(err.message);
@@ -232,3 +240,15 @@ module.exports.publishSchemeId = function publishSchemeId (req, res, next) {
             return next("No permission for the selected operation");
     });
 };
+
+var guid = (function() {
+    function s4() {
+        return Math.floor((1 + Math.random()) * 0x10000)
+            .toString(16)
+            .substring(1);
+    }
+    return function() {
+        return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+            s4() + '-' + s4() + s4() + s4();
+    };
+})();

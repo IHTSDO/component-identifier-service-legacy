@@ -69,6 +69,10 @@ module.exports.generateSchemeIds = function generateSchemeIds (req, res, next) {
             if (generationMetadata.systemIds && generationMetadata.systemIds.length!=0 && generationMetadata.systemIds.length!=generationMetadata.quantity){
                 return next("SystemIds quantity is not equal to quantity requirement");
             }
+
+            if (!generationMetadata.systemIds || generationMetadata.systemIds.length==0){
+                generationMetadata.autoSysId=true;
+            }
             generationMetadata.author=data.user.name;
             generationMetadata.model=job.MODELS.SchemeId;
             generationMetadata.scheme=schemeName;

@@ -6,9 +6,33 @@
         "version": "1.0"
     },
     "produces": ["application/json"],
-    "host": "107.170.101.181:3000",
+    "host": "localhost:3000",
     "basePath": "/api",
     "paths": {
+
+      "/testService": {
+        "get": {
+          "x-swagger-router-controller": "Home",
+          "operationId": "testService",
+          "tags": ["Test Service"],
+          "description": "Test service.",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "Test OK.",
+              "schema": {
+                "type": "string"
+              }
+            },
+            "default": {
+              "description": "Error.",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      },
         "/login": {
             "post": {
                 "x-swagger-router-controller": "Login",
@@ -528,7 +552,9 @@
                             "$ref": "#/definitions/Error"
                         }
                     },
-                    "200": {}
+                    "200": {
+                        "$ref": "#/definitions/NamespacePermission"
+                    }
                 }
             }
         },
@@ -656,7 +682,12 @@
                             "$ref": "#/definitions/Error"
                         }
                     },
-                    "200": {}
+                    "200": {
+                        "description": "Successful request.",
+                        "schema": {
+                            "$ref": "#/definitions/SchemePermission"
+                        }
+                    }
                 }
             }
         },
@@ -1713,8 +1744,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/SCTIDRecord",
-                              "$ref": "#/definitions/SchemeIdRecord"
+                                "type":"object"
                             }
                         }
                     }

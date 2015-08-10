@@ -107,11 +107,15 @@ console.log("getSchemeIds diff:" +  JSON.stringify(diff));
 
 function getFreeRecord(scheme, schemeId, systemId, callback){
     Sync(function() {
-        var schemeIdRecord = getNewRecord(scheme, schemeId, systemId);
-        schemeIdRecord.status = stateMachine.statuses.available;
-        var newRecord = insertSchemeIdRecord.sync(null, schemeIdRecord);
+        try {
+            var schemeIdRecord = getNewRecord(scheme, schemeId, systemId);
+            schemeIdRecord.status = stateMachine.statuses.available;
+            var newRecord = insertSchemeIdRecord.sync(null, schemeIdRecord);
 
-        callback(null, newRecord);
+            callback(null, newRecord);
+        }catch(e){
+            callback(e,null);
+        }
     });
 }
 function getNewRecord(scheme, schemeId, systemId){
@@ -145,6 +149,22 @@ var getSchemeIdBySystemIds=function (scheme, systemIds, callback){
     });
 };
 
+var getSyncSchemeIdBySystemId=function (scheme, systemId, callback) {
+    Sync(function () {
+        var objQuery = {scheme: scheme.toUpperCase(), systemId: systemId};
+        try {
+            getModel.sync(null);
+            var schemeIdRecord = getSchemeIdRecord.sync(null, objQuery);
+            if (!schemeIdRecord) {
+                callback(null, null);
+            } else {
+                callback(null, schemeIdRecord);
+            }
+        } catch (e) {
+            callback(e, null);
+        }
+    });
+};
 function getSchemeIdRecords(objQuery, callback){
     model.schemeId.find(objQuery, function (err, schemeIds) {
         if (err) {
@@ -176,6 +196,11 @@ var registerSchemeIds=function ( operation, callback){
                 return;
             } else {
 
+                if (schemeIdRecord.systemId!=systemId){
+                    error=true;
+                    callback("SchemeId:" + schemeId + " already exists with system Id:" + schemeIdRecord.systemId);
+                    return;
+                }
                 var newStatus = stateMachine.getNewStatus(schemeIdRecord.status, stateMachine.actions.register);
                 if (newStatus) {
 
@@ -290,8 +315,12 @@ var getSchemeId=function (scheme, schemeId, systemId, callback) {
         getModel.sync(null);
         var schemeIdRecord = getSchemeIdRecord.sync(null, objQuery);
         if (!schemeIdRecord) {
-            var record = getFreeRecord.sync(null,scheme, schemeId, systemId);
-            callback(null, record);
+            try {
+                var record = getFreeRecord.sync(null, scheme, schemeId, systemId);
+                callback(null, record);
+            }catch(e){
+                callback(e,null);
+            }
         } else {
             callback(null, schemeIdRecord);
         }
@@ -301,8 +330,12 @@ var getSchemeId=function (scheme, schemeId, systemId, callback) {
 
 function insertSchemeIdRecord(newSchemeIdRecord, callback){
     Sync(function() {
-        var newSchemeIdRecord2 = model.schemeId.create.sync(null, newSchemeIdRecord);
-        callback(null, newSchemeIdRecord2);
+        try {
+            var newSchemeIdRecord2 = model.schemeId.create.sync(null, newSchemeIdRecord);
+            callback(null, newSchemeIdRecord2);
+        }catch(e){
+            callback(e,null);
+        }
     });
 }
 
@@ -417,24 +450,40 @@ var generateSchemeIds=function ( operation, callback) {
                         callback("Scheme not found for key:" + JSON.stringify(key));
                     }
                     var thisScheme=data;
+                    var canContinue;
                     console.log("getting scheme :" + JSON.stringify(thisScheme) + " for key:" + JSON.stringify(key));
                     for (var i = 0; i < operation.quantity; i++) {
-
+                        canContinue=true;
                         Sync(function () {
                             try {
+
                                 operation.systemId = operation.systemIds[i];
-                                generateSchemeId.sync(null, operation, thisScheme);
-                                //schemeIdRecords.push(schemeIdRecord);
-                                cont++;
-                                if (operation.quantity == cont) {
-                                    thisScheme.save(function (err) {
-                                        if (err) {
-                                            callback(err);
-                                        } else {
-                                            console.log("saving scheme :" + JSON.stringify(thisScheme) + " for key:" + JSON.stringify(key));
-                                            callback(null);
-                                        }
-                                    });
+                                if (!operation.autoSysId){
+                                    var schemeIdRecord = getSyncSchemeIdBySystemId.sync(null, thisScheme.scheme,operation.systemId);
+                                    if (schemeIdRecord!=null){
+                                        schemeIdRecord.jobId=operation.jobId;
+                                        schemeIdRecord.save.sync(null);
+                                        console.log("generateSchemeIds  operation.systemId1:" + operation.systemId );
+                                        cont++;
+                                        canContinue=false;
+
+                                    }
+                                }
+                                if (canContinue) {
+                                    console.log("generateSchemeIds  operation.systemId2:" + operation.systemId);
+                                    generateSchemeId.sync(null, operation, thisScheme);
+                                    //schemeIdRecords.push(schemeIdRecord);
+                                    cont++;
+                                    if (operation.quantity == cont) {
+                                        thisScheme.save(function (err) {
+                                            if (err) {
+                                                callback(err);
+                                            } else {
+                                                console.log("saving scheme :" + JSON.stringify(thisScheme) + " for key:" + JSON.stringify(key));
+                                                callback(null);
+                                            }
+                                        });
+                                    }
                                 }
                             } catch (e) {
                                 console.error("generateSchemeIds error:" + e); // something went wrong
