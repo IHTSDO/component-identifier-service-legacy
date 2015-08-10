@@ -170,13 +170,13 @@ module.exports.generateSctid = function generateSctid (req, res, next) {
             return next(err.message);
         }
         if (isAbleUser(generationData.namespace, data.user.name)){
-            console.log("Abled user");
             if ((generationData.namespace==0 && generationData.partitionId.substr(0,1)!="0")
                 || (generationData.namespace!=0 && generationData.partitionId.substr(0,1)!="1")){
                 return next("Namespace and partitionId parameters are not consistent.");
             }
             if (!generationData.systemId || generationData.systemId.trim()==""){
                 generationData.systemId=guid();
+                generationData.autoSysId=true;
             }
             generationData.author=data.user.name;
             idDM.generateSctid(generationData,function(err,sctIdRecord){
@@ -285,6 +285,10 @@ module.exports.registerSctid = function registerSctid (req, res, next) {
             return next("Namespaces differences between sctid and parameter");
         }
         if (isAbleUser(namespace, data.user.name)){
+
+            if (!registrationData.systemId || registrationData.systemId==""){
+                registrationData.autoSysId=true;
+            }
             registrationData.author=data.user.name;
             idDM.registerSctid(registrationData,function(err,sctIdRecord){
                 if (err) {

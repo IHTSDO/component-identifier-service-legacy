@@ -36,7 +36,7 @@ var throwErrMessage=function(msg){
 var getSctids = function (query, limit, skip, callback){
     var objQuery={};
     var limitR = 100;
-    var skipTo = 1;
+    var skipTo = 0;
     if (limit)
         limitR = limit;
     if (skip)
@@ -47,7 +47,7 @@ var getSctids = function (query, limit, skip, callback){
         if (err) {
             callback(err, null);
         }else {
-            model.sctId.find(objQuery, {limit:limitR}, function (err, sctids) {
+            model.sctId.find(objQuery).limit(parseInt(limitR)).offset(parseInt(skipTo)).run( function (err, sctids) {
                 if (err) {
                     callback(err,null);
                 }else {
@@ -147,21 +147,42 @@ function getSCTIDRecord(objQuery, callback){
 };
 
 
-var generateSctid=function (operation, callback){
-    getModel(function(err) {
+var generateSctid=function (operation, callback) {
+    getModel(function (err) {
         if (err) {
             callback(err, null);
-        }else {
+        } else {
+            if (!operation.autoSysId) {
+                getSctidBySystemId(operation.namespace, operation.systemId ,function(err,sctid){
+                    if (err){
+                        callback(err,null);
+                    }else if (sctid){
 
-            setNewSCTIdRecord(operation, stateMachine.actions.generate, function (err, sctIdRecord) {
+                        callback(null,sctid);
+                    }else{
+                        setNewSCTIdRecord(operation, stateMachine.actions.generate, function (err, sctIdRecord) {
 
-                if (err) {
-                    callback(err, null);
-                }else {
+                            if (err) {
+                                callback(err, null);
+                            } else {
 
-                    callback(null, sctIdRecord);
-                }
-            });
+                                callback(null, sctIdRecord);
+                            }
+                        });
+
+                    }
+                });
+            } else {
+                setNewSCTIdRecord(operation, stateMachine.actions.generate, function (err, sctIdRecord) {
+
+                    if (err) {
+                        callback(err, null);
+                    } else {
+
+                        callback(null, sctIdRecord);
+                    }
+                });
+            }
         }
     });
 };
@@ -182,7 +203,41 @@ var reserveSctid=function (operation, callback){
         }
     });
 };
-var registerSctid=function (operation, callback){
+var registerSctid=function (operation, callback) {
+
+    if (!operation.autoSysId) {
+        getSctidBySystemId(operation.namespace, operation.systemId, function (err, sctid) {
+            if (err) {
+                callback(err, null);
+            } else if (sctid) {
+                if (sctid != operation.sctid) {
+                    callback(throwErrMessage("SystemId:" + operation.systemId + " already exists with SctId:" + sctid), null);
+                    return;
+                }
+                callback(null, sctid);
+            } else {
+                registerNewSctId(operation, function (err, newSctId) {
+                    if (err) {
+                        callback(err, null);
+                    } else {
+                        callback(null, newSctId);
+                    }
+                });
+            }
+        });
+    } else {
+        registerNewSctId(operation, function (err, newSctId) {
+            if (err) {
+                callback(err, null);
+            } else {
+                callback(null, newSctId);
+            }
+        });
+
+    }
+};
+
+function registerNewSctId(operation, callback){
     getSctid(operation.sctid,function(err,sctIdRecord){
 
         if (err) {
@@ -216,6 +271,7 @@ var registerSctid=function (operation, callback){
 
     });
 };
+
 var deprecateSctid=function (operation, callback){
     getSctid(operation.sctid,function(err,sctIdRecord){
 
