@@ -439,33 +439,32 @@ var generateSchemeIds=function ( operation, callback) {
         } else {
             //var schemeIdRecords = [];
             var cont = 0;
-            var key=operation.scheme;
+            var key = operation.scheme;
             //console.log("key:" + JSON.stringify(key));
 
-            getScheme(key,function(err,data) {
-                if (err){
+            getScheme(key, function (err, data) {
+                if (err) {
                     callback(err);
-                }else {
-                    if (!data){
+                } else {
+                    if (!data) {
                         callback("Scheme not found for key:" + JSON.stringify(key));
                     }
-                    var thisScheme=data;
+                    var thisScheme = data;
                     var canContinue;
                     console.log("getting scheme :" + JSON.stringify(thisScheme) + " for key:" + JSON.stringify(key));
                     for (var i = 0; i < operation.quantity; i++) {
-                        canContinue=true;
+                        canContinue = true;
                         Sync(function () {
                             try {
 
                                 operation.systemId = operation.systemIds[i];
-                                if (!operation.autoSysId){
-                                    var schemeIdRecord = getSyncSchemeIdBySystemId.sync(null, thisScheme.scheme,operation.systemId);
-                                    if (schemeIdRecord!=null){
-                                        schemeIdRecord.jobId=operation.jobId;
+                                if (!operation.autoSysId) {
+                                    var schemeIdRecord = getSyncSchemeIdBySystemId.sync(null, thisScheme.scheme, operation.systemId);
+                                    if (schemeIdRecord != null) {
+                                        schemeIdRecord.jobId = operation.jobId;
                                         schemeIdRecord.save.sync(null);
-                                        console.log("generateSchemeIds  operation.systemId1:" + operation.systemId );
-                                        cont++;
-                                        canContinue=false;
+                                        console.log("generateSchemeIds  operation.systemId1:" + operation.systemId);
+                                        canContinue = false;
 
                                     }
                                 }
@@ -473,17 +472,17 @@ var generateSchemeIds=function ( operation, callback) {
                                     console.log("generateSchemeIds  operation.systemId2:" + operation.systemId);
                                     generateSchemeId.sync(null, operation, thisScheme);
                                     //schemeIdRecords.push(schemeIdRecord);
-                                    cont++;
-                                    if (operation.quantity == cont) {
-                                        thisScheme.save(function (err) {
-                                            if (err) {
-                                                callback(err);
-                                            } else {
-                                                console.log("saving scheme :" + JSON.stringify(thisScheme) + " for key:" + JSON.stringify(key));
-                                                callback(null);
-                                            }
-                                        });
-                                    }
+                                }
+                                cont++;
+                                if (operation.quantity == cont) {
+                                    thisScheme.save(function (err) {
+                                        if (err) {
+                                            callback(err);
+                                        } else {
+                                            console.log("saving scheme :" + JSON.stringify(thisScheme) + " for key:" + JSON.stringify(key));
+                                            callback(null);
+                                        }
+                                    });
                                 }
                             } catch (e) {
                                 console.error("generateSchemeIds error:" + e); // something went wrong
