@@ -6,7 +6,7 @@
 var security = require("./../blogic/Security");
 var scheme = require("../blogic/SchemeDataManager");
 
-function isAbleToEdit(schemeName, user){
+function isAbleToEdit(schemeName, user, callback){
     var able = false;
     security.admins.forEach(function(admin){
         if (admin == user)
@@ -22,20 +22,20 @@ function isAbleToEdit(schemeName, user){
                         if (permission.role == "manager" && permission.username == user)
                             able = true;
                     });
-                    return able;
+                    callback(able);
                 }
             });
         }else
-            return able;
+            callback(able);
     }else
-        return able;
+        callback(able);
 }
 
 module.exports.getSchemes = function getSchemes (req, res, next) {
     var token = req.swagger.params.token.value;
     security.authenticate(token, function(err, data) {
         if (err) {
-            return next(err.message);
+            return next({message: err.message, statusCode: 401});
         }else{
             scheme.getSchemes(function(err, schemes) {
                 if (err)
@@ -65,7 +65,7 @@ module.exports.getScheme = function getScheme (req, res, next) {
     var schemeName = req.swagger.params.schemeName.value;
     security.authenticate(token, function(err, data) {
         if (err) {
-            return next(err.message);
+            return next({message: err.message, statusCode: 401});
         }else{
             scheme.getScheme(schemeName, function(err, schemes) {
                 if (err)
@@ -98,7 +98,7 @@ module.exports.getSchemesForUser = function getSchemesForUser(req, res, next){
     var username = req.swagger.params.username.value;
     security.authenticate(token, function(err, data) {
         if (err) {
-            return next(err.message);
+            return next({message: err.message, statusCode: 401});
         }else{
             scheme.getSchemesForUser(username, function (err, schemes){
                 if (err) {
@@ -118,19 +118,21 @@ module.exports.updateScheme = function updateScheme (req, res, next) {
     var schemeSeq = req.swagger.params.schemeSeq.value;
     security.authenticate(token, function(err, data) {
         if (err)
-            return next(err.message);
+            return next({message: err.message, statusCode: 401});
         else{
-            if (isAbleToEdit(schemeName, data.user.name)){
-                scheme.editScheme(schemeName, schemeSeq,function(err) {
-                    if (err)
-                        return next(err.message);
-                    else{
-                        res.setHeader('Content-Type', 'application/json');
-                        res.end(JSON.stringify({message: "Success"}));
-                    }
-                });
-            }else
-                return next("No permission for the selected operation");
+            isAbleToEdit(schemeName, data.user.name, function(able){
+                if(able){
+                    scheme.editScheme(schemeName, schemeSeq,function(err) {
+                        if (err)
+                            return next(err.message);
+                        else{
+                            res.setHeader('Content-Type', 'application/json');
+                            res.end(JSON.stringify({message: "Success"}));
+                        }
+                    });
+                }else
+                    return next("No permission for the selected operation");
+            });
         }
     });
 };
@@ -140,7 +142,7 @@ module.exports.getPermissions = function getPermissions (req, res, next) {
     var schemeName = req.swagger.params.schemeName.value;
     security.authenticate(token, function(err, data) {
         if (err) {
-            return next(err.message);
+            return next({message: err.message, statusCode: 401});
         }else{
             scheme.getPermissions(schemeName, function(err, schemes){
                 if (err)
@@ -161,19 +163,21 @@ module.exports.createPermission = function createPermission (req, res, next) {
     var role = req.swagger.params.role.value;
     security.authenticate(token, function(err, data) {
         if (err) {
-            return next(err.message);
+            return next({message: err.message, statusCode: 401});
         }else{
-            if (isAbleToEdit(schemeName, data.user.name)){
-                scheme.createPermission({scheme: schemeName, username: username, role: role}, function(err){
-                    if (err)
-                        return next(err.message);
-                    else{
-                        res.setHeader('Content-Type', 'application/json');
-                        res.end(JSON.stringify({message: "success"}));
-                    }
-                });
-            }else
-                return next("No permission for the selected operation");
+            isAbleToEdit(schemeName, data.user.name, function(able){
+                if(able){
+                    scheme.createPermission({scheme: schemeName, username: username, role: role}, function(err){
+                        if (err)
+                            return next(err.message);
+                        else{
+                            res.setHeader('Content-Type', 'application/json');
+                            res.end(JSON.stringify({message: "success"}));
+                        }
+                    });
+                }else
+                    return next("No permission for the selected operation");
+            });
         }
     });
 };
@@ -184,19 +188,21 @@ module.exports.deletePermission = function deletePermission (req, res, next) {
     var username = req.swagger.params.username.value;
     security.authenticate(token, function(err, data) {
         if (err) {
-            return next(err.message);
+            return next({message: err.message, statusCode: 401});
         }else{
-            if (isAbleToEdit(schemeName, data.user.name)){
-                scheme.deletePermission(schemeName, username, function(err){
-                    if (err)
-                        return next(err.message);
-                    else{
-                        res.setHeader('Content-Type', 'application/json');
-                        res.end(JSON.stringify({message: "success"}));
-                    }
-                });
-            }else
-                return next("No permission for the selected operation");
+            isAbleToEdit(schemeName, data.user.name, function(able){
+                if(able){
+                    scheme.deletePermission(schemeName, username, function(err){
+                        if (err)
+                            return next(err.message);
+                        else{
+                            res.setHeader('Content-Type', 'application/json');
+                            res.end(JSON.stringify({message: "success"}));
+                        }
+                    });
+                }else
+                    return next("No permission for the selected operation");
+            });
         }
     });
 };

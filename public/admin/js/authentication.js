@@ -85,7 +85,7 @@ function loginWithCredentials(credentials, callback, rememberMe) {
                         canEnter = true;
                         manager = true;
                         break;
-                    case "component-identifier-service-consumer":
+                    case "component-identifier-service-user":
                         canEnter = true;
                         break;
                 }

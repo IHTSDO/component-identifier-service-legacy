@@ -13,7 +13,7 @@ module.exports.getStats = function getStats (req, res, next) {
     var username = req.swagger.params.username.value;
     security.authenticate(token, function(err, data) {
         if (err)
-            return next(err.message);
+            return next({message: err.message, statusCode: 401});
         else{
             home.getStats(username, function(err, result){
                 if (err) {

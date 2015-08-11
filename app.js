@@ -36,12 +36,20 @@ swaggerTools.initializeMiddleware(swaggerDoc, function (middleware) {
 
     app.use(function(err, req, res, next) {
         if (err) {
+            var statusCode = 400, errMessage = "";
             if (err.statusCode && err.message) {
-                res.setHeader('Content-Type', 'text/html; charset=utf-8');
-                res.statusCode = err.statusCode;
-//                res.end(JSON.stringify({"statusCode":err.statusCode, "message":err.message}))
-                res.end({"statusCode":err.statusCode, "message":err.message});
+                statusCode = err.statusCode;
+                errMessage = err.message;
+            }else if(err == "No permission for the selected operation"){
+                statusCode = 403;
+                errMessage = "No permission for the selected operation";
+            }else{
+                statusCode = 400;
+                errMessage = err;
             }
+            res.setHeader('Content-Type', 'text/html; charset=utf-8');
+            res.statusCode = statusCode;
+            res.end(JSON.stringify({"statusCode":statusCode, "message":errMessage}));
         }
     });
 

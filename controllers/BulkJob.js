@@ -11,7 +11,7 @@ module.exports.getJobs =function getJobs(req, res, next) {
     var token = req.swagger.params.token.value;
     security.authenticate(token, function(err, data) {
         if (err) {
-            return next(err.message);
+            return next({message: err.message, statusCode: 401});
         }
         bulkDM.getJobs(function(err,records){
             if (err){
@@ -28,7 +28,7 @@ module.exports.getJob=function getJob(req, res, next) {
     var jobId = req.swagger.params.jobId.value;
     security.authenticate(token, function(err, data) {
         if (err) {
-            return next(err.message);
+            return next({message: err.message, statusCode: 401});
         }
         bulkDM.getJob(jobId,function(err,record){
             if (err){
@@ -45,7 +45,7 @@ module.exports.getJobRecords=function getJobRecords(req, res, next) {
     var jobId = req.swagger.params.jobId.value;
     security.authenticate(token, function(err, data) {
         if (err) {
-            return next(err.message);
+            return next({message: err.message, statusCode: 401});
         }
         bulkDM.getJobRecords(jobId,function(err,records){
             if (err){

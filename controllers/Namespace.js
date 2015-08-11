@@ -6,7 +6,7 @@
 var security = require("./../blogic/Security");
 var namespace = require("../blogic/NamespaceDataManager");
 
-function isAbleToEdit(namespaceId, user){
+function isAbleToEdit(namespaceId, user, callback){
     var able = false;
     security.admins.forEach(function(admin){
         if (admin == user)
@@ -22,13 +22,13 @@ function isAbleToEdit(namespaceId, user){
                         if (permission.role == "manager" && permission.username == user)
                             able = true;
                     });
-                    return able;
+                    callback(able);
                 }
             });
         }else
-            return able;
+            callback(able);
     }else
-        return able;
+        callback(able);
 }
 
 module.exports.getNamespace = function getNamespace (req, res, next) {
@@ -36,7 +36,7 @@ module.exports.getNamespace = function getNamespace (req, res, next) {
     var namespaceId = req.swagger.params.namespaceId.value;
     security.authenticate(token, function(err, data) {
         if (err)
-            return next(err.message);
+            return next({message: err.message, statusCode: 401});
         else{
             namespace.getNamespace(namespaceId, function(err, namespaces) {
                 if (err)
@@ -54,7 +54,7 @@ module.exports.getNamespaces = function getNamespaces (req, res, next) {
     var token = req.swagger.params.token.value;
     security.authenticate(token, function(err, data) {
         if (err)
-            return next(err.message);
+            return next({message: err.message, statusCode: 401});
         else{
             namespace.getNamespaces(function(err, namespaces) {
                 if (err)
@@ -73,7 +73,7 @@ module.exports.getNamespacesForUser = function getNamespacesForUser (req, res, n
     var username = req.swagger.params.username.value;
     security.authenticate(token, function(err, data) {
         if (err)
-            return next(err.message);
+            return next({message: err.message, statusCode: 401});
         else{
             namespace.getNamespacesForUser(username, function(err, namespaces) {
                 if (err)
@@ -92,24 +92,26 @@ module.exports.createNamespace = function createNamespace (req, res, next) {
     var namespaceData = req.swagger.params.namespace.value;
     security.authenticate(token, function(err, data) {
         if (err)
-            return next(err.message);
+            return next({message: err.message, statusCode: 401});
         else{
-            if (isAbleToEdit("false", data.user.name)){
-                var namespaceString = namespaceData.namespace + '';
-                if (namespaceString.length != 7 && namespaceString != "0"){
-                    return next("Invalid namespace");
-                }else{
-                    namespace.createNamespace(namespaceData,function(err) {
-                        if (err)
-                            return next(err.message);
-                        else{
-                            res.setHeader('Content-Type', 'application/json');
-                            res.end(JSON.stringify({message: "Success"}));
-                        }
-                    });
-                }
-            }else
-                return next("No permission for the selected operation");
+            isAbleToEdit("false", data.user.name, function(able){
+                if (able){
+                    var namespaceString = namespaceData.namespace + '';
+                    if (namespaceString.length != 7 && namespaceString != "0"){
+                        return next("Invalid namespace");
+                    }else{
+                        namespace.createNamespace(namespaceData,function(err) {
+                            if (err)
+                                return next(err.message);
+                            else{
+                                res.setHeader('Content-Type', 'application/json');
+                                res.end(JSON.stringify({message: "Success"}));
+                            }
+                        });
+                    }
+                }else
+                    return next("No permission for the selected operation");
+            });
         }
     });
 };
@@ -119,19 +121,21 @@ module.exports.updateNamespace = function updateNamespace (req, res, next) {
     var namespaceData = req.swagger.params.namespace.value;
     security.authenticate(token, function(err, data) {
         if (err)
-            return next(err.message);
+            return next({message: err.message, statusCode: 401});
         else{
-            if (isAbleToEdit(namespaceData.namespace, data.user.name)){
-                namespace.editNamespace(namespaceData.namespace, namespaceData,function(err) {
-                    if (err)
-                        return next(err.message);
-                    else{
-                        res.setHeader('Content-Type', 'application/json');
-                        res.end(JSON.stringify({message: "Success"}));
-                    }
-                });
-            }else
-                return next("No permission for the selected operation");
+            isAbleToEdit(namespaceData.namespace, data.user.name, function(able){
+                if(able){
+                    namespace.editNamespace(namespaceData.namespace, namespaceData,function(err) {
+                        if (err)
+                            return next(err.message);
+                        else{
+                            res.setHeader('Content-Type', 'application/json');
+                            res.end(JSON.stringify({message: "Success"}));
+                        }
+                    });
+                }else
+                    return next("No permission for the selected operation");
+            });
         }
     });
 };
@@ -141,19 +145,21 @@ module.exports.deleteNamespace = function deleteNamespace (req, res, next) {
     var namespaceId = req.swagger.params.namespaceId.value;
     security.authenticate(token, function(err, data) {
         if (err)
-            return next(err.message);
+            return next({message: err.message, statusCode: 401});
         else{
-            if (isAbleToEdit(namespaceId, data.user.name)){
-                namespace.deleteNamespace(namespaceId, function(err) {
-                    if (err)
-                        return next(err.message);
-                    else{
-                        res.setHeader('Content-Type', 'application/json');
-                        res.end(JSON.stringify({message: "Success"}));
-                    }
-                });
-            }else
-                return next("No permission for the selected operation");
+            isAbleToEdit(namespaceId, data.user.name, function(able){
+                if(able){
+                    namespace.deleteNamespace(namespaceId, function(err) {
+                        if (err)
+                            return next(err.message);
+                        else{
+                            res.setHeader('Content-Type', 'application/json');
+                            res.end(JSON.stringify({message: "Success"}));
+                        }
+                    });
+                }else
+                    return next("No permission for the selected operation");
+            });
         }
     });
 };
@@ -163,7 +169,7 @@ module.exports.getPermissions = function getPermissions (req, res, next) {
     var namespaceId = req.swagger.params.namespaceId.value;
     security.authenticate(token, function(err, data) {
         if (err) {
-            return next(err.message);
+            return next({message: err.message, statusCode: 401});
         }else{
             namespace.getPermissions(namespaceId, function(err, permissions) {
                 if (err)
@@ -184,19 +190,21 @@ module.exports.createPermission = function createPermission (req, res, next) {
     var role = req.swagger.params.role.value;
     security.authenticate(token, function(err, data) {
         if (err) {
-            return next(err.message);
+            return next({message: err.message, statusCode: 401});
         }else{
-            if (isAbleToEdit(namespaceId, data.user.name)){
-                namespace.createPermission({namespace: namespaceId, username: username, role: role}, function(err) {
-                    if (err)
-                        return next(err.message);
-                    else{
-                        res.setHeader('Content-Type', 'application/json');
-                        res.end(JSON.stringify({message: "Success"}));
-                    }
-                });
-            }else
-                return next("No permission for the selected operation");
+            isAbleToEdit(namespaceId, data.user.name, function(able){
+                if(able){
+                    namespace.createPermission({namespace: namespaceId, username: username, role: role}, function(err) {
+                        if (err)
+                            return next(err.message);
+                        else{
+                            res.setHeader('Content-Type', 'application/json');
+                            res.end(JSON.stringify({message: "Success"}));
+                        }
+                    });
+                }else
+                    return next("No permission for the selected operation");
+            });
         }
     });
 };
@@ -207,19 +215,21 @@ module.exports.deletePermission = function deletePermission (req, res, next) {
     var username = req.swagger.params.username.value;
     security.authenticate(token, function(err, data) {
         if (err) {
-            return next(err.message);
+            return next({message: err.message, statusCode: 401});
         }else{
-            if (isAbleToEdit(namespaceId, data.user.name)){
-                namespace.deletePermission(namespaceId, username, function(err) {
-                    if (err)
-                        return next(err.message);
-                    else{
-                        res.setHeader('Content-Type', 'application/json');
-                        res.end(JSON.stringify({message: "Success"}));
-                    }
-                });
-            }else
-                return next("No permission for the selected operation");
+            isAbleToEdit(namespaceId, data.user.name, function(able){
+                if(able){
+                    namespace.deletePermission(namespaceId, username, function(err) {
+                        if (err)
+                            return next(err.message);
+                        else{
+                            res.setHeader('Content-Type', 'application/json');
+                            res.end(JSON.stringify({message: "Success"}));
+                        }
+                    });
+                }else
+                    return next("No permission for the selected operation");
+            });
         }
     });
 };
@@ -231,19 +241,21 @@ module.exports.updatePartitionSequence = function updatePartitionSequence (req, 
     var value = req.swagger.params.value.value;
     security.authenticate(token, function(err, data) {
         if (err)
-            return next(err.message);
+            return next({message: err.message, statusCode: 401});
         else{
-            if (isAbleToEdit(namespaceId, data.user.name)){
-                namespace.editPartition([namespaceId, partitionId], value,function(err) {
-                    if (err)
-                        return next(err.message);
-                    else{
-                        res.setHeader('Content-Type', 'application/json');
-                        res.end(JSON.stringify({message: "Success"}));
-                    }
-                });
-            }else
-                return next("No permission for the selected operation");
+            isAbleToEdit(namespaceId, data.user.name, function(able){
+                if(able){
+                    namespace.editPartition([namespaceId, partitionId], value,function(err) {
+                        if (err)
+                            return next(err.message);
+                        else{
+                            res.setHeader('Content-Type', 'application/json');
+                            res.end(JSON.stringify({message: "Success"}));
+                        }
+                    });
+                }else
+                    return next("No permission for the selected operation");
+            });
         }
     });
 };
