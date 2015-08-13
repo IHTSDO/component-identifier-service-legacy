@@ -11,6 +11,12 @@
             <input value="{{job.status}}" disabled type="text" class="form-control">
         </div>
     </div>
+    <div class="form-group">
+        <label class="control-label col-md-2">Request Time:</label>
+        <div class="col-md-10">
+            <input value="{{time job.created_at}}" disabled type="text" class="form-control">
+        </div>
+    </div>
     <h4 class="text-center">Request data</h4>
     {{#each job.request}}
         <div class="form-group">
