@@ -113,6 +113,11 @@
             Handlebars.registerHelper("fieldOfObject", function(obj, field){
                 return obj[field];
             });
+            Handlebars.registerHelper("time", function(dateData){
+                var string = new Date(dateData);
+                string = string.toLocaleString();
+                return string;
+            });
             Handlebars.registerHelper("getHowLongAgo", function(time){
                 var d = new Date(time).getTime();
                 var currentTimeStamp = new Date().getTime();
