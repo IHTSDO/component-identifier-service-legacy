@@ -450,11 +450,11 @@ var generateSchemeIds=function ( operation, callback) {
                         callback("Scheme not found for key:" + JSON.stringify(key));
                     }
                     var thisScheme = data;
-                    var canContinue;
-                    console.log("getting scheme :" + JSON.stringify(thisScheme) + " for key:" + JSON.stringify(key));
-                    for (var i = 0; i < operation.quantity; i++) {
-                        canContinue = true;
-                        Sync(function () {
+                    Sync(function () {
+                        var canContinue;
+                        console.log("getting scheme :" + JSON.stringify(thisScheme) + " for key:" + JSON.stringify(key));
+                        for (var i = 0; i < operation.quantity; i++) {
+                            canContinue = true;
                             try {
 
                                 operation.systemId = operation.systemIds[i];
@@ -488,8 +488,9 @@ var generateSchemeIds=function ( operation, callback) {
                                 console.error("generateSchemeIds error:" + e); // something went wrong
                                 callback(e);
                             }
-                        });
-                    }
+                        }
+
+                    });
                 }
             });
         }

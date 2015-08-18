@@ -445,12 +445,12 @@ var generateSctids=function (operation, callback) {
                         callback("Partition not found for key:" + JSON.stringify(key));
                     }
                     var thisPartition = data;
-                    var canContinue;
-                    console.log("getting partition :" + JSON.stringify(thisPartition) + " for key:" + JSON.stringify(key));
-                    for (var i = 0; i < operation.quantity; i++) {
-                        canContinue = true;
+                    Sync(function () {
+                        var canContinue;
+                        console.log("getting partition :" + JSON.stringify(thisPartition) + " for key:" + JSON.stringify(key));
+                        for (var i = 0; i < operation.quantity; i++) {
+                            canContinue = true;
 
-                        Sync(function () {
                             try {
                                 operation.systemId = operation.systemIds[i];
                                 if (!operation.autoSysId) {
@@ -480,8 +480,8 @@ var generateSctids=function (operation, callback) {
                                 console.error("generateSctids error:" + e); // something went wrong
                                 callback(e);
                             }
-                        });
-                    }
+                        }
+                    });
                 }
             });
         }
