@@ -137,7 +137,6 @@ describe('SCTIDs', function(){
                 res.body.sctid.should.not.be.null();
                 sctidToRetrieveBySystemId = res.body.sctid;
                 res.body.systemId.should.be.eql(knownUuidMock);
-                res.body.additionalIds.should.not.be.empty();
                 done();
             });
     });
@@ -156,7 +155,6 @@ describe('SCTIDs', function(){
             });
     });
     it('should retrieve a known sctid by systemId', function(done){
-        console.log(knownUuidMock);
         request(baseUrl)
             .get('/sct/namespaces/0/systemids/' + knownUuidMock + '?token=' + token)
             .set('Accept', 'application/json')
