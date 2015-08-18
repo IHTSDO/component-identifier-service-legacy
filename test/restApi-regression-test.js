@@ -11,6 +11,18 @@ var baseUrl = "http://107.170.101.181:3000/api";
 
 var token = "";
 
+var guid = (function() {
+    function s4() {
+        return Math.floor((1 + Math.random()) * 0x10000)
+            .toString(16)
+            .substring(1);
+    }
+    return function() {
+        return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+            s4() + '-' + s4() + s4() + s4();
+    };
+})();
+
 describe('Login API', function(){
     it('should recognize username and password', function(done){
         request(baseUrl)
@@ -25,6 +37,13 @@ describe('Login API', function(){
                 token = res.body.token;
                 done()
             });
+    });
+    it('should fail with a wrong username', function(done){
+        request(baseUrl)
+            .post('/login')
+            .field('username', 'wrongusername')
+            .field('password', 'anypassword')
+            .expect(401, done);
     });
     it('should fail with a wrong password', function(done){
         request(baseUrl)
@@ -48,15 +67,15 @@ describe('Login API', function(){
     });
 });
 
-var firstUuid = guid;
 var firstSctid = "";
+var knownUuidMock = guid();
 
 describe('SCTIDs', function(){
     it('should generate an SCTID with no additional ids', function(done){
         var generationData = {
             "namespace": 0,
             "partitionId": "00",
-            "systemId": firstUuid,
+            "systemId": "",
             "software": "Mocha Supertest",
             "comment": "Testing REST API",
             "generateLegacyIds": "false"
@@ -79,7 +98,7 @@ describe('SCTIDs', function(){
         var generationData = {
             "namespace": 0,
             "partitionId": "00",
-            "systemId": guid,
+            "systemId": "",
             "software": "Mocha Supertest",
             "comment": "Testing REST API",
             "generateLegacyIds": "true"
@@ -93,6 +112,31 @@ describe('SCTIDs', function(){
             .end(function(err, res) {
                 if (err) return done(err);
                 res.body.sctid.should.not.be.null();
+                res.body.additionalIds.should.not.be.empty();
+                done();
+            });
+    });
+    var sctidToRetrieveBySystemId = "";
+    it('should generate an SCTID with a known SystemId', function(done){
+        var generationData = {
+            "namespace": 0,
+            "partitionId": "00",
+            "systemId": knownUuidMock,
+            "software": "Mocha Supertest",
+            "comment": "Testing REST API",
+            "generateLegacyIds": "false"
+        };
+        request(baseUrl)
+            .post('/sct/generate?token=' + token)
+            .set('Accept', 'application/json')
+            .set('Content-type', 'application/json')
+            .send(generationData)
+            .expect(200)
+            .end(function(err, res) {
+                if (err) return done(err);
+                res.body.sctid.should.not.be.null();
+                sctidToRetrieveBySystemId = res.body.sctid;
+                res.body.systemId.should.be.eql(knownUuidMock);
                 res.body.additionalIds.should.not.be.empty();
                 done();
             });
@@ -112,8 +156,9 @@ describe('SCTIDs', function(){
             });
     });
     it('should retrieve a known sctid by systemId', function(done){
+        console.log(knownUuidMock);
         request(baseUrl)
-            .get('/sct/namespaces/0/systemids/' + firstUuid + '?token=' + token)
+            .get('/sct/namespaces/0/systemids/' + knownUuidMock + '?token=' + token)
             .set('Accept', 'application/json')
             .expect('Content-Type', /json/)
             .expect(200)
@@ -121,7 +166,7 @@ describe('SCTIDs', function(){
                 if (err) return done(err);
                 res.body.should.not.be.null();
                 res.body.sctid.should.not.be.null();
-                res.body.sctid.should.be.eql(firstSctid);
+                res.body.sctid.should.be.eql(sctidToRetrieveBySystemId);
                 res.body.status.should.be.eql("Assigned");
                 done();
             });
@@ -183,9 +228,9 @@ describe('SCTIDs', function(){
             .send(publicationData)
             .expect(400, done)
     });
-    var secondUuid = guid;
+    var secondUuid = guid();
     it('should register a reserved SCTID', function(done){
-        var publicationData = {
+        var registrationData = {
             "sctid": reservedSctid,
             "systemId": secondUuid,
             "namespace": 0,
@@ -196,12 +241,57 @@ describe('SCTIDs', function(){
             .post('/sct/register?token=' + token)
             .set('Accept', 'application/json')
             .set('Content-type', 'application/json')
-            .send(publicationData)
+            .send(registrationData)
             .expect(200)
             .end(function(err, res) {
                 //console.log(res);
                 if (err) return done(err);
                 res.body.sctid.should.not.be.null();
+                res.body.status.should.be.eql("Assigned");
+                done();
+            });
+    });
+    it('should register a reserved SCTID providing a new systemId', function(done){
+        var secondReservationSctid = "";
+        var reservationData = {
+            "namespace": 0,
+            "partitionId": "00",
+            "expirationDate": "2019/09/13",
+            "software": "Mocha Supertest",
+            "comment": "Testing REST API"
+        };
+        request(baseUrl)
+            .post('/sct/reserve?token=' + token)
+            .set('Accept', 'application/json')
+            .set('Content-type', 'application/json')
+            .send(reservationData)
+            .expect(200)
+            .end(function(err, res) {
+                if (err) return done(err);
+                res.body.sctid.should.not.be.null();
+                secondReservationSctid = res.body.sctid;
+                res.body.status.should.be.eql("Reserved");
+                done();
+            });
+        var newUuid = guid();
+        var registrationData = {
+            "sctid": secondReservationSctid,
+            "systemId": newUuid,
+            "namespace": 0,
+            "software": "Mocha Supertest",
+            "comment": "Testing REST API"
+        };
+        request(baseUrl)
+            .post('/sct/register?token=' + token)
+            .set('Accept', 'application/json')
+            .set('Content-type', 'application/json')
+            .send(registrationData)
+            .expect(200)
+            .end(function(err, res) {
+                //console.log(res);
+                if (err) return done(err);
+                res.body.sctid.should.be.eql(secondReservationSctid);
+                res.body.systemId.should.be.eql(newUuid);
                 res.body.status.should.be.eql("Assigned");
                 done();
             });
@@ -213,7 +303,7 @@ var firstCTV3ID = "";
 describe('CTV3IDs', function() {
     it('should generate a CTV3ID', function (done) {
         var generationData = {
-            "systemId": guid,
+            "systemId": guid(),
             "software": "Mocha Supertest",
             "comment": "Testing REST API"
         };
@@ -231,16 +321,23 @@ describe('CTV3IDs', function() {
                 done();
             });
     });
+    it('should publish a generated CTV3ID', function(done){
+        var publicationData = {
+            "schemeId": firstCTV3ID,
+            "software": "Mocha Supertest",
+            "comment": "Testing REST API"
+        };
+        request(baseUrl)
+            .put('/scheme/CTV3ID/publish?token=' + token)
+            .set('Accept', 'application/json')
+            .set('Content-type', 'application/json')
+            .send(publicationData)
+            .expect(200)
+            .end(function(err, res) {
+                if (err) return done(err);
+                res.body.schemeId.should.not.be.null();
+                res.body.status.should.be.eql("Published");
+                done();
+            });
+    });
 });
-
-var guid = (function() {
-    function s4() {
-        return Math.floor((1 + Math.random()) * 0x10000)
-            .toString(16)
-            .substring(1);
-    }
-    return function() {
-        return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-            s4() + '-' + s4() + s4() + s4();
-    };
-})();
