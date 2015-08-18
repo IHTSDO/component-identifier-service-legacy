@@ -271,29 +271,28 @@ describe('SCTIDs', function(){
                 res.body.sctid.should.not.be.null();
                 secondReservationSctid = res.body.sctid;
                 res.body.status.should.be.eql("Reserved");
-                done();
-            });
-        var newUuid = guid();
-        var registrationData = {
-            "sctid": secondReservationSctid,
-            "systemId": newUuid,
-            "namespace": 0,
-            "software": "Mocha Supertest",
-            "comment": "Testing REST API"
-        };
-        request(baseUrl)
-            .post('/sct/register?token=' + token)
-            .set('Accept', 'application/json')
-            .set('Content-type', 'application/json')
-            .send(registrationData)
-            .expect(200)
-            .end(function(err, res) {
-                //console.log(res);
-                if (err) return done(err);
-                res.body.sctid.should.be.eql(secondReservationSctid);
-                res.body.systemId.should.be.eql(newUuid);
-                res.body.status.should.be.eql("Assigned");
-                done();
+                var newUuid = guid();
+                var registrationData = {
+                    "sctid": secondReservationSctid,
+                    "systemId": newUuid,
+                    "namespace": 0,
+                    "software": "Mocha Supertest",
+                    "comment": "Testing REST API"
+                };
+                request(baseUrl)
+                    .post('/sct/register?token=' + token)
+                    .set('Accept', 'application/json')
+                    .set('Content-type', 'application/json')
+                    .send(registrationData)
+                    .expect(200)
+                    .end(function(err, res) {
+                        //console.log(res);
+                        if (err) return done(err);
+                        res.body.sctid.should.be.eql(secondReservationSctid);
+                        res.body.systemId.should.be.eql(newUuid);
+                        res.body.status.should.be.eql("Assigned");
+                        done();
+                    });
             });
     });
 });
