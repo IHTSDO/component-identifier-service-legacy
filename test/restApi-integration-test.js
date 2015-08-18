@@ -208,6 +208,31 @@ describe('SCTIDs', function(){
     });
 });
 
+var firstCTV3ID = "";
+
+describe('CTV3IDs', function() {
+    it('should generate a CTV3ID', function (done) {
+        var generationData = {
+            "systemId": guid,
+            "software": "Mocha Supertest",
+            "comment": "Testing REST API"
+        };
+        request(baseUrl)
+            .post('/sct/generate?token=' + token)
+            .set('Accept', 'application/json')
+            .set('Content-type', 'application/json')
+            .send(generationData)
+            .expect(200)
+            .end(function (err, res) {
+                if (err) return done(err);
+                res.body.schemeId.should.not.be.null();
+                firstCTV3ID = res.body.schemeId;
+                res.body.scheme.should.be.eql("CTV3ID");
+                done();
+            });
+    });
+});
+
 var guid = (function() {
     function s4() {
         return Math.floor((1 + Math.random()) * 0x10000)
