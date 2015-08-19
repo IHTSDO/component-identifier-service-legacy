@@ -33,6 +33,9 @@ var getCheckDigit=function(id){
     return null;
 };
 var validSchemeId=function(id){
+    if (!id){
+        return false;
+    }
     if (id.length!=5 ){
         return false;
     }

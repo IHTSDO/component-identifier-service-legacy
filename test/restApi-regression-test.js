@@ -9,8 +9,11 @@ var request = require('supertest');
 var sctIdHelper=require("../utils/SctIdHelper");
 
 //request = request('http://localhost:3000/api');
-var baseUrl = "http://107.170.101.181:3000/api";
-//var baseUrl = "http://localhost:3000/api";
+//var _host="localhost";
+var _host="107.170.101.181";
+var _port="3000";
+var _root="/api";
+var baseUrl = "http://" + _host + ":" + _port + _root;
 
 var token = "";
 
@@ -65,9 +68,9 @@ var init;
 function PostCode(callback) {
     var post_data = "";
         var request= {
-            host: "localhost",
-                port: "3000",
-                path: "/api/bulk/jobs/" + jobId + "/?token=" + token,
+            host: _host,
+                port: _port,
+                path: _root + "/bulk/jobs/" + jobId + "/?token=" + token,
                 method: "GET",
                 headers: {
                     'Content-Type': "application/x-www-form-urlencoded",
