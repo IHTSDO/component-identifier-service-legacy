@@ -170,7 +170,7 @@ var generateSchemeId=function (scheme, operation, callback){
                 getSchemeIdBySystemId(scheme, operation.systemId, function (err, schemeid) {
                     if (err) {
                         callback(err, null);
-                    } else if (sctid) {
+                    } else if (schemeid) {
 
                         callback(null, schemeid);
                     } else {
@@ -256,7 +256,7 @@ var registerSchemeId=function (scheme, operation, callback){
         getSchemeIdBySystemId(scheme, operation.systemId, function (err, schemeid) {
             if (err) {
                 callback(err, null);
-            } else if (sctid) {
+            } else if (schemeid) {
                 if (schemeid != operation.schemeId) {
                     callback(throwErrMessage("SystemId:" + operation.systemId + " already exists with SchemeId:" + schemeid), null);
                     return;

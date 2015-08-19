@@ -160,72 +160,69 @@ function getSCTIDRecords(objQuery, callback){
     });
 };
 
-var registerSctids=function (operation, callback){
-    var cont=0;
-    var records=[];
-    var error=false;
-    for (var i=0;i<operation.records.length;i++) {
-        var sctid = operation.records[i].sctid;
-        var systemId = operation.records[i].systemId;
-        if (error){
-            break;
-        }
-        getSctid(sctid, systemId, function (err, sctIdRecord) {
-            if (error){
-                return;
-            }
-            if (err) {
-                error=true;
-                callback(err);
-                return;
-            } else {
-                if (sctIdRecord.systemId!=systemId){
-                    error=true;
-                    callback("SctId:" + sctid + " already exists with system Id:" + sctIdRecord.systemId);
+var registerSctids=function (operation, callback) {
+    Sync(function () {
+        try {
+            var cont = 0;
+            var records = [];
+            var error = false;
+            for (var i = 0; i < operation.records.length; i++) {
+                var sctid = operation.records[i].sctid;
+                var systemId = operation.records[i].systemId;
+                if (error) {
+                    console.log("error ");
+                    break;
+                }
+                var sctIdRecord = getSctid.sync(null, sctid, systemId);
+                if (error) {
                     return;
                 }
-
-                var newStatus = stateMachine.getNewStatus(sctIdRecord.status, stateMachine.actions.register);
-                if (newStatus) {
-
-                    sctIdRecord.status = newStatus;
-                    sctIdRecord.author = operation.author;
-                    sctIdRecord.software = operation.software;
-                    sctIdRecord.expirationDate = operation.expirationDate;
-                    sctIdRecord.comment = operation.comment;
-                    sctIdRecord.jobId = operation.jobId;
-
-                    records.push(sctIdRecord);
-                    cont++;
-                    if (cont == operation.records.length) {
-                        cont = 0;
-                        for (var j = 0; j < records.length; j++) {
-
-                            records[j].save(function (err) {
-                                if (err) {
-                                    error=true;
-                                    callback(err);
-                                    return;
-                                }
-                                cont++;
-                                if (cont == records.length) {
-                                    callback(null);
-                                    return;
-
-                                }
-
-                            });
-                        }
+                    if (sctIdRecord.sctid == sctid && sctIdRecord.systemId != systemId) {
+                        sctIdRecord.systemId=systemId;
                     }
-                } else {
-                    error=true;
-                    callback("Cannot register SCTID:" + sctIdRecord.sctid + ", current status: " + sctIdRecord.status);
-                    return;
-                }
-            }
 
-        });
-    }
+                    var newStatus = stateMachine.getNewStatus(sctIdRecord.status, stateMachine.actions.register);
+                    if (newStatus) {
+
+                        sctIdRecord.status = newStatus;
+                        sctIdRecord.author = operation.author;
+                        sctIdRecord.software = operation.software;
+                        sctIdRecord.expirationDate = operation.expirationDate;
+                        sctIdRecord.comment = operation.comment;
+                        sctIdRecord.jobId = operation.jobId;
+
+                        records.push(sctIdRecord);
+                        cont++;
+                        if (cont == operation.records.length) {
+                            cont = 0;
+                            for (var j = 0; j < records.length; j++) {
+
+                                records[j].save(function (err) {
+                                    if (err) {
+                                        error = true;
+                                        callback(err);
+                                        return;
+                                    }
+                                    cont++;
+                                    if (cont == records.length) {
+                                        callback(null);
+                                        return;
+
+                                    }
+
+                                });
+                            }
+                        }
+                    } else {
+                        error = true;
+                        callback("Cannot register SCTID:" + sctIdRecord.sctid + ", current status: " + sctIdRecord.status);
+                        return;
+                    }
+            }
+        }catch(e){
+            callback(e.message);
+        }
+    });
 
 };
 var updateSctids=function (operation, callback){

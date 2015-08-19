@@ -78,7 +78,6 @@ var getSchemeIds=function (scheme, schemeIdArray, callback){
                 var rA=new sets.StringSet(resArray);
                 var rQ=new sets.StringSet(schemeIdArray);
                 var diff=rQ.difference(rA).array();
-console.log("getSchemeIds diff:" +  JSON.stringify(diff));
                 if (diff && diff.length>0){
                     var cont=0;
                     diff.forEach(function(schemeId){
@@ -175,31 +174,27 @@ function getSchemeIdRecords(objQuery, callback){
     });
 };
 
-var registerSchemeIds=function ( operation, callback){
-    var cont=0;
-    var records=[];
-    var error=false;
-    var scheme=operation.scheme;
-    for (var i=0;i<operation.records.length;i++) {
-        var schemeId = operation.records[i].schemeId;
-        var systemId = operation.records[i].systemId;
-        if (error){
-            break;
-        }
-        getSchemeId(scheme, schemeId, systemId, function (err, schemeIdRecord) {
-            if (error){
-                return;
-            }
-            if (err) {
-                error=true;
-                callback(err);
-                return;
-            } else {
+var registerSchemeIds=function ( operation, callback) {
+    Sync(function () {
+        try {
+            var cont = 0;
+            var records = [];
+            var error = false;
+            var scheme = operation.scheme;
+            for (var i = 0; i < operation.records.length; i++) {
+                var schemeId = operation.records[i].schemeId;
+                var systemId = operation.records[i].systemId;
+                if (error) {
+                    break;
+                }
+                var schemeIdRecord = getSchemeId.sync(null, scheme, schemeId, systemId);
 
-                if (schemeIdRecord.systemId!=systemId){
-                    error=true;
-                    callback("SchemeId:" + schemeId + " already exists with system Id:" + schemeIdRecord.systemId);
+                if (error) {
                     return;
+                }
+
+                if (schemeIdRecord.schemeId == schemeId && schemeIdRecord.systemId != systemId) {
+                    schemeIdRecord.systemId = systemId;
                 }
                 var newStatus = stateMachine.getNewStatus(schemeIdRecord.status, stateMachine.actions.register);
                 if (newStatus) {
@@ -219,7 +214,7 @@ var registerSchemeIds=function ( operation, callback){
 
                             records[j].save(function (err) {
                                 if (err) {
-                                    error=true;
+                                    error = true;
                                     callback(err);
                                     return;
                                 }
@@ -234,14 +229,16 @@ var registerSchemeIds=function ( operation, callback){
                         }
                     }
                 } else {
-                    error=true;
+                    error = true;
                     callback("Cannot register SchemeId:" + schemeIdRecord.schemeId + ", current status: " + schemeIdRecord.status);
                     return;
                 }
-            }
 
-        });
-    }
+            }
+        } catch (e) {
+            callback(e.message);
+        }
+    });
 
 };
 var updateSchemeIds=function ( operation, callback){
@@ -308,6 +305,7 @@ var updateSchemeIds=function ( operation, callback){
 var getSchemeId=function (scheme, schemeId, systemId, callback) {
     Sync(function () {
         if (!schemes[scheme.toUpperCase()].validSchemeId(schemeId)){
+
             callback("Not valid SchemeId: " + schemeId, null);
             return;
         }
@@ -317,11 +315,13 @@ var getSchemeId=function (scheme, schemeId, systemId, callback) {
         if (!schemeIdRecord) {
             try {
                 var record = getFreeRecord.sync(null, scheme, schemeId, systemId);
+
                 callback(null, record);
             }catch(e){
                 callback(e,null);
             }
         } else {
+
             callback(null, schemeIdRecord);
         }
     });
@@ -463,13 +463,13 @@ var generateSchemeIds=function ( operation, callback) {
                                     if (schemeIdRecord != null) {
                                         schemeIdRecord.jobId = operation.jobId;
                                         schemeIdRecord.save.sync(null);
-                                        console.log("generateSchemeIds  operation.systemId1:" + operation.systemId);
+                                        //console.log("generateSchemeIds  operation.systemId1:" + operation.systemId);
                                         canContinue = false;
 
                                     }
                                 }
                                 if (canContinue) {
-                                    console.log("generateSchemeIds  operation.systemId2:" + operation.systemId);
+                                    //console.log("generateSchemeIds  operation.systemId2:" + operation.systemId);
                                     generateSchemeId.sync(null, operation, thisScheme);
                                     //schemeIdRecords.push(schemeIdRecord);
                                 }
@@ -479,13 +479,13 @@ var generateSchemeIds=function ( operation, callback) {
                                         if (err) {
                                             callback(err);
                                         } else {
-                                            console.log("saving scheme :" + JSON.stringify(thisScheme) + " for key:" + JSON.stringify(key));
+                                            //console.log("saving scheme :" + JSON.stringify(thisScheme) + " for key:" + JSON.stringify(key));
                                             callback(null);
                                         }
                                     });
                                 }
                             } catch (e) {
-                                console.error("generateSchemeIds error:" + e); // something went wrong
+                                //console.error("generateSchemeIds error:" + e); // something went wrong
                                 callback(e);
                             }
                         }
