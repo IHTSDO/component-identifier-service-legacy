@@ -196,7 +196,12 @@ var registerSchemeIds=function ( operation, callback) {
                 if (schemeIdRecord.schemeId == schemeId && schemeIdRecord.systemId != systemId) {
                     schemeIdRecord.systemId = systemId;
                 }
-                var newStatus = stateMachine.getNewStatus(schemeIdRecord.status, stateMachine.actions.register);
+                var newStatus;
+                if (schemeIdRecord.status==stateMachine.statuses.assigned){
+                    newStatus=stateMachine.statuses.assigned;
+                }else {
+                    newStatus = stateMachine.getNewStatus(schemeIdRecord.status, stateMachine.actions.register);
+                }
                 if (newStatus) {
 
                     schemeIdRecord.status = newStatus;

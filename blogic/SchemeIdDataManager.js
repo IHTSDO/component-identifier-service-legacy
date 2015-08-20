@@ -257,11 +257,22 @@ var registerSchemeId=function (scheme, operation, callback){
             if (err) {
                 callback(err, null);
             } else if (schemeid) {
-                if (schemeid != operation.schemeId) {
-                    callback(throwErrMessage("SystemId:" + operation.systemId + " already exists with SchemeId:" + schemeid), null);
+                if (schemeid.schemeId != operation.schemeId) {
+                    callback(throwErrMessage("SystemId:" + operation.systemId + " already exists with SchemeId:" + schemeid.schemeId), null);
                     return;
                 }
-                callback(null, schemeid);
+
+                if (schemeid.status==stateMachine.statuses.assigned) {
+                    callback(null, schemeid);
+                }else {
+                    registerNewSchemeId(scheme, operation, function (err, newSchemeId) {
+                        if (err) {
+                            callback(err, null);
+                        } else {
+                            callback(null, newSchemeId);
+                        }
+                    });
+                }
             } else {
                 registerNewSchemeId(scheme, operation, function (err, newSchemeId) {
                     if (err) {

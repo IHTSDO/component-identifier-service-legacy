@@ -180,8 +180,12 @@ var registerSctids=function (operation, callback) {
                     if (sctIdRecord.sctid == sctid && sctIdRecord.systemId != systemId) {
                         sctIdRecord.systemId=systemId;
                     }
-
-                    var newStatus = stateMachine.getNewStatus(sctIdRecord.status, stateMachine.actions.register);
+                    var newStatus;
+                    if (sctIdRecord.status==stateMachine.statuses.assigned){
+                        newStatus=stateMachine.statuses.assigned;
+                    }else {
+                        newStatus = stateMachine.getNewStatus(sctIdRecord.status, stateMachine.actions.register);
+                    }
                     if (newStatus) {
 
                         sctIdRecord.status = newStatus;

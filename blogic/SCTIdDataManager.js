@@ -210,11 +210,21 @@ var registerSctid=function (operation, callback) {
             if (err) {
                 callback(err, null);
             } else if (sctid) {
-                if (sctid != operation.sctid) {
-                    callback(throwErrMessage("SystemId:" + operation.systemId + " already exists with SctId:" + sctid), null);
+                if (sctid.sctid != operation.sctid) {
+                    callback(throwErrMessage("SystemId:" + operation.systemId + " already exists with SctId:" + sctid.sctid), null);
                     return;
                 }
-                callback(null, sctid);
+                if (sctid.status==stateMachine.statuses.assigned) {
+                    callback(null, sctid);
+                }else {
+                    registerNewSctId(operation, function (err, newSctId) {
+                        if (err) {
+                            callback(err, null);
+                        } else {
+                            callback(null, newSctId);
+                        }
+                    });
+                }
             } else {
                 registerNewSctId(operation, function (err, newSctId) {
                     if (err) {

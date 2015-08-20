@@ -211,7 +211,8 @@ var sctIdWithAdditionalIds="";
 var sysIdWithAdditionalIds="";
 var knownUuidMock = guid();
 var unknownUuidMock=guid();
-
+var newSysId;
+var deprecatedSystemId;
 describe('SCTIDs', function(){
     it('should generate an SCTID with no additional ids (SingleSctId_01)', function(done){
         var generationData = {
@@ -368,7 +369,7 @@ describe('SCTIDs', function(){
     var newSctId="";
     it('should register a non existing SCTID (SingleSctId_09)', function(done){
         newSctId=getNewSctId("00");
-        var newSysId=guid();
+        newSysId=guid();
         var registrationData = {
             "sctid": newSctId,
             "systemId": newSysId,
@@ -395,6 +396,7 @@ describe('SCTIDs', function(){
 
 
     var reservedSctid = "";
+    var reservedSystemId = "";
     it('should reserve an SCTID (SingleSctId_10)', function(done){
         var reservationData = {
             "namespace": 0,
@@ -413,6 +415,7 @@ describe('SCTIDs', function(){
                 if (err) return done(err);
                 res.body.sctid.should.not.be.null();
                 reservedSctid = res.body.sctid;
+                reservedSystemId = res.body.systemId;
                 res.body.status.should.be.eql("Reserved");
                 done();
             });
@@ -475,6 +478,7 @@ describe('SCTIDs', function(){
                 if (err) return done(err);
                 res.body.sctid.should.not.be.null();
                 res.body.status.should.be.eql("Deprecated");
+                deprecatedSystemId= res.body.systemId;
                 done();
             });
     });
@@ -492,11 +496,10 @@ describe('SCTIDs', function(){
             .send(publicationData)
             .expect(400, done)
     });
-    var secondUuid = guid();
-    it('should register a reserved SCTID', function(done){
+    it('should register a reserved SCTID with same systemId that was reserved', function(done){
         var registrationData = {
             "sctid": reservedSctid,
-            "systemId": secondUuid,
+            "systemId": reservedSystemId,
             "namespace": 0,
             "software": "Mocha Supertest",
             "comment": "Testing REST API"
@@ -515,6 +518,24 @@ describe('SCTIDs', function(){
                 done();
             });
     });
+
+    it('should fail to register a reserved SCTID with other existing systemId ', function(done){
+        var registrationData = {
+            "sctid": reservedSctid,
+            "systemId": newSysId,
+            "namespace": 0,
+            "software": "Mocha Supertest",
+            "comment": "Testing REST API"
+        };
+        request(baseUrl)
+            .post('/sct/register?token=' + token)
+            .set('Accept', 'application/json')
+            .set('Content-type', 'application/json')
+            .send(registrationData)
+            .expect(400,done)
+
+    });
+
     it('should register a reserved SCTID providing a new systemId', function(done){
         var secondReservationSctid = "";
         var reservationData = {
@@ -590,6 +611,8 @@ var sysSnomedIds="";
 var snomedIdArray=[];
 var ctv3IdArray=[];
 var jobId=0;
+var retArray=[];
+var retSnomedIdArray=[];
 
 describe('SCTID  BULK', function() {
 
@@ -662,12 +685,12 @@ describe('SCTID  BULK', function() {
             .set('Content-type', 'application/json')
             .send(publicationData)
             .expect(200)
-            .end(function(err, res) {
+            .end(function (err, res) {
                 if (err) return done(err);
                 res.body.should.not.be.null();
                 res.body.id.should.not.be.null();
-                jobId=res.body.id;
-                init=new Date().getTime();
+                jobId = res.body.id;
+                init = new Date().getTime();
                 PostCode(function (err, job) {
                     if (err) {
                         return done(err);
@@ -680,7 +703,7 @@ describe('SCTID  BULK', function() {
                             .set('Accept', 'application/json')
                             .expect('Content-Type', /json/)
                             .expect(200)
-                            .end(function(err, res) {
+                            .end(function (err, res) {
                                 //console.log(res);
                                 if (err) return done(err);
                                 objJob.status.should.be.eql("2");
@@ -706,7 +729,7 @@ describe('SCTID  BULK', function() {
             .set('Accept', 'application/json')
             .expect('Content-Type', /json/)
             .expect(200)
-            .end(function(err, res) {
+            .end(function (err, res) {
                 if (err) return done(err);
                 res.body.length.should.be.eql(2);
                 done();
@@ -714,14 +737,14 @@ describe('SCTID  BULK', function() {
 
     });
     it('Test bulk get SctIds by known SCTIDs (BulkSctId_04)', function (done) {
-        var sctIds=sctidArray[0] + "," + sctidArray[1];
+        var sctIds = sctidArray[0] + "," + sctidArray[1];
 
         request(baseUrl)
             .get('/sct/bulk/ids/?token=' + token + '&sctids=' + sctIds)
             .set('Accept', 'application/json')
             .expect('Content-Type', /json/)
             .expect(200)
-            .end(function(err, res) {
+            .end(function (err, res) {
                 if (err) return done(err);
                 res.body.length.should.be.eql(2);
                 done();
@@ -820,6 +843,16 @@ describe('SCTID  BULK', function() {
                                 res.body.length.should.be.eql(20);
                                 res.body[0].jobId.should.be.eql(jobId);
                                 res.body[0].status.should.be.eql("Reserved");
+                                var obj1 = {
+                                    "sctid": res.body[0].sctid,
+                                    "systemId": res.body[0].systemId
+                                };
+                                retArray.push(obj1);
+                                var obj2 = {
+                                    "sctid": res.body[1].sctid,
+                                    "systemId": res.body[1].systemId
+                                };
+                                retArray.push(obj2);
                                 done();
                             });
                     } else {
@@ -829,12 +862,123 @@ describe('SCTID  BULK', function() {
                 });
             });
     });
+
+    it('Test bulk register SCTIDs with same systemId that were reserved', function (done) {
+        var registrationData = {
+            "records": retArray,
+            "namespace": 0,
+            "software": "Mocha Supertest",
+            "comment": "Testing REST API"
+        };
+        request(baseUrl)
+            .post('/sct/bulk/register/?token=' + token)
+            .set('Accept', 'application/json')
+            .set('Content-type', 'application/json')
+            .send(registrationData)
+            .expect(200)
+            .end(function (err, res) {
+                if (err) return done(err);
+                res.body.should.not.be.null();
+                res.body.id.should.not.be.null();
+                jobId = res.body.id;
+                init = new Date().getTime();
+                PostCode(function (err, job) {
+                    if (err) {
+                        return done(err);
+                    }
+                    if (job) {
+                        var objJob = JSON.parse(job);
+
+                        request(baseUrl)
+                            .get('/bulk/jobs/' + jobId + '/records/?token=' + token)
+                            .set('Accept', 'application/json')
+                            .expect('Content-Type', /json/)
+                            .expect(200)
+                            .end(function (err, res) {
+                                //console.log(res);
+                                if (err) return done(err);
+                                objJob.status.should.be.eql("2");
+                                res.body.length.should.be.eql(2);
+                                res.body[0].jobId.should.be.eql(jobId);
+                                if (res.body[0].sctid == retArray[0].sctid) {
+                                    res.body[0].systemId.should.be.eql(retArray[0].systemId);
+                                } else {
+                                    res.body[0].systemId.should.be.eql(retArray[1].systemId);
+                                }
+                                if (res.body[1].sctid == retArray[1].sctid) {
+                                    res.body[1].systemId.should.be.eql(retArray[1].systemId);
+                                } else {
+                                    res.body[1].systemId.should.be.eql(retArray[0].systemId);
+                                }
+                                res.body[0].status.should.be.eql("Assigned");
+                                done();
+                            });
+                    } else {
+                        should.exist(job);
+                        done();
+
+                    }
+                });
+
+            });
+    });
+
+    it('Test bulk should fail to register SCTIDs with other existing systemId', function (done) {
+        retArray[1].systemId=deprecatedSystemId;
+        var registrationData = {
+            "records": retArray,
+            "namespace": 0,
+            "software": "Mocha Supertest",
+            "comment": "Testing REST API"
+        };
+        request(baseUrl)
+            .post('/sct/bulk/register/?token=' + token)
+            .set('Accept', 'application/json')
+            .set('Content-type', 'application/json')
+            .send(registrationData)
+            .expect(200)
+            .end(function (err, res) {
+                if (err) return done(err);
+                res.body.should.not.be.null();
+                res.body.id.should.not.be.null();
+                jobId = res.body.id;
+                init = new Date().getTime();
+                PostCode(function (err, job) {
+                    if (err) {
+                        return done(err);
+                    }
+                    if (job) {
+                        var objJob = JSON.parse(job);
+
+                        request(baseUrl)
+                            .get('/bulk/jobs/' + jobId + '/records/?token=' + token)
+                            .set('Accept', 'application/json')
+                            .expect('Content-Type', /json/)
+                            .expect(200)
+                            .end(function (err, res) {
+                                //console.log(res);
+                                if (err) return done(err);
+                                objJob.status.should.be.eql("3");
+                                done();
+                            });
+                    } else {
+                        should.exist(job);
+                        done();
+
+                    }
+                });
+
+            });
+    });
+
 });
 
 var ctv3Uuid=guid();
 var snomedIDUuid=guid();
 var reservedCtv3Id;
+var reservedSystemId;
 var reservedSnomedId;
+var reservedSnomedSysId;
 describe('SchemeIds', function(){
 
     it('should generate a CTV3ID (Single_SchemeId_test_01)', function (done) {
@@ -1096,6 +1240,7 @@ describe('SchemeIds', function(){
             .end(function(err, res) {
                 if (err) return done(err);
                 reservedCtv3Id = res.body.schemeId;
+                reservedSystemId=res.body.systemId;
                 var publicationData = {
                     "schemeId": reservedCtv3Id,
                     "software": "Mocha Supertest",
@@ -1126,6 +1271,7 @@ describe('SchemeIds', function(){
             .end(function(err, res) {
                 if (err) return done(err);
                 reservedSnomedId = res.body.schemeId;
+                reservedSnomedSysId= res.body.systemId;
                 var publicationData = {
                     "schemeId": reservedSnomedId,
                     "software": "Mocha Supertest",
@@ -1140,6 +1286,83 @@ describe('SchemeIds', function(){
             });
     });
 
+    it('should register a reserved CTV3Id with same systemId that was reserved', function(done){
+        var registrationMetadata = {
+            "schemeId": reservedCtv3Id,
+            "systemId": reservedSystemId,
+            "software": "Mocha Supertest",
+            "comment": "Testing REST API"
+        };
+        request(baseUrl)
+            .post('/scheme/CTV3ID/register?token=' + token)
+            .set('Accept', 'application/json')
+            .set('Content-type', 'application/json')
+            .send(registrationMetadata)
+            .expect(200)
+            .end(function(err, res) {
+                //console.log(res);
+                if (err) return done(err);
+                res.body.schemeId.should.not.be.null();
+                res.body.status.should.be.eql("Assigned");
+                done();
+            });
+    });
+    it('should register a reserved SNOMEDID with same systemId that was reserved', function(done){
+        var registrationMetadata = {
+            "schemeId": reservedSnomedId,
+            "systemId": reservedSnomedSysId,
+            "software": "Mocha Supertest",
+            "comment": "Testing REST API"
+        };
+        request(baseUrl)
+            .post('/scheme/SNOMEDID/register?token=' + token)
+            .set('Accept', 'application/json')
+            .set('Content-type', 'application/json')
+            .send(registrationMetadata)
+            .expect(200)
+            .end(function(err, res) {
+                //console.log(res);
+                if (err) return done(err);
+                res.body.schemeId.should.not.be.null();
+                res.body.status.should.be.eql("Assigned");
+                done();
+            });
+    });
+
+    it('should fail to register a reserved CTV3ID with other existing systemId ', function(done){
+        var registrationData = {
+            "sctid": reservedCtv3Id,
+            "systemId": ctv3Uuid,
+            "namespace": 0,
+            "software": "Mocha Supertest",
+            "comment": "Testing REST API"
+        };
+        request(baseUrl)
+            .post('/scheme/CTV3ID/register?token=' + token)
+            .set('Accept', 'application/json')
+            .set('Content-type', 'application/json')
+            .send(registrationData)
+            .expect(400,done)
+
+    });
+
+
+    it('should fail to register a reserved SNOMEDID with other existing systemId ', function(done){
+        var registrationData = {
+            "sctid": reservedSnomedId,
+            "systemId": snomedIDUuid,
+            "namespace": 0,
+            "software": "Mocha Supertest",
+            "comment": "Testing REST API"
+        };
+        request(baseUrl)
+            .post('/scheme/SNOMEDID/register?token=' + token)
+            .set('Accept', 'application/json')
+            .set('Content-type', 'application/json')
+            .send(registrationData)
+            .expect(400,done)
+
+    });
 
 
     it('should retrieve a known CTV3Id by systemId (Single_SchemeId_test_15)', function(done){
@@ -1551,6 +1774,17 @@ describe('SchemeId  BULK', function() {
                                 res.body.length.should.be.eql(20);
                                 res.body[0].jobId.should.be.eql(jobId);
                                 res.body[0].status.should.be.eql("Reserved");
+                                retArray=[];
+                                var obj1 = {
+                                    "schemeId": res.body[0].schemeId,
+                                    "systemId": res.body[0].systemId
+                                };
+                                retArray.push(obj1);
+                                var obj2 = {
+                                    "schemeId": res.body[1].schemeId,
+                                    "systemId": res.body[1].systemId
+                                };
+                                retArray.push(obj2);
                                 done();
                             });
                     } else {
@@ -1600,6 +1834,17 @@ describe('SchemeId  BULK', function() {
                                 res.body.length.should.be.eql(20);
                                 res.body[0].jobId.should.be.eql(jobId);
                                 res.body[0].status.should.be.eql("Reserved");
+                                retSnomedIdArray=[];
+                                var obj1 = {
+                                    "schemeId": res.body[0].schemeId,
+                                    "systemId": res.body[0].systemId
+                                };
+                                retSnomedIdArray.push(obj1);
+                                var obj2 = {
+                                    "schemeId": res.body[1].schemeId,
+                                    "systemId": res.body[1].systemId
+                                };
+                                retSnomedIdArray.push(obj2);
                                 done();
                             });
                     } else {
@@ -1607,6 +1852,128 @@ describe('SchemeId  BULK', function() {
                         done();
                     }
                 });
+            });
+    });
+
+    it('Test bulk register reserved Ctv3Ids ', function (done) {
+        var registrationMetadata = {
+            "records": retArray,
+            "software": "Mocha Supertest",
+            "comment": "Testing REST API"
+        };
+        request(baseUrl)
+            .post('/scheme/CTV3ID/bulk/register/?token=' + token)
+            .set('Accept', 'application/json')
+            .set('Content-type', 'application/json')
+            .send(registrationMetadata)
+            .expect('Content-Type', /json/)
+            .expect(200)
+            .end(function (err, res) {
+                if (err) return done(err);
+                res.body.should.not.be.null();
+                res.body.id.should.not.be.null();
+                jobId = res.body.id;
+                init = new Date().getTime();
+                PostCode(function (err, job) {
+                    if (err) {
+                        return done(err);
+                    }
+                    if (job) {
+                        var objJob = JSON.parse(job);
+
+                        request(baseUrl)
+                            .get('/bulk/jobs/' + jobId + '/records/?token=' + token)
+                            .set('Accept', 'application/json')
+                            .expect('Content-Type', /json/)
+                            .expect(200)
+                            .end(function (err, res) {
+                                //console.log(res);
+                                if (err) return done(err);
+                                objJob.status.should.be.eql("2");
+                                res.body.length.should.be.eql(2);
+                                res.body[0].jobId.should.be.eql(jobId);
+                                res.body[0].status.should.be.eql("Assigned");
+
+                                if (res.body[0].schemeId == retArray[0].schemeId) {
+                                    res.body[0].systemId.should.be.eql(retArray[0].systemId);
+                                } else {
+                                    res.body[0].systemId.should.be.eql(retArray[1].systemId);
+                                }
+                                if (res.body[1].schemeId == retArray[1].schemeId) {
+                                    res.body[1].systemId.should.be.eql(retArray[1].systemId);
+                                } else {
+                                    res.body[1].systemId.should.be.eql(retArray[0].systemId);
+                                }
+                                done();
+                            });
+                    } else {
+                        should.exist(job);
+                        done();
+
+                    }
+                });
+
+            });
+    });
+
+    it('Test bulk register reserved SNOMEDID ', function (done) {
+        var registrationMetadata = {
+            "records": retSnomedIdArray,
+            "software": "Mocha Supertest",
+            "comment": "Testing REST API"
+        };
+        request(baseUrl)
+            .post('/scheme/SNOMEDID/bulk/register/?token=' + token)
+            .set('Accept', 'application/json')
+            .set('Content-type', 'application/json')
+            .send(registrationMetadata)
+            .expect('Content-Type', /json/)
+            .expect(200)
+            .end(function (err, res) {
+                if (err) return done(err);
+                res.body.should.not.be.null();
+                res.body.id.should.not.be.null();
+                jobId = res.body.id;
+                init = new Date().getTime();
+                PostCode(function (err, job) {
+                    if (err) {
+                        return done(err);
+                    }
+                    if (job) {
+                        var objJob = JSON.parse(job);
+
+                        request(baseUrl)
+                            .get('/bulk/jobs/' + jobId + '/records/?token=' + token)
+                            .set('Accept', 'application/json')
+                            .expect('Content-Type', /json/)
+                            .expect(200)
+                            .end(function (err, res) {
+                                //console.log(res);
+                                if (err) return done(err);
+                                objJob.status.should.be.eql("2");
+                                res.body.length.should.be.eql(2);
+                                res.body[0].jobId.should.be.eql(jobId);
+                                res.body[0].status.should.be.eql("Assigned");
+
+                                if (res.body[0].schemeId == retSnomedIdArray[0].schemeId) {
+                                    res.body[0].systemId.should.be.eql(retSnomedIdArray[0].systemId);
+                                } else {
+                                    res.body[0].systemId.should.be.eql(retSnomedIdArray[1].systemId);
+                                }
+                                if (res.body[1].schemeId == retSnomedIdArray[1].schemeId) {
+                                    res.body[1].systemId.should.be.eql(retSnomedIdArray[1].systemId);
+                                } else {
+                                    res.body[1].systemId.should.be.eql(retSnomedIdArray[0].systemId);
+                                }
+                                done();
+                            });
+                    } else {
+                        should.exist(job);
+                        done();
+
+                    }
+                });
+
             });
     });
 });
