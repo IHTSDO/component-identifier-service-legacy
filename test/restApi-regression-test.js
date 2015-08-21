@@ -971,6 +971,66 @@ describe('SCTID  BULK', function() {
             });
     });
 
+
+    it('Test clean up reserved and expired SCTIDs ', function (done) {
+        var reservationData = {
+            "namespace": 0,
+            "partitionId": "02",
+            "expirationDate": "2014-01-01",
+            "quantity": 20,
+            "software": "Mocha Supertest",
+            "comment": "Testing REST API"
+        };
+        request(baseUrl)
+            .post('/sct/bulk/reserve/?token=' + token)
+            .set('Accept', 'application/json')
+            .set('Content-type', 'application/json')
+            .send(reservationData)
+            .expect(200)
+            .end(function (err, res) {
+                if (err) return done(err);
+                res.body.should.not.be.null();
+                res.body.id.should.not.be.null();
+                jobId = res.body.id;
+                init = new Date().getTime();
+                PostCode(function (err, job) {
+                    if (err) {
+                        return done(err);
+                    }
+                    if (job) {
+                        var objJob = JSON.parse(job);
+
+                        request(baseUrl)
+                            .get('/bulk/jobs/cleanupExpired?token=' + token)
+                            .set('Accept', 'application/json')
+                            .expect('Content-Type', /json/)
+                            .expect(200)
+                            .end(function (err, res) {
+                                if (err) return done(err);
+                                request(baseUrl)
+                                    .get('/bulk/jobs/' + jobId + '/records?token=' + token)
+                                    .set('Accept', 'application/json')
+                                    .expect('Content-Type', /json/)
+                                    .expect(200)
+                                    .end(function (err, res) {
+                                        //console.log(res);
+                                        if (err) return done(err);
+                                        res.body.length.should.be.eql(20);
+                                        for (var i = 0; i < res.body.length; i++) {
+                                            res.body[i].jobId.should.be.eql(jobId);
+                                            res.body[i].status.should.be.eql("Available");
+                                        }
+                                        done();
+                                    });
+                            });
+                    }else {
+                        should.exist(job);
+                        done();
+                    }
+                });
+            });
+    });
+
 });
 
 var ctv3Uuid=guid();

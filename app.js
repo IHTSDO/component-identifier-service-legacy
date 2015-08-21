@@ -5,6 +5,7 @@ var http = require('http');
 var swaggerTools = require('swagger-tools');
 var serveStatic = require('serve-static');
 var backEndJobService = require('./blogic/BackEndJobService');
+var CleanService = require('./blogic/CleanService');
 
 var serverPort = 3000;
 console.log("dir:" + __dirname);
