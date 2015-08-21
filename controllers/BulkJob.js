@@ -67,30 +67,22 @@ module.exports.getJobRecords=function getJobRecords(req, res, next) {
 };
 
 module.exports.cleanUpExpiredIds=function cleanUpExpiredIds(req, res, next) {
-    console.log("step 1");
     var token = req.swagger.params.token.value;
     security.authenticate(token, function (err, data) {
         if (err) {
-            console.log("step 2");
             return next({message: err.message, statusCode: 401});
         }
-        console.log("step 3");
         isAbleUser(data.user.name, function (able) {
-            console.log("step 4");
             if (able) {
-                console.log("step 5");
                 cleanDM.cleanUpExpiredIds(function (err, dbInfo) {
                     if (err) {
-                        console.log("step 6");
                         return next(err.message);
                     } else {
-                        console.log("step 7");
                         res.setHeader('Content-Type', 'application/json');
                         res.end(JSON.stringify(dbInfo));
                     }
                 });
             } else {
-                console.log("step 8");
                 return next("No permission for the selected operation");
             }
         });
