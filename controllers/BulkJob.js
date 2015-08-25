@@ -6,7 +6,16 @@
 
 var security = require("./../blogic/Security");
 var bulkDM=require("./../blogic/BulkJobDataManager");
+var cleanDM=require("./../blogic/CleanService");
 
+function isAbleUser( user, callback){
+    var able = false;
+    security.admins.forEach(function(admin){
+        if (admin == user)
+            able = true;
+    });
+    callback(able);
+}
 module.exports.getJobs =function getJobs(req, res, next) {
     var token = req.swagger.params.token.value;
     security.authenticate(token, function(err, data) {
@@ -56,3 +65,27 @@ module.exports.getJobRecords=function getJobRecords(req, res, next) {
         });
     });
 };
+
+module.exports.cleanUpExpiredIds=function cleanUpExpiredIds(req, res, next) {
+    var token = req.swagger.params.token.value;
+    security.authenticate(token, function (err, data) {
+        if (err) {
+            return next({message: err.message, statusCode: 401});
+        }
+        isAbleUser(data.user.name, function (able) {
+            if (able) {
+                cleanDM.cleanUpExpiredIds(function (err, dbInfo) {
+                    if (err) {
+                        return next(err.message);
+                    } else {
+                        res.setHeader('Content-Type', 'application/json');
+                        res.end(JSON.stringify(dbInfo));
+                    }
+                });
+            } else {
+                return next("No permission for the selected operation");
+            }
+        });
+    });
+};
+

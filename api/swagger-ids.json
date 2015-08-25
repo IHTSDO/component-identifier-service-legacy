@@ -1751,6 +1751,40 @@
                 }
             }
         },
+      "/bulk/jobs/cleanupExpired": {
+        "get": {
+          "x-swagger-router-controller": "BulkJob",
+          "operationId": "cleanUpExpiredIds",
+          "tags": ["Bulk Jobs"],
+          "description": "Clean up expired ids.",
+          "parameters": [
+            {
+              "name": "token",
+              "in": "query",
+              "description": "The security access token.",
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "responses": {
+            "default": {
+              "description": "Invalid request.",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            },
+            "200": {
+              "description": "Database info",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      },
         "/schemes": {
             "get": {
                 "x-swagger-router-controller": "Scheme",
