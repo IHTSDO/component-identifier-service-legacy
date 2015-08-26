@@ -15,6 +15,9 @@ var _port="3000";
 var _root="/api";
 var baseUrl = "http://" + _host + ":" + _port + _root;
 
+var username = process.env.test_username;
+var password = process.env.test_password;
+
 var token = "";
 
 var guid = (function() {
@@ -162,12 +165,14 @@ var getSnomedIdSystemIdPair=function(quantity){
     }
     return retArray;
 };
+
+
 describe('Login API', function(){
     it('should recognize username and password (Auth_01)', function(done){
         request(baseUrl)
             .post('/login')
-            .field('username', 'alopez')
-            .field('password', 'snomed11')
+            .field('username', username)
+            .field('password', password)
             .set('Accept', 'application/json')
             .expect('Content-Type', /json/)
             .expect(200)
@@ -181,13 +186,13 @@ describe('Login API', function(){
         request(baseUrl)
             .post('/login')
             .field('username', 'wrongusername')
-            .field('password', 'anypassword')
+            .field('password', password)
             .expect(401, done);
     });
     it('should fail with a wrong password (Auth_03)', function(done){
         request(baseUrl)
             .post('/login')
-            .field('username', 'alopez')
+            .field('username', username)
             .field('password', 'wrongpassword')
             .expect(401, done);
     });

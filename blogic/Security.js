@@ -13,6 +13,16 @@ var options = {
     }
 };
 
+//var options = {
+//    "crowd": {
+//        "base": process.env.crowd_url
+//    },
+//    "application": {
+//        "name": process.env.crowd_app_name,
+//        "password": process.env.crowd_app_password
+//    }
+//};
+
 var authenticationCache = {};
 module.exports.admins = [];
 module.exports.users = [];
