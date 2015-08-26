@@ -33,37 +33,7 @@ CREATE TABLE `bulkJob` (
   `modified_at` datetime DEFAULT NULL,
   `log` varchar(1000) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=66 DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `namespace`
---
-
-DROP TABLE IF EXISTS `namespace`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `namespace` (
-  `namespace` int(11) NOT NULL DEFAULT '0',
-  `organizationName` varchar(255) DEFAULT NULL,
-  `email` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`namespace`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `partitions`
---
-
-DROP TABLE IF EXISTS `partitions`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `partitions` (
-  `namespace` int(11) NOT NULL DEFAULT '0',
-  `partitionId` varchar(255) NOT NULL DEFAULT '',
-  `sequence` bigint(20) DEFAULT NULL,
-  PRIMARY KEY (`namespace`,`partitionId`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=415 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -78,36 +48,22 @@ CREATE TABLE `permissionsNamespace` (
   `username` varchar(255) NOT NULL DEFAULT '',
   `role` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`namespace`,`username`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `permissionsScheme`
+-- Table structure for table `sctId_log`
 --
 
-DROP TABLE IF EXISTS `permissionsScheme`;
+DROP TABLE IF EXISTS `sctId_log`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `permissionsScheme` (
-  `scheme` varchar(255) NOT NULL DEFAULT '',
-  `username` varchar(255) NOT NULL DEFAULT '',
-  `role` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`scheme`,`username`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `schemeId`
---
-
-DROP TABLE IF EXISTS `schemeId`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `schemeId` (
-  `scheme` varchar(18) NOT NULL DEFAULT '',
-  `schemeId` varchar(18) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
-  `sequence` float DEFAULT NULL,
-  `checkDigit` int(11) DEFAULT NULL,
+CREATE TABLE `sctId_log` (
+  `sctid` varchar(18) NOT NULL DEFAULT '',
+  `sequence` bigint(20) DEFAULT NULL,
+  `namespace` int(11) DEFAULT NULL,
+  `partitionId` varchar(255) DEFAULT NULL,
+  `checkDigit` tinyint(4) DEFAULT NULL,
   `systemId` varchar(255) NOT NULL,
   `status` varchar(255) DEFAULT NULL,
   `author` varchar(255) DEFAULT NULL,
@@ -116,11 +72,23 @@ CREATE TABLE `schemeId` (
   `comment` varchar(255) DEFAULT NULL,
   `jobId` int(11) DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
-  `modified_at` datetime DEFAULT NULL,
-  PRIMARY KEY (`scheme`,`schemeId`),
-  UNIQUE KEY `sysId` (`systemId`,`scheme`),
-  KEY `jobid` (`jobId`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  `modified_at` datetime DEFAULT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `namespace`
+--
+
+DROP TABLE IF EXISTS `namespace`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `namespace` (
+  `namespace` int(11) NOT NULL DEFAULT '0',
+  `organizationName` varchar(255) DEFAULT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`namespace`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -134,7 +102,7 @@ CREATE TABLE `schemeIdBase` (
   `scheme` varchar(18) NOT NULL DEFAULT '',
   `idBase` varchar(18) DEFAULT NULL,
   PRIMARY KEY (`scheme`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -162,8 +130,281 @@ CREATE TABLE `sctId` (
   PRIMARY KEY (`sctid`),
   UNIQUE KEY `sysid` (`systemId`),
   KEY `jobid` (`jobId`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = '' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50003 TRIGGER upd_sctId BEFORE UPDATE ON sctId
+FOR EACH ROW
+BEGIN
+	insert into sctId_log (
+		sctid ,
+		sequence ,
+		namespace ,
+		partitionId,
+		checkDigit ,
+		systemId ,
+		status ,
+		author,
+		software ,
+		expirationDate,
+		comment ,
+		jobId ,
+		created_at ,
+		modified_at)
+	values (
+		OLD.sctid ,
+		OLD.sequence ,
+		OLD.namespace ,
+		OLD.partitionId,
+		OLD.checkDigit ,
+		OLD.systemId ,
+		OLD.status ,
+		OLD.author,
+		OLD.software ,
+		OLD.expirationDate,
+		OLD.comment ,
+		OLD.jobId ,
+		OLD.created_at ,
+		OLD.modified_at);
+END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = '' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50003 TRIGGER del_sctId BEFORE DELETE ON sctId
+FOR EACH ROW
+BEGIN
+	insert into sctId_log (
+		sctid ,
+		sequence ,
+		namespace ,
+		partitionId,
+		checkDigit ,
+		systemId ,
+		status ,
+		author,
+		software ,
+		expirationDate,
+		comment ,
+		jobId ,
+		created_at ,
+		modified_at)
+	values (
+		OLD.sctid ,
+		OLD.sequence ,
+		OLD.namespace ,
+		OLD.partitionId,
+		OLD.checkDigit ,
+		OLD.systemId ,
+		OLD.status ,
+		OLD.author,
+		OLD.software ,
+		OLD.expirationDate,
+		OLD.comment ,
+		OLD.jobId ,
+		OLD.created_at ,
+		OLD.modified_at);
+END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+
+--
+-- Table structure for table `schemeId`
+--
+
+DROP TABLE IF EXISTS `schemeId`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `schemeId` (
+  `scheme` varchar(18) NOT NULL DEFAULT '',
+  `schemeId` varchar(18) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
+  `sequence` bigint(20) DEFAULT NULL,
+  `checkDigit` tinyint(4) DEFAULT NULL,
+  `systemId` varchar(255) NOT NULL,
+  `status` varchar(255) DEFAULT NULL,
+  `author` varchar(255) DEFAULT NULL,
+  `software` varchar(255) DEFAULT NULL,
+  `expirationDate` date DEFAULT NULL,
+  `comment` varchar(255) DEFAULT NULL,
+  `jobId` int(11) DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `modified_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`scheme`,`schemeId`),
+  UNIQUE KEY `sysId` (`systemId`,`scheme`),
+  KEY `jobid` (`jobId`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = '' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50003 TRIGGER upd_schemeId BEFORE UPDATE ON schemeId
+FOR EACH ROW
+BEGIN
+	insert into schemeId_log (
+		scheme ,
+		schemeId ,
+		sequence ,
+		checkDigit ,
+		systemId ,
+		status ,
+		author,
+		software ,
+		expirationDate,
+		comment ,
+		jobId ,
+		created_at ,
+		modified_at)
+	values (
+		OLD.scheme ,
+		OLD.schemeId ,
+		OLD.sequence ,
+		OLD.checkDigit ,
+		OLD.systemId ,
+		OLD.status ,
+		OLD.author,
+		OLD.software ,
+		OLD.expirationDate,
+		OLD.comment ,
+		OLD.jobId ,
+		OLD.created_at ,
+		OLD.modified_at);
+END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = '' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50003 TRIGGER del_schemeId BEFORE DELETE ON schemeId
+FOR EACH ROW
+BEGIN
+	insert into schemeId_log (
+		scheme ,
+		schemeId ,
+		sequence ,
+		checkDigit ,
+		systemId ,
+		status ,
+		author,
+		software ,
+		expirationDate,
+		comment ,
+		jobId ,
+		created_at ,
+		modified_at)
+	values (
+		OLD.scheme ,
+		OLD.schemeId ,
+		OLD.sequence ,
+		OLD.checkDigit ,
+		OLD.systemId ,
+		OLD.status ,
+		OLD.author,
+		OLD.software ,
+		OLD.expirationDate,
+		OLD.comment ,
+		OLD.jobId ,
+		OLD.created_at ,
+		OLD.modified_at);
+END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+
+--
+-- Table structure for table `schemeId_log`
+--
+
+DROP TABLE IF EXISTS `schemeId_log`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `schemeId_log` (
+  `scheme` varchar(18) NOT NULL DEFAULT '',
+  `schemeId` varchar(18) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
+  `sequence` bigint(20) DEFAULT NULL,
+  `checkDigit` tinyint(4) DEFAULT NULL,
+  `systemId` varchar(255) NOT NULL,
+  `status` varchar(255) DEFAULT NULL,
+  `author` varchar(255) DEFAULT NULL,
+  `software` varchar(255) DEFAULT NULL,
+  `expirationDate` date DEFAULT NULL,
+  `comment` varchar(255) DEFAULT NULL,
+  `jobId` int(11) DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `modified_at` datetime DEFAULT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `permissionsScheme`
+--
+
+DROP TABLE IF EXISTS `permissionsScheme`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `permissionsScheme` (
+  `scheme` varchar(160) NOT NULL DEFAULT '',
+  `username` varchar(160) NOT NULL DEFAULT '',
+  `role` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`scheme`,`username`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `partitions`
+--
+
+DROP TABLE IF EXISTS `partitions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `partitions` (
+  `namespace` int(11) NOT NULL DEFAULT '0',
+  `partitionId` varchar(255) NOT NULL DEFAULT '',
+  `sequence` bigint(20) DEFAULT NULL,
+  PRIMARY KEY (`namespace`,`partitionId`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping events for database 'idservice'
+--
 
 --
 -- Dumping routines for database 'idservice'
@@ -178,4 +419,4 @@ CREATE TABLE `sctId` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2015-08-03 20:10:28
+-- Dump completed on 2015-08-26 18:46:53
