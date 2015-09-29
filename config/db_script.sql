@@ -129,7 +129,8 @@ CREATE TABLE `sctId` (
   `modified_at` datetime DEFAULT NULL,
   PRIMARY KEY (`sctid`),
   UNIQUE KEY `sysid` (`systemId`),
-  KEY `jobid` (`jobId`)
+  KEY `jobid` (`jobId`),
+  KEY `stat` (`status`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -252,7 +253,8 @@ CREATE TABLE `schemeId` (
   `modified_at` datetime DEFAULT NULL,
   PRIMARY KEY (`scheme`,`schemeId`),
   UNIQUE KEY `sysId` (`systemId`,`scheme`),
-  KEY `jobid` (`jobId`)
+  KEY `jobid` (`jobId`),
+  KEY `stat` (`status`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
