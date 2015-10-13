@@ -375,7 +375,31 @@ var publishSctid=function (operation, callback){
     });
 };
 function setNewSCTIdRecord(operation,action,callback) {
-    getNextNumber( operation, function (err, seq) {
+
+
+    setAvailableSCTIDRecord2NewStatus(operation, action, function(err,record) {
+
+        if (err) {
+            callback(throwErrMessage("error getting available sctid:" + operation.partitionId.toString() + " for namespace:" + operation.namespace + ", err: " + JSON.stringify(err)), null);
+            return;
+        } else if (record) {
+            callback(null, record);
+        } else {
+            counterMode(operation, action,function(err,newRecord){
+                if (err) {
+                    callback(err, null);
+                } else {
+                    callback(null, newRecord);
+                }
+            });
+
+        }
+    });
+};
+
+function counterMode(operation, action, callback){
+
+    getNextNumber(operation, function (err, seq) {
         if (err) {
             callback(err, null);
         } else {
@@ -413,35 +437,74 @@ function setNewSCTIdRecord(operation,action,callback) {
                             }
                         });
                     } else {
-                        setNewSCTIdRecord(operation, action, callback);
+                        counterMode(operation, action, callback);
                     }
                 }
             });
         }
     });
-};
+}
+function getNextNumber( operation, callback) {
 
-function getNextNumber( operation, callback){
+    var key = [parseInt(operation.namespace), operation.partitionId.toString()];
+    model.partitions.get(key, function (err, partition) {
 
-    var key=[parseInt(operation.namespace),operation.partitionId.toString()];
-    model.partitions.get(key,function(err, partition){
-
-        if (err){
-            callback(throwErrMessage("error getting partition:" + operation.partitionId.toString() + " for namespace:" + operation.namespace + ", err: " + JSON.stringify(err)),null);
+        if (err) {
+            callback(throwErrMessage("error getting partition:" + operation.partitionId.toString() + " for namespace:" + operation.namespace + ", err: " + JSON.stringify(err)), null);
             return;
         }
         partition.sequence++;
 
-        var nextNumber=partition.sequence;
-        partition.save(function(err){
-            if (err){
-                callback(err,null);
-            }else{
-                callback(null,nextNumber);
+        var nextNumber = partition.sequence;
+        partition.save(function (err) {
+            if (err) {
+                callback(err, null);
+            } else {
+                callback(null, nextNumber);
             }
         })
     });
 };
+
+
+function setAvailableSCTIDRecord2NewStatus(operation, action, callback){
+    var query={namespace:operation.namespace, partitionId:operation.partitionId, status: stateMachine.statuses.available };
+
+    model.sctId.find(query ,function(err, sctIdRecords){
+        if (err) {
+            callback(err, null);
+        }else if (sctIdRecords && sctIdRecords.length>0){
+            var newStatus = stateMachine.getNewStatus(sctIdRecords[0].status, action);
+            //console.log("newStatus:" + newStatus);
+            if (newStatus) {
+
+                if (operation.systemId && operation.systemId.trim() != "") {
+                    sctIdRecords[0].systemId = operation.systemId;
+                }
+                sctIdRecords[0].status = newStatus;
+                sctIdRecords[0].author = operation.author;
+                sctIdRecords[0].software = operation.software;
+                sctIdRecords[0].expirationDate = operation.expirationDate;
+                sctIdRecords[0].comment = operation.comment;
+
+                updateSCTIDRecord(sctIdRecords[0], function (err, updatedRecord) {
+
+                    if (err) {
+                        callback(err, null);
+                    } else {
+
+                        callback(null, updatedRecord);
+                    }
+                });
+            } else {
+                counterMode(operation, action, callback);
+            }
+        }else {
+            callback(null, null);
+        }
+    });
+}
+
 
 function updateSCTIDRecord(sctidRecord, callback){
     model.sctId.get(sctidRecord.sctid ,function(err, sctIdRecord){

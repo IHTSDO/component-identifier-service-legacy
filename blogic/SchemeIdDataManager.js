@@ -387,16 +387,38 @@ var publishSchemeId=function (scheme, operation, callback){
 };
 function setNewSchemeIdRecord(scheme, operation,action,callback){
 
+    setAvailableSchemeIdRecord2NewStatus(scheme, operation, action, function(err,record) {
+
+        if (err) {
+            callback(throwErrMessage("error getting available schemeId for:" + scheme  + ", err: " + JSON.stringify(err)), null);
+            return;
+        } else if (record) {
+            callback(null, record);
+        } else {
+            counterMode(scheme, operation,action,function (err, newSchemeId) {
+                if (err) {
+                    callback(err, null);
+                } else {
+
+                    callback(null, newSchemeId);
+                }
+            });
+        }
+    });
+};
+
+function counterMode(scheme, operation, action, callback){
+
     getNextSchemeId(scheme, operation, function (err, newSchemeId) {
         if (err) {
             callback(err, null);
-        }else {
+        } else {
             //console.log("newSchemeId:" + newSchemeId);
-            getSchemeId(scheme, newSchemeId, function(err,schemeIdRecord){
+            getSchemeId(scheme, newSchemeId, function (err, schemeIdRecord) {
 
                 if (err) {
                     callback(err, null);
-                }else {
+                } else {
                     //console.log("schemeIdRecord2:" + JSON.stringify(schemeIdRecord));
 
                     var newStatus = stateMachine.getNewStatus(schemeIdRecord.status, action);
@@ -422,13 +444,50 @@ function setNewSchemeIdRecord(scheme, operation,action,callback){
                             }
                         });
                     } else {
-                        setNewSchemeIdRecord(scheme, operation, action, callback);
+                        counterMode(scheme, operation, action, callback);
                     }
                 }
             });
         }
     });
-};
+}
+function setAvailableSchemeIdRecord2NewStatus(scheme, operation, action, callback){
+    var query={scheme:scheme, status: stateMachine.statuses.available };
+
+    model.sctId.find(query ,function(err, schemeIdRecords){
+        if (err) {
+            callback(err, null);
+        }else if (schemeIdRecords && schemeIdRecords.length>0){
+            var newStatus = stateMachine.getNewStatus(schemeIdRecords[0].status, action);
+            //console.log("newStatus:" + newStatus);
+            if (newStatus) {
+
+                if (operation.systemId && operation.systemId.trim() != "") {
+                    schemeIdRecords[0].systemId = operation.systemId;
+                }
+                schemeIdRecords[0].status = newStatus;
+                schemeIdRecords[0].author = operation.author;
+                schemeIdRecords[0].software = operation.software;
+                schemeIdRecords[0].expirationDate = operation.expirationDate;
+                schemeIdRecords[0].comment = operation.comment;
+
+                updateSchemeIdRecord(schemeIdRecords[0], function (err, updatedRecord) {
+
+                    if (err) {
+                        callback(err, null);
+                    } else {
+
+                        callback(null, updatedRecord);
+                    }
+                });
+            } else {
+                counterMode(scheme, operation, action, callback);
+            }
+        }else {
+            callback(null, null);
+        }
+    });
+}
 
 function getNextSchemeId(scheme, operation, callback){
     var key=scheme;
