@@ -454,7 +454,7 @@ function counterMode(scheme, operation, action, callback){
 function setAvailableSchemeIdRecord2NewStatus(scheme, operation, action, callback){
     var query={scheme:scheme, status: stateMachine.statuses.available };
 
-    model.sctId.find(query ,function(err, schemeIdRecords){
+    model.schemeId.find(query ,function(err, schemeIdRecords){
         if (err) {
             callback(err, null);
         }else if (schemeIdRecords && schemeIdRecords.length>0){
