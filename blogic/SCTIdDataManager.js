@@ -468,7 +468,7 @@ function getNextNumber( operation, callback) {
 
 
 function setAvailableSCTIDRecord2NewStatus(operation, action, callback){
-    var query={namespace:operation.namespace, partitionId:operation.partitionId, status: stateMachine.statuses.available };
+    var query={namespace: parseInt(operation.namespace), partitionId:operation.partitionId, status: stateMachine.statuses.available };
 
     model.sctId.find(query ,function(err, sctIdRecords){
         if (err) {
