@@ -62,10 +62,10 @@ CREATE TABLE `sctId_log` (
   `sctid` varchar(18) NOT NULL DEFAULT '',
   `sequence` bigint(20) DEFAULT NULL,
   `namespace` int(11) DEFAULT NULL,
-  `partitionId` varchar(255) DEFAULT NULL,
+  `partitionId` varchar(2) DEFAULT NULL,
   `checkDigit` tinyint(4) DEFAULT NULL,
   `systemId` varchar(255) NOT NULL,
-  `status` varchar(255) DEFAULT NULL,
+  `status` varchar(20) DEFAULT NULL,
   `author` varchar(255) DEFAULT NULL,
   `software` varchar(255) DEFAULT NULL,
   `expirationDate` date DEFAULT NULL,
@@ -116,10 +116,10 @@ CREATE TABLE `sctId` (
   `sctid` varchar(18) NOT NULL DEFAULT '',
   `sequence` bigint(20) DEFAULT NULL,
   `namespace` int(11) DEFAULT NULL,
-  `partitionId` varchar(255) DEFAULT NULL,
+  `partitionId` varchar(2) DEFAULT NULL,
   `checkDigit` tinyint(4) DEFAULT NULL,
   `systemId` varchar(255) NOT NULL,
-  `status` varchar(255) DEFAULT NULL,
+  `status` varchar(20) DEFAULT NULL,
   `author` varchar(255) DEFAULT NULL,
   `software` varchar(255) DEFAULT NULL,
   `expirationDate` date DEFAULT NULL,
@@ -130,7 +130,8 @@ CREATE TABLE `sctId` (
   PRIMARY KEY (`sctid`),
   UNIQUE KEY `sysid` (`systemId`),
   KEY `jobid` (`jobId`),
-  KEY `stat` (`status`)
+  KEY `stat` (`status`),
+  KEY `nam_par_st` (`namespace`, `partitionId`, `status`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -243,7 +244,7 @@ CREATE TABLE `schemeId` (
   `sequence` bigint(20) DEFAULT NULL,
   `checkDigit` tinyint(4) DEFAULT NULL,
   `systemId` varchar(255) NOT NULL,
-  `status` varchar(255) DEFAULT NULL,
+  `status` varchar(20) DEFAULT NULL,
   `author` varchar(255) DEFAULT NULL,
   `software` varchar(255) DEFAULT NULL,
   `expirationDate` date DEFAULT NULL,
@@ -254,7 +255,7 @@ CREATE TABLE `schemeId` (
   PRIMARY KEY (`scheme`,`schemeId`),
   UNIQUE KEY `sysId` (`systemId`,`scheme`),
   KEY `jobid` (`jobId`),
-  KEY `stat` (`status`)
+  KEY `stat` (`scheme`,`status`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -363,7 +364,7 @@ CREATE TABLE `schemeId_log` (
   `sequence` bigint(20) DEFAULT NULL,
   `checkDigit` tinyint(4) DEFAULT NULL,
   `systemId` varchar(255) NOT NULL,
-  `status` varchar(255) DEFAULT NULL,
+  `status` varchar(20) DEFAULT NULL,
   `author` varchar(255) DEFAULT NULL,
   `software` varchar(255) DEFAULT NULL,
   `expirationDate` date DEFAULT NULL,
@@ -398,7 +399,7 @@ DROP TABLE IF EXISTS `partitions`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `partitions` (
   `namespace` int(11) NOT NULL DEFAULT '0',
-  `partitionId` varchar(255) NOT NULL DEFAULT '',
+  `partitionId` varchar(2) NOT NULL DEFAULT '',
   `sequence` bigint(20) DEFAULT NULL,
   PRIMARY KEY (`namespace`,`partitionId`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
