@@ -10,7 +10,7 @@ var sctIdHelper=require("../utils/SctIdHelper");
 
 //request = request('http://localhost:3000/api');
 //var _host="localhost";
-var _host="107.170.101.181";
+var _host="162.243.20.236";
 var _port="3000";
 var _root="/api";
 var baseUrl = "http://" + _host + ":" + _port + _root;
@@ -225,7 +225,7 @@ describe('SCTIDs', function(){
             "partitionId": "00",
             "systemId": "",
             "software": "Mocha Supertest",
-            "comment": "Testing REST API",
+            "comment": "Testing REST API (SingleSctId_01)",
             "generateLegacyIds": "false"
         };
         request(baseUrl)
@@ -248,7 +248,7 @@ describe('SCTIDs', function(){
             "partitionId": "00",
             "systemId": "",
             "software": "Mocha Supertest",
-            "comment": "Testing REST API",
+            "comment": "Testing REST API (SingleSctId_02)",
             "generateLegacyIds": "true"
         };
         request(baseUrl)
@@ -273,7 +273,7 @@ describe('SCTIDs', function(){
             "partitionId": "00",
             "systemId": knownUuidMock,
             "software": "Mocha Supertest",
-            "comment": "Testing REST API",
+            "comment": "Testing REST API (SingleSctId_03)",
             "generateLegacyIds": "false"
         };
         request(baseUrl)
@@ -408,7 +408,7 @@ describe('SCTIDs', function(){
             "partitionId": "00",
             "expirationDate": "2019/09/13",
             "software": "Mocha Supertest",
-            "comment": "Testing REST API"
+            "comment": "Testing REST API (SingleSctId_10)"
         };
         request(baseUrl)
             .post('/sct/reserve?token=' + token)
@@ -1022,7 +1022,9 @@ describe('SCTID  BULK', function() {
                                         if (err) return done(err);
                                         res.body.length.should.be.eql(20);
                                         for (var i = 0; i < res.body.length; i++) {
+                                            //console.log(res.body[i].sctid);
                                             res.body[i].jobId.should.be.eql(jobId);
+                                            //console.log(res.body[i].status);
                                             res.body[i].status.should.be.eql("Available");
                                         }
                                         done();

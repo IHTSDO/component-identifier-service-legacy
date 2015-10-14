@@ -255,7 +255,7 @@ CREATE TABLE `schemeId` (
   PRIMARY KEY (`scheme`,`schemeId`),
   UNIQUE KEY `sysId` (`systemId`,`scheme`),
   KEY `jobid` (`jobId`),
-  KEY `stat` (`scheme`,`status`)
+  KEY `stat` (`status`,`scheme`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
