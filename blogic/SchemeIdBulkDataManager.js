@@ -362,8 +362,10 @@ function generateSchemeId( operation, thisScheme, callback){
         try{
             getModel.sync(null);
 
-            setNewSchemeIdRecord.sync(null, operation, thisScheme);
-
+            var rec=setAvailableSchemeIdRecord2NewStatus.sync(null, operation, thisScheme);
+            if (!rec) {
+                setNewSchemeIdRecord.sync(null, operation, thisScheme);
+            }
             callback(null);
 
         } catch (e) {
@@ -371,6 +373,44 @@ function generateSchemeId( operation, thisScheme, callback){
         }
     });
 };
+
+function setAvailableSchemeIdRecord2NewStatus(operation, thisScheme, callback){
+    Sync(function () {
+        try {
+            var query = {scheme: thisScheme, status: stateMachine.statuses.available};
+
+            var schemeIdRecords=model.schemeId.find.sync(null,query);
+            if (schemeIdRecords && schemeIdRecords.length > 0) {
+
+                var action = operation.action;
+                var newStatus = stateMachine.getNewStatus(schemeIdRecords[0].status, action);
+
+                if (newStatus) {
+
+                    if (operation.systemId && operation.systemId.trim() != "") {
+                        schemeIdRecords[0].systemId = operation.systemId;
+                    }
+                    schemeIdRecords[0].status = newStatus;
+                    schemeIdRecords[0].author = operation.author;
+                    schemeIdRecords[0].software = operation.software;
+                    schemeIdRecords[0].expirationDate = operation.expirationDate;
+                    schemeIdRecords[0].comment = operation.comment;
+                    schemeIdRecords[0].jobId = operation.jobId;
+                    schemeIdRecords[0].save.sync(null);
+                    callback(null, true);
+                } else {
+                    callback(null, false);
+                }
+            } else {
+                callback(null, false);
+            }
+        } catch (e) {
+            var error = "error:" + e;
+            console.error(error); // something went wrong
+            callback(error, null);
+        }
+    });
+}
 
 function setNewSchemeIdRecord(operation, thisScheme, callback) {
     Sync(function () {

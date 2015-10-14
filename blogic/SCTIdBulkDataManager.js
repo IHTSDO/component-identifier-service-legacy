@@ -355,8 +355,10 @@ function generateSctid(operation, thisPartition, callback){
         try{
             getModel.sync(null);
 
-            setNewSCTIdRecord.sync(null, operation, thisPartition);
-
+            var rec=setAvailableSCTIDRecord2NewStatus.sync(null, operation);
+            if (!rec) {
+                setNewSCTIdRecord.sync(null, operation, thisPartition);
+            }
             callback(null);
 
         } catch (e) {
@@ -364,6 +366,49 @@ function generateSctid(operation, thisPartition, callback){
         }
     });
 };
+
+function setAvailableSCTIDRecord2NewStatus(operation, callback){
+    Sync(function () {
+        try {
+            var query = {
+                namespace: parseInt(operation.namespace),
+                partitionId: operation.partitionId,
+                status: stateMachine.statuses.available
+            };
+
+            var sctIdRecords = model.sctId.find.sync(null, query);
+            if (sctIdRecords && sctIdRecords.length > 0) {
+
+                var action = operation.action;
+                if (operation.systemId && operation.systemId.trim() != "") {
+                    sctIdRecords[0].systemId = operation.systemId;
+                }
+
+                var newStatus = stateMachine.getNewStatus(sctIdRecords[0].status, action);
+                if (newStatus) {
+
+                    sctIdRecords[0].status = newStatus;
+                    sctIdRecords[0].author = operation.author;
+                    sctIdRecords[0].software = operation.software;
+                    sctIdRecords[0].expirationDate = operation.expirationDate;
+                    sctIdRecords[0].comment = operation.comment;
+                    sctIdRecords[0].jobId = operation.jobId;
+                    sctIdRecords[0].save.sync(null);
+                    callback(null,true);
+                } else {
+                    callback(null,false);
+                }
+
+            } else {
+                callback(null,false);
+            }
+        } catch (e) {
+            var error = "error:" + e;
+            console.error(error); // something went wrong
+            callback(error,null);
+        }
+    });
+}
 
 function setNewSCTIdRecord(operation,thisPartition,callback) {
     Sync(function () {
