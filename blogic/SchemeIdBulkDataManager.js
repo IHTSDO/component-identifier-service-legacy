@@ -377,7 +377,7 @@ function generateSchemeId( operation, thisScheme, callback){
 function setAvailableSchemeIdRecord2NewStatus(operation, thisScheme, callback){
     Sync(function () {
         try {
-            var query = {scheme: thisScheme, status: stateMachine.statuses.available};
+            var query = {scheme: thisScheme.scheme.toUpperCase(), status: stateMachine.statuses.available};
 
             var schemeIdRecords=model.schemeId.find.sync(null,query);
             if (schemeIdRecords && schemeIdRecords.length > 0) {
