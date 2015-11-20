@@ -36,8 +36,6 @@ var runner = function (){
         model.bulkJob.find({status:0}, [ "created_at", "A" ],function(err,bulkJobRecords) {
             if (bulkJobRecords&& bulkJobRecords.length>0) {
                 bulkJobRecords[0].status="1";
-                console.log(JSON.stringify( bulkJobRecords[0].request));
-                //model.bulkJob.
                 bulkJobRecords[0].save(function(err){
                     if (err){
                         console.log("Error-1 in back end service:" + err);

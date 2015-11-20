@@ -28,7 +28,7 @@ CREATE TABLE `bulkJob` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) DEFAULT NULL,
   `status` varchar(1) DEFAULT NULL,
-  `request` blob,
+  `request` LONGTEXT,
   `created_at` datetime DEFAULT NULL,
   `modified_at` datetime DEFAULT NULL,
   `log` varchar(1000) DEFAULT NULL,
