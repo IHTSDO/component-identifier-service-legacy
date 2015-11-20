@@ -7,6 +7,11 @@ var serveStatic = require('serve-static');
 var backEndJobService = require('./blogic/BackEndJobService');
 var CleanService = require('./blogic/CleanService');
 
+
+var bodyParser = require('body-parser');
+app.use(bodyParser.json({limit: '50mb'}));
+app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
+
 var serverPort = 3000;
 console.log("dir:" + __dirname);
 // swaggerRouter configuration
@@ -58,5 +63,6 @@ swaggerTools.initializeMiddleware(swaggerDoc, function (middleware) {
     http.createServer(app).listen(serverPort, function () {
         console.log('Your server is listening on port %d (http://localhost:%d)', serverPort, serverPort);
     });
-});
 
+
+});
