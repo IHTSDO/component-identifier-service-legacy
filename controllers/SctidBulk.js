@@ -102,7 +102,7 @@ module.exports.getSctidBySystemIds = function getSctidBySystemIds (req, res, nex
 module.exports.generateSctids = function generateSctids (req, res, next) {
     var token = req.swagger.params.token.value;
     var generationData = req.swagger.params.generationData.value;
-    generationData=null;
+
     security.authenticate(token, function(err, data) {
         if (err) {
             return next({message: err.message, statusCode: 401});
