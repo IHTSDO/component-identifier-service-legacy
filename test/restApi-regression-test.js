@@ -10,13 +10,15 @@ var sctIdHelper=require("../utils/SctIdHelper");
 
 //request = request('http://localhost:3000/api');
 //var _host="localhost";
-var _host="162.243.20.236";
+var _host="107.170.101.181";
 var _port="3000";
 var _root="/api";
 var baseUrl = "http://" + _host + ":" + _port + _root;
 
-var username = process.env.test_username;
-var password = process.env.test_password;
+//var username = process.env.test_username;
+var username = "arodriguez";
+//var password = process.env.test_password;
+var password = "snomed11";
 
 var token = "";
 
