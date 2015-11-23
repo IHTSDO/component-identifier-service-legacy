@@ -2,7 +2,8 @@
  * Created by ar on 7/31/15.
  */
 
-
+var agent = require('webkit-devtools-agent');
+agent.start();
 var dbInit=require("../config/dbInit");
 var job=require("../model/JobType");
 var idDM = require("./../blogic/SCTIdBulkDataManager");
