@@ -61,14 +61,15 @@ var dbTablesCreate=function (callback ) {
 };
 
 var getDB=function (callback ) {
-    orm.connect(params.database.connectionURL, function (err, db) {
-        if (err) {
-            callback(err, null, null);
-        }
-        if (gModel){
+
+    if (gModel){
 //           console.log("Usign model from cache");
-            callback(null, gdb, gModel);
-        }else {
+        callback(null, gdb, gModel);
+    }else {
+        orm.connect(params.database.connectionURL, function (err, db) {
+            if (err) {
+                callback(err, null, null);
+            }
             dbDefine(db, function (err, dbr, model) {
 
                 if (err) {
@@ -78,15 +79,15 @@ var getDB=function (callback ) {
                     //    if (err) throw err;
 
 //                   console.log("Initializing model");
-                        gModel = model;
-                        gdb = dbr;
-                        callback(null, dbr, model);
+                    gModel = model;
+                    gdb = dbr;
+                    callback(null, dbr, model);
                     //});
                 }
             });
-        }
 
-    });
+        });
+    }
 };
 
 //dbTablesCreate(function(){
