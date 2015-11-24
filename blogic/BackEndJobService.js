@@ -32,7 +32,7 @@ var runner = function (){
             console.log("running job.");
             return;
         }
-        model.bulkJob.find({status:0}, [ "created_at", "A" ],function(err,bulkJobRecords) {
+        model.bulkJob.find({status:"0"}, [ "created_at", "A" ],function(err,bulkJobRecords) {
             if (bulkJobRecords&& bulkJobRecords.length>0) {
                 bulkJobRecords[0].status="1";
                 bulkJobRecords[0].save(function(err){
