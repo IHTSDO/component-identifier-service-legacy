@@ -66,7 +66,7 @@ var getDB=function (callback ) {
             callback(err, null, null);
         }
         if (gModel){
-//           console.log("Usign model from cache");
+           console.log("Usign model from cache");
             callback(null, gdb, gModel);
         }else {
             dbDefine(db, function (err, dbr, model) {
@@ -77,7 +77,7 @@ var getDB=function (callback ) {
                     //dbr.sync(function (err) {
                     //    if (err) throw err;
 
-//                   console.log("Initializing model");
+                   console.log("Initializing model");
                         gModel = model;
                         gdb = dbr;
                         callback(null, dbr, model);
