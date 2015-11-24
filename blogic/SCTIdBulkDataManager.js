@@ -8,7 +8,9 @@ var db={};
 var model;
 var sets=require('simplesets');
 var Sync = require('sync');
-
+//
+//var agent = require('webkit-devtools-agent');
+//agent.start();
 function getModel(callback) {
     if (model) {
         //console.log("Model from cache.");
