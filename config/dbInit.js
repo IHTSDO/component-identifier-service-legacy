@@ -61,15 +61,14 @@ var dbTablesCreate=function (callback ) {
 };
 
 var getDB=function (callback ) {
-
-    if (gModel){
-           console.log("Usign model from cache");
-        callback(null, gdb, gModel);
-    }else {
-        orm.connect(params.database.connectionURL, function (err, db) {
-            if (err) {
-                callback(err, null, null);
-            }
+    orm.connect(params.database.connectionURL, function (err, db) {
+        if (err) {
+            callback(err, null, null);
+        }
+        if (gModel){
+//           console.log("Usign model from cache");
+            callback(null, gdb, gModel);
+        }else {
             dbDefine(db, function (err, dbr, model) {
 
                 if (err) {
@@ -78,16 +77,16 @@ var getDB=function (callback ) {
                     //dbr.sync(function (err) {
                     //    if (err) throw err;
 
-                   console.log("Initializing model");
-                    gModel = model;
-                    gdb = dbr;
-                    callback(null, dbr, model);
+//                   console.log("Initializing model");
+                        gModel = model;
+                        gdb = dbr;
+                        callback(null, dbr, model);
                     //});
                 }
             });
+        }
 
-        });
-    }
+    });
 };
 
 //dbTablesCreate(function(){
