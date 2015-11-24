@@ -58,5 +58,8 @@ swaggerTools.initializeMiddleware(swaggerDoc, function (middleware) {
     http.createServer(app).listen(serverPort, function () {
         console.log('Your server is listening on port %d (http://localhost:%d)', serverPort, serverPort);
     });
+
+    var agent = require('webkit-devtools-agent');
+    agent.start();
 });
 
