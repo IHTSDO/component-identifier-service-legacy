@@ -1367,7 +1367,9 @@
                         "in": "body",
                         "description": "The required sctids list, separated with commas (,).",
                         "required": true,
-                        "type": "string"
+                        "schema": {
+                            "$ref": "string"
+                        }
                     }
                 ],
                 "responses": {
