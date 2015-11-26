@@ -1036,6 +1036,24 @@
                         $.get("/api/bulk/jobs/" + jobId + "?token=" + options.token).done(function(res){
                             $.get("../views/bulk/details.hbs").then(function(src){
                                 var template = Handlebars.compile(src);
+                                switch(status) {
+                                    case 0:
+                                        return "Queued";
+                                        break;
+                                    case 1:
+                                        return "Running";
+                                        break;
+                                    case 2:
+                                        return "Finished OK";
+                                        break;
+                                    case 3:
+                                        return "Finished in error";
+                                        break;
+                                    default:
+                                        return status;
+                                }
+                            });
+                            res.request = JSON.parse(res.request);
                                 $("#jobs-bulk-details").html(template({job: res}));
                                 //records-details-bulk-job
                                 $("#records-get-button-bulk").unbind();
@@ -1052,6 +1070,7 @@
                                         $.get("../views/bulk/records.hbs").then(function(src){
 //                                            console.log(records);
                                             var template = Handlebars.compile(src);
+                                            Handlebars.registerHelper("convertStatus", function(status) {
                                             if (!headLoaded)
                                                 $("#records-details-bulk-job").html(template({items: records, fields: fields, headLoaded: headLoaded}));
                                             else

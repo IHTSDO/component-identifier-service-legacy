@@ -1,5 +1,11 @@
 <form class="form-horizontal">
     <div class="form-group">
+        <label class="control-label col-md-2">Id:</label>
+        <div class="col-md-10">
+            <input value="{{job.id}}" disabled type="text" class="form-control">
+        </div>
+    </div>
+    <div class="form-group">
         <label class="control-label col-md-2">Name:</label>
         <div class="col-md-10">
             <input value="{{job.name}}" disabled type="text" class="form-control">
@@ -8,7 +14,7 @@
     <div class="form-group">
         <label class="control-label col-md-2">Status:</label>
         <div class="col-md-10">
-            <input value="{{job.status}}" disabled type="text" class="form-control">
+            <input value="{{convertStatus job.status}}" disabled type="text" class="form-control">
         </div>
     </div>
     <div class="form-group">
