@@ -1348,6 +1348,45 @@
                         }
                     }
                 }
+            },
+            "post": {
+                "x-swagger-router-controller": "SctidBulk",
+                "operationId": "getSctids",
+                "tags": ["SCTIDS - Bulk Operations"],
+                "description": "Returns the required SCTID Records.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "sctids",
+                        "in": "body",
+                        "description": "The required sctids list, separated with commas (,).",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Invalid request.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Successful request.",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/SCTIDRecord"
+                            }
+                        }
+                    }
+                }
             }
         },
         "/sct/namespace/{namespaceId}/systemIds": {
