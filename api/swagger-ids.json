@@ -6,7 +6,7 @@
         "version": "1.0"
     },
     "produces": ["application/json"],
-    "host": "162.243.103.69:3000",
+    "host": "107.170.101.181:3000",
     "basePath": "/api",
     "paths": {
 
