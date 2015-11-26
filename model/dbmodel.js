@@ -10,43 +10,6 @@ var mUse={
     expire: function() { var d = new Date(); return d.setMinutes(d.getMinutes() + 60); },
     persist: true
 };
-var sctIdRecord={name: "sctId",
-    fields: {
-        sctid: { type: 'text', size:18},
-        sequence: {type: 'integer', size:8},
-        namespace: { type: 'integer'},
-        partitionId: String,
-        checkDigit: { type: 'integer'},
-        systemId:  { type: 'text', size:255, required:true},
-        status: String,
-        author: String,
-        software: String,
-        expirationDate: Date,
-        comment: String,
-        jobId:{ type: 'integer'}
-    }, features:{
-        id: 'sctid',
-        timestamp: true
-    }
-};
-
-var schemeIdRecord={name: "schemeId",
-    fields: {
-        scheme: { type: 'text', size:18, key: true},
-        schemeId: { type: 'text', size:18, key: true},
-        sequence: Number,
-        checkDigit: { type: 'integer'},
-        systemId: { type: 'text', size:255, required:true},
-        status: String,
-        author: String,
-        software: String,
-        expirationDate: Date,
-        comment: String,
-        jobId:{ type: 'integer'}
-    }, features:{
-        timestamp: true
-    }
-};
 
 var schemeIdBaseRecord={name: "schemeIdBase",
     fields: {
@@ -92,23 +55,7 @@ var permissionsSchemeRecord={name: "permissionsScheme",
     }
 };
 
-var bulkJobRecord={name: "bulkJob",
-    fields: {
-        id: {type: 'integer', size:4},
-        name: {type: 'text', size:255},
-        status: {type: 'text', size: 1},
-        request: { type: 'object', size: 10000 },
-        log:{type:'text', size:10000}
-    }, features:{
-        cache   : false,
-        timestamp: true
-    }
-};
-
 var model={
-    bulkJob:bulkJobRecord,
-    sctId:sctIdRecord,
-    schemeId:schemeIdRecord,
     schemeIdBase:schemeIdBaseRecord,
     namespace:namespaceRecord,
     partitions:partitionRecord,
@@ -117,5 +64,4 @@ var model={
 };
 
 module.exports.mUse=mUse;
-module.exports.sctIdRecord=sctIdRecord;
 module.exports.model=model;

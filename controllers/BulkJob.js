@@ -83,7 +83,7 @@ module.exports.cleanUpExpiredIds=function cleanUpExpiredIds(req, res, next) {
                     }
                 });
             } else {
-                return next("No permission for the selected operation");
+                return next({message:"No permission for the selected operation",statusCode:400});
             }
         });
     });

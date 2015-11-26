@@ -2,47 +2,19 @@
  * Created by ar on 7/30/15.
  */
 
-var dbInit=require("../config/dbInit");
-//var schIdDM = require("./../blogic/SchemeIdDataManager");
 var job=require("../model/JobType");
-var db;
-var model;
-//var Sync = require('sync');
+var sctid=require("../model/sctid");
+var schemeid=require("../model/schemeid");
+var bulkJob=require("../model/job");
 
-function getModel(callback){
-    if (model){
-        //console.log("Model from cache.");
-        callback(null);
-    }else {
-        dbInit.getDB(function (err, pdb, podel1) {
-            if (err) {
-                callback(err);
-            }else {
-
-                db = pdb;
-                model = podel1;
-                //console.log("Model from dbinit.");
-                callback(null);
-            }
-        })
-    }
-}
-
-function saveJob(operation, type, callback){
-    getModel(function(err){
-        if (err){
-            callback(err,null);
+function saveJob(operation, type, callback) {
+    var obj = getNewBulkJobObject(operation, type);
+    bulkJob.create(obj, function (err, newJob) {
+        if (err) {
+            callback(err, null);
             return;
         }
-        var obj=getNewBulkJobObject(operation, type);
-        model.bulkJob.create(obj,function(err,newJob){
-            if (err){
-                callback(err,null);
-                return;
-            }
-            callback(null,newJob);
-
-        });
+        callback(null, newJob);
 
     });
 }
@@ -58,135 +30,67 @@ function getNewBulkJobObject(operation, type) {
 }
 
 function getJobs(callback) {
-    getModel(function (err) {
+
+    bulkJob.find(null, null, null, function (err, bulkJobRecords) {
         if (err) {
             callback(err, null);
             return;
-
         }
-
-        model.bulkJob.all(function (err, bulkJobRecords) {
-            if (err) {
-                callback(err, null);
-                return;
-            }
-            callback(null, bulkJobRecords);
-        });
+        callback(null, bulkJobRecords);
     });
 }
 
 function getJob(jobId, callback) {
-    getModel(function (err) {
+
+    bulkJob.findById({id: parseInt(jobId)}, function (err, bulkJobRecord) {
         if (err) {
             callback(err, null);
             return;
-
         }
-
-        model.bulkJob.get(parseInt(jobId), function (err, bulkJobRecord) {
-            if (err) {
-                callback(err, null);
-                return;
-            }
-            callback(null, bulkJobRecord);
-        });
+        callback(null, bulkJobRecord);
     });
 }
 
 function getJobRecords(jobId, callback) {
-    getModel(function (err) {
+
+    bulkJob.findById({id: parseInt(jobId)}, function (err, jobRecord) {
         if (err) {
             callback(err, null);
             return;
-
         }
-        model.bulkJob.get(jobId, function (err, jobRecord) {
-            if (err) {
-                callback(err, null);
-                return;
-            }
-            if (jobRecord) {
-                if (jobRecord.request.model == job.MODELS.SchemeId) {
-                    model.schemeId.find({jobId: parseInt(jobId)}, function (err, schemeIds) {
-                        if (err) {
-                            callback(err, null);
-                            return;
-                        }
-                        if (!schemeIds || schemeIds.length == 0) {
-
-                            callback(null, null);
-                            return;
-                        }
-                        callback(null, schemeIds);
+        if (jobRecord) {
+            jobRecord.request = JSON.parse(jobRecord.request);
+            if (jobRecord.request.model == job.MODELS.SchemeId) {
+                schemeid.find({jobId: parseInt(jobId)}, null, null, function (err, schemeIds) {
+                    if (err) {
+                        callback(err, null);
                         return;
-                    });
-                } else {
+                    }
+                    if (!schemeIds || schemeIds.length == 0) {
 
-                    model.sctId.find({jobId: parseInt(jobId)}, function (err, sctids) {
-                        if (err) {
-                            callback(err, null);
-                            return;
-                        }
-                        if (!sctids || sctids.length == 0) {
-
-                            callback(null, null);
-                            return;
-                        }
-                        callback(null, sctids);
+                        callback(null, null);
                         return;
-                    });
+                    }
+                    callback(null, schemeIds);
+                    return;
+                });
+            } else {
+                sctid.find({jobId: parseInt(jobId)}, null, null, function (err, sctids) {
+                    if (err) {
+                        callback(err, null);
+                        return;
+                    }
+                    if (!sctids || sctids.length == 0) {
 
-                }
-                //var cont=0;
-                //var error=false;
-                //for (var i=0;i<sctids.length;i++) {
-                //    sctids[i].additionalIds = [];
-                //    console.log("sctids[" + i + "].systemId:" + sctids[i].systemId);
-                //    var systemId=sctids[i].systemId;
-                //    if (error){
-                //        return;
-                //    }
-                //    schIdDM.getSchemeIdBySystemId("CTV3ID", systemId, function (err, schemeIdRecord) {
-                //        if (err) {
-                //            error=true;
-                //            callback("snomedid search :" + err, null);
-                //            return;
-                //        }
-                //        if (schemeIdRecord) {
-                //            sctids[i].additionalIds.push(schemeIdRecord);
-                //            var systemId2 = schemeIdRecord.systemId;
-                //            //console.log("cont i:" + i);
-                //            console.log(systemId2);
-                //            schIdDM.getSchemeIdBySystemId("SNOMEDID", systemId2, function (err, schemeIdRecord2) {
-                //                if (err) {
-                //                    error=true;
-                //                    callback(err, null);
-                //                    return;
-                //                }
-                //                if (schemeIdRecord2) {
-                //                    sctids[i].additionalIds.push(schemeIdRecord2);
-                //                }
-                //                cont++;
-                //                if (cont == sctids.length) {
-                //                    callback(null, sctids);
-                //                    return;
-                //
-                //                }
-                //            });
-                //        }else{
-                //
-                //            cont++;
-                //            if (cont == sctids.length) {
-                //                callback(null, sctids);
-                //                return;
-                //
-                //            }
-                //        }
-                //
-                //    });
-                //}
+                        callback(null, null);
+                        return;
+                    }
+                    callback(null, sctids);
+                    return;
+                });
+
             }
-        });
+        }
     });
 }
 

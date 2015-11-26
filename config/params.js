@@ -4,9 +4,10 @@
 
 var dbuser = "root";
 var dbpass = "root";
+var dbName="idservice";
+var host="localhost";
 
 process.argv.forEach(function (val, index, array) {
-    //console.log(index + ': ' + val);
     var parts = val.split("=");
     if (parts[0] == "dbuser") {
         dbuser = parts[1];
@@ -16,6 +17,10 @@ process.argv.forEach(function (val, index, array) {
 });
 
 var database={
+    host:host,
+    user:dbuser,
+    pass:dbpass,
+    dbname:dbName,
     connectionURL:"mysql://" + dbuser + ":" + dbpass + "@localhost/idservice"
 };
 module.exports.database=database;
