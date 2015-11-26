@@ -33,7 +33,7 @@ CREATE TABLE `bulkJob` (
   `modified_at` datetime DEFAULT NULL,
   `log` varchar(1000) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=415 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --

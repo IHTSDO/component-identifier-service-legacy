@@ -3,16 +3,15 @@
  */
 var dbInit=require("../config/dbInit");
 var stateMachine=require("../model/StateMachine");
-var db={};
+var schemeid=require("../model/schemeid");
 var model;
 var sets=require('simplesets');
 var Sync = require('sync');
-
 var fs = require('fs');
 var path=require('path');
 var schemes=[];
-// Bootstrap models
 var generators_path = __dirname + '/SchemeIdGenerator';
+
 fs.readdirSync(generators_path).forEach(function (file) {
     if (~file.indexOf('.js')) {
         var schemeName=path.basename(file, '.js');
@@ -22,7 +21,6 @@ fs.readdirSync(generators_path).forEach(function (file) {
 
 function getModel(callback) {
     if (model) {
-        //console.log("Model from cache.");
         callback(null);
     } else {
         dbInit.getDB(function (err, pdb, podel1) {
@@ -30,9 +28,7 @@ function getModel(callback) {
                 callback(err);
             } else {
 
-                db = pdb;
                 model = podel1;
-                //console.log("Model from dbinit.");
                 callback(null);
             }
         })
@@ -45,61 +41,53 @@ var throwErrMessage=function(msg){
     return err;
 };
 
-var getSchemeIds=function (scheme, schemeIdArray, callback){
+var getSchemeIds=function (scheme, schemeIdArray, callback) {
 
-    schemeIdArray.forEach(function(schemeId){
-        if (schemeId==null || schemeId==""){
-            callback(throwErrMessage("SchemeId is null."),null);
+    schemeIdArray.forEach(function (schemeId) {
+        if (schemeId == null || schemeId == "") {
+            callback(throwErrMessage("SchemeId is null."), null);
             return;
-        }else{
+        } else {
 
-            if (!schemes[scheme.toUpperCase()].validSchemeId(schemeId)){
+            if (!schemes[scheme.toUpperCase()].validSchemeId(schemeId)) {
 
-                callback(throwErrMessage("Not valid schemeId:" + schemeId),null);
+                callback(throwErrMessage("Not valid schemeId:" + schemeId), null);
                 return;
             }
         }
     });
-    var objQuery={scheme:scheme.toUpperCase(),schemeId: schemeIdArray};
-    getModel(function(err) {
+    var objQuery = {scheme: scheme.toUpperCase(), schemeId: schemeIdArray};
+    schemeid.findByIds(objQuery, function (err, schemeIdRecords) {
         if (err) {
             callback(err, null);
-        }else {
-            getSchemeIdRecords(objQuery, function (err, schemeIdRecords) {
-                if (err) {
-                    callback(err, null);
-                    return;
-                }
-                var resArray=[];
-                //if (schemeIdRecords ){
-                schemeIdRecords.forEach(function(schemeIdRecord){
-                    resArray.push(schemeIdRecord.schemeId);
-                });
-                var rA=new sets.StringSet(resArray);
-                var rQ=new sets.StringSet(schemeIdArray);
-                var diff=rQ.difference(rA).array();
-                if (diff && diff.length>0){
-                    var cont=0;
-                    diff.forEach(function(schemeId){
+            return;
+        }
+        var resArray = [];
+        schemeIdRecords.forEach(function (schemeIdRecord) {
+            resArray.push(schemeIdRecord.schemeId);
+        });
+        var rA = new sets.StringSet(resArray);
+        var rQ = new sets.StringSet(schemeIdArray);
+        var diff = rQ.difference(rA).array();
+        if (diff && diff.length > 0) {
+            var cont = 0;
+            diff.forEach(function (schemeId) {
 
-                        getFreeRecord(scheme,schemeId, null,function (err, record) {
-                            if (err) {
-                                callback(err, null);
-                            } else {
-                                cont++;
-                                schemeIdRecords.push(record);
-                                //console.log("getSchemeId record:" + JSON.stringify(record));
-                                if (cont==diff.length) {
-                                    callback(null, schemeIdRecords);
-                                    return;
-                                }
-                            }
-                        });
-                    });
-                }else {
-                    callback(null, schemeIdRecords);
-                }
+                getFreeRecord(scheme, schemeId, null, function (err, record) {
+                    if (err) {
+                        callback(err, null);
+                    } else {
+                        cont++;
+                        schemeIdRecords.push(record);
+                        if (cont == diff.length) {
+                            callback(null, schemeIdRecords);
+                            return;
+                        }
+                    }
+                });
             });
+        } else {
+            callback(null, schemeIdRecords);
         }
     });
 };
@@ -132,19 +120,13 @@ function getNewRecord(scheme, schemeId, systemId){
     return schemeIdRecord;
 }
 
-var getSchemeIdBySystemIds=function (scheme, systemIds, callback){
-    var objQuery={scheme:scheme.toUpperCase(), systemId:systemIds};
-    getModel(function(err) {
+var getSchemeIdBySystemIds=function (scheme, systemIds, callback) {
+    var objQuery = {scheme: scheme.toUpperCase(), systemId: systemIds};
+    schemeid.findBySystemIds(objQuery, function (err, schemeIdRecords) {
         if (err) {
             callback(err, null);
-        }else {
-            getSchemeIdRecords(objQuery, function (err, schemeIdRecords) {
-                if (err) {
-                    callback(err, null);
-                }
-                callback(null, schemeIdRecords);
-            });
         }
+        callback(null, schemeIdRecords);
     });
 };
 
@@ -152,24 +134,14 @@ var getSyncSchemeIdBySystemId=function (scheme, systemId, callback) {
     Sync(function () {
         var objQuery = {scheme: scheme.toUpperCase(), systemId: systemId};
         try {
-            getModel.sync(null);
-            var schemeIdRecord = getSchemeIdRecord.sync(null, objQuery);
-            if (!schemeIdRecord) {
+            var schemeIdRecord = schemeid.findBySystemId.sync(null, objQuery);
+            if (!schemeIdRecord || schemeIdRecord.length==0) {
                 callback(null, null);
             } else {
-                callback(null, schemeIdRecord);
+                callback(null, schemeIdRecord[0]);
             }
         } catch (e) {
             callback(e, null);
-        }
-    });
-};
-function getSchemeIdRecords(objQuery, callback){
-    model.schemeId.find(objQuery, function (err, schemeIds) {
-        if (err) {
-            callback(err,null);
-        }else {
-            callback(null, schemeIds);
         }
     });
 };
@@ -217,7 +189,7 @@ var registerSchemeIds=function ( operation, callback) {
                         cont = 0;
                         for (var j = 0; j < records.length; j++) {
 
-                            records[j].save(function (err) {
+                            schemeid.save(records[j],function (err) {
                                 if (err) {
                                     error = true;
                                     callback(err);
@@ -281,7 +253,7 @@ var updateSchemeIds=function ( operation, callback){
                         cont = 0;
                         for (var j = 0; j < records.length; j++) {
 
-                            records[j].save(function (err) {
+                            schemeid.save(records[j], function (err) {
                                 if (err) {
                                     error = true;
                                     callback(err);
@@ -315,8 +287,7 @@ var getSchemeId=function (scheme, schemeId, systemId, callback) {
             return;
         }
         var objQuery = {scheme: scheme, schemeId: schemeId};
-        getModel.sync(null);
-        var schemeIdRecord = getSchemeIdRecord.sync(null, objQuery);
+        var schemeIdRecord = schemeid.findById.sync(null, objQuery);
         if (!schemeIdRecord) {
             try {
                 var record = getFreeRecord.sync(null, scheme, schemeId, systemId);
@@ -336,7 +307,7 @@ var getSchemeId=function (scheme, schemeId, systemId, callback) {
 function insertSchemeIdRecord(newSchemeIdRecord, callback){
     Sync(function() {
         try {
-            var newSchemeIdRecord2 = model.schemeId.create.sync(null, newSchemeIdRecord);
+            var newSchemeIdRecord2 = schemeid.create.sync(null, newSchemeIdRecord);
             callback(null, newSchemeIdRecord2);
         }catch(e){
             callback(e,null);
@@ -360,7 +331,6 @@ var guid = (function() {
 function generateSchemeId( operation, thisScheme, callback){
     Sync(function() {
         try{
-            getModel.sync(null);
 
             var rec=setAvailableSchemeIdRecord2NewStatus.sync(null, operation, thisScheme);
             if (!rec) {
@@ -379,7 +349,7 @@ function setAvailableSchemeIdRecord2NewStatus(operation, thisScheme, callback){
         try {
             var query = {scheme: thisScheme.scheme.toUpperCase(), status: stateMachine.statuses.available};
 
-            var schemeIdRecords=model.schemeId.find.sync(null,query);
+            var schemeIdRecords=schemeid.find.sync(null,query,1,null);
             if (schemeIdRecords && schemeIdRecords.length > 0) {
 
                 var action = operation.action;
@@ -396,7 +366,7 @@ function setAvailableSchemeIdRecord2NewStatus(operation, thisScheme, callback){
                     schemeIdRecords[0].expirationDate = operation.expirationDate;
                     schemeIdRecords[0].comment = operation.comment;
                     schemeIdRecords[0].jobId = operation.jobId;
-                    schemeIdRecords[0].save.sync(null);
+                    schemeid.save.sync(null,schemeIdRecords[0]);
                     callback(null, true);
                 } else {
                     callback(null, false);
@@ -438,7 +408,7 @@ function setNewSchemeIdRecord(operation, thisScheme, callback) {
                 schemeIdRecord.expirationDate = operation.expirationDate;
                 schemeIdRecord.comment = operation.comment;
                 schemeIdRecord.jobId=operation.jobId;
-                schemeIdRecord.save.sync(null);
+                schemeid.save.sync(null, schemeIdRecord);
                 callback(null);
             } else {
                 setNewSchemeIdRecord.sync(null, operation, thisScheme);
@@ -465,16 +435,6 @@ function getScheme(key,callback) {
         }
     });
 };
-function getSchemeIdRecord(objQuery, callback){
-    Sync(function() {
-        var SchemeIds = model.schemeId.find.sync(null, objQuery);
-        if (SchemeIds.length > 0) {
-            callback(null, SchemeIds[0]);
-        } else {
-            callback(null, null);
-        }
-    });
-};
 
 var generateSchemeIds=function ( operation, callback) {
     getModel(function (err) {
@@ -482,10 +442,8 @@ var generateSchemeIds=function ( operation, callback) {
             console.log("error model:" + err);
             callback(err);
         } else {
-            //var schemeIdRecords = [];
             var cont = 0;
             var key = operation.scheme;
-            //console.log("key:" + JSON.stringify(key));
 
             getScheme(key, function (err, data) {
                 if (err) {
@@ -497,7 +455,6 @@ var generateSchemeIds=function ( operation, callback) {
                     var thisScheme = data;
                     Sync(function () {
                         var canContinue;
-                        console.log("getting scheme :" + JSON.stringify(thisScheme) + " for key:" + JSON.stringify(key));
                         for (var i = 0; i < operation.quantity; i++) {
                             canContinue = true;
                             try {
@@ -507,16 +464,13 @@ var generateSchemeIds=function ( operation, callback) {
                                     var schemeIdRecord = getSyncSchemeIdBySystemId.sync(null, thisScheme.scheme, operation.systemId);
                                     if (schemeIdRecord != null) {
                                         schemeIdRecord.jobId = operation.jobId;
-                                        schemeIdRecord.save.sync(null);
-                                        //console.log("generateSchemeIds  operation.systemId1:" + operation.systemId);
+                                        schemeid.save.sync(null, schemeIdRecord);
                                         canContinue = false;
 
                                     }
                                 }
                                 if (canContinue) {
-                                    //console.log("generateSchemeIds  operation.systemId2:" + operation.systemId);
                                     generateSchemeId.sync(null, operation, thisScheme);
-                                    //schemeIdRecords.push(schemeIdRecord);
                                 }
                                 cont++;
                                 if (operation.quantity == cont) {
@@ -524,13 +478,12 @@ var generateSchemeIds=function ( operation, callback) {
                                         if (err) {
                                             callback(err);
                                         } else {
-                                            //console.log("saving scheme :" + JSON.stringify(thisScheme) + " for key:" + JSON.stringify(key));
                                             callback(null);
                                         }
                                     });
                                 }
                             } catch (e) {
-                                //console.error("generateSchemeIds error:" + e); // something went wrong
+                                console.error("generateSchemeIds error:" + e); // something went wrong
                                 callback(e);
                             }
                         }
@@ -541,6 +494,7 @@ var generateSchemeIds=function ( operation, callback) {
         }
     });
 };
+
 module.exports.generateSchemeIds=generateSchemeIds;
 module.exports.registerSchemeIds=registerSchemeIds;
 module.exports.getSchemeIdBySystemIds=getSchemeIdBySystemIds;

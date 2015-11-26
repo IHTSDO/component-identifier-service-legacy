@@ -198,13 +198,14 @@ module.exports.generateSctid = function generateSctid (req, res, next) {
                             if (able){
                                 schemeIdDM.generateSchemeId("CTV3ID", generationData, function (err, ctv3IdRecord) {
                                     if (err) {
-
                                         return next(err.message);
                                     }
 
                                     sctIdRecordArray.push(ctv3IdRecord);
                                     isSchemeAbleUser("SNOMEDID", data.user.name, function(able){
+
                                         if (able){
+
                                             schemeIdDM.generateSchemeId("SNOMEDID", generationData, function (err, snomedIdRecord) {
                                                 if (err) {
 
@@ -294,7 +295,7 @@ module.exports.registerSctid = function registerSctid (req, res, next) {
         }
         var namespace = sctIdHelper.getNamespace(registrationData.sctid);
         if (namespace!=registrationData.namespace){
-            return next("Namespaces differences between sctid and parameter");
+            return next("Namespaces differences between sctId and parameter");
         }
         isAbleUser(namespace, data.user.name, function(able){
             if (able){
@@ -325,7 +326,7 @@ module.exports.deprecateSctid = function deprecateSctid (req, res, next) {
         var namespace = sctIdHelper.getNamespace(deprecationData.sctid);
 
         if (namespace!=deprecationData.namespace){
-            return next("Namespaces differences between sctid and parameter");
+            return next("Namespaces differences between sctId and parameter");
         }
         isAbleUser(namespace, data.user.name, function(able){
             if (able){
@@ -353,7 +354,7 @@ module.exports.releaseSctid = function releaseSctid (req, res, next) {
         var namespace = sctIdHelper.getNamespace(releaseData.sctid);
 
         if (namespace!=releaseData.namespace){
-            return next("Namespaces differences between sctid and parameter");
+            return next("Namespaces differences between sctId and parameter");
         }
         isAbleUser(namespace, data.user.name, function(able){
             if (able){
@@ -380,15 +381,12 @@ module.exports.publishSctid = function publishSctid (req, res, next) {
         }
         var namespace = sctIdHelper.getNamespace(publicationData.sctid);
 
-        if (namespace!=publicationData.namespace){
-            return next("Namespaces differences between sctid and parameter");
-        }
         isAbleUser(namespace, data.user.name, function(able){
             if (able){
                 publicationData.author=data.user.name;
                 idDM.publishSctid(publicationData,function(err,sctIdRecord){
                     if (err) {
-                        return next(err.message);
+                        return next({message:err.message, statusCode: 400});
                     }
                     res.setHeader('Content-Type', 'application/json');
                     res.end(JSON.stringify(sctIdRecord));
@@ -396,6 +394,9 @@ module.exports.publishSctid = function publishSctid (req, res, next) {
             }else
                 return next("No permission for the selected operation");
         });
+        if (namespace!=publicationData.namespace){
+            return next("Namespaces differences between sctId and parameter");
+        }
     });
 };
 var guid = (function() {

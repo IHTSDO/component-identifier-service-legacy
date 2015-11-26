@@ -2,41 +2,27 @@
  * Created by ar on 7/31/15.
  */
 
-
-var dbInit=require("../config/dbInit");
 var job=require("../model/JobType");
+var bulkJob=require("../model/job");
 var idDM = require("./../blogic/SCTIdBulkDataManager");
 var sIdDM = require("./../blogic/SchemeIdBulkDataManager");
 var stateMachine=require("../model/StateMachine");
-var db;
-var model;
-
-function getModel(){
-    if (!model){
-        dbInit.getDB(function (err, pdb, podel1) {
-            if (err) {
-                throw err;
-            }else {
-
-                db = pdb;
-                model = podel1;
-            }
-        })
-    }
-}
-
-getModel();
 
 var runner = function (){
-    model.bulkJob.find({status:"1"},function(err,records){
+
+    bulkJob.findFieldSelect({status:"1"},{id:1},1,null,null,function(err,records){
         if (records&& records.length>0){
-            console.log("running job.");
+            //console.log("running job.");
             return;
         }
-        model.bulkJob.find({status:0}, [ "created_at", "A" ],function(err,bulkJobRecords) {
+        bulkJob.findFieldSelect({status:"0"}, {id:1,name:1,request:1},1,null,{ "created_at": "A" },function(err,bulkJobRecords) {
             if (bulkJobRecords&& bulkJobRecords.length>0) {
+                var lightJob={
+                    id:bulkJobRecords[0].id,
+                    status:"1"
+                };
                 bulkJobRecords[0].status="1";
-                bulkJobRecords[0].save(function(err){
+                bulkJob.save(lightJob,function(err){
                     if (err){
                         console.log("Error-1 in back end service:" + err);
                         return;
@@ -53,22 +39,29 @@ var runner = function (){
 };
 
 function processJob(record){
-    var request=record.request;
+
+    var request=JSON.parse(record.request);
 
     if (!request || !request.type || request.type==null){
-        record.status="3";
-        record.log="Request property is null";
+        var lightJob={
+            id:record.id,
+            status:"3",
+            log:"Request property is null"
+        };
 
-        record.save(function(err){
+        bulkJob.save(lightJob,function(err){
             if (err){
                 console.log("Error-14 in back end service:" + err);
             }else{
-                console.log("Error: Can not process the job " + record.name + " - id:" + record.id + " -" + record.log);
+                console.log("Error: Can not process the job " + record.name + " - id:" + record.id + " -" + lightJob.log);
             }
         });
     }else {
         request.jobId = record.id;
 
+        var lightJob={
+            id:record.id
+        };
         if (request.type == job.JOBTYPE.generateSctids) {
             if (!request.systemIds || request.systemIds.length == 0) {
                 var arrayUuids = [];
@@ -78,18 +71,20 @@ function processJob(record){
                 request.systemIds = arrayUuids;
             }
             request.action = stateMachine.actions.generate;
+
             idDM.generateSctids(request, function (err) {
+
                 if (err) {
-                    record.status = "3";
+                    lightJob.status = "3";
                     if (typeof err == "object") {
-                        record.log = JSON.stringify(err);
+                        lightJob.log = JSON.stringify(err);
                     } else {
-                        record.log = err;
+                        lightJob.log = err;
                     }
                 } else {
-                    record.status = "2";
+                    lightJob.status = "2";
                 }
-                record.save(function (err) {
+                bulkJob.save(lightJob,function (err) {
                     if (err) {
                         console.log("Error-2 in back end service:" + err);
                         return;
@@ -101,17 +96,18 @@ function processJob(record){
         } else if (request.type == job.JOBTYPE.registerSctids) {
 
             idDM.registerSctids(request, function (err) {
+
                 if (err) {
-                    record.status = "3";
+                    lightJob.status = "3";
                     if (typeof err == "object") {
-                        record.log = JSON.stringify(err);
+                        lightJob.log = JSON.stringify(err);
                     } else {
-                        record.log = err;
+                        lightJob.log = err;
                     }
                 } else {
-                    record.status = "2";
+                    lightJob.status = "2";
                 }
-                record.save(function (err) {
+                bulkJob.save(lightJob,function (err) {
                     if (err) {
                         console.log("Error-3 in back end service:" + JSON.stringify(err));
                         return;
@@ -130,17 +126,18 @@ function processJob(record){
             }
             request.action = stateMachine.actions.reserve;
             idDM.generateSctids(request, function (err) {
+
                 if (err) {
-                    record.status = "3";
+                    lightJob.status = "3";
                     if (typeof err == "object") {
-                        record.log = JSON.stringify(err);
+                        lightJob.log = JSON.stringify(err);
                     } else {
-                        record.log = err;
+                        lightJob.log = err;
                     }
                 } else {
-                    record.status = "2";
+                    lightJob.status = "2";
                 }
-                record.save(function (err) {
+                bulkJob.save(lightJob,function (err) {
                     if (err) {
                         console.log("Error-4 in back end service:" + err);
                         return;
@@ -152,17 +149,18 @@ function processJob(record){
         } else if (request.type == job.JOBTYPE.deprecateSctids) {
             request.action = stateMachine.actions.deprecate;
             idDM.updateSctids(request, function (err) {
+
                 if (err) {
-                    record.status = "3";
+                    lightJob.status = "3";
                     if (typeof err == "object") {
-                        record.log = JSON.stringify(err);
+                        lightJob.log = JSON.stringify(err);
                     } else {
-                        record.log = err;
+                        lightJob.log = err;
                     }
                 } else {
-                    record.status = "2";
+                    lightJob.status = "2";
                 }
-                record.save(function (err) {
+                bulkJob.save(lightJob,function (err) {
                     if (err) {
                         console.log("Error-5 in back end service:" + err);
                         return;
@@ -175,16 +173,16 @@ function processJob(record){
             request.action = stateMachine.actions.release;
             idDM.updateSctids(request, function (err) {
                 if (err) {
-                    record.status = "3";
+                    lightJob.status = "3";
                     if (typeof err == "object") {
-                        record.log = JSON.stringify(err);
+                        lightJob.log = JSON.stringify(err);
                     } else {
-                        record.log = err;
+                        lightJob.log = err;
                     }
                 } else {
-                    record.status = "2";
+                    lightJob.status = "2";
                 }
-                record.save(function (err) {
+                bulkJob.save(lightJob,function (err) {
                     if (err) {
                         console.log("Error-6 in back end service:" + err);
                         return;
@@ -197,16 +195,16 @@ function processJob(record){
             request.action = stateMachine.actions.publish;
             idDM.updateSctids(request, function (err) {
                 if (err) {
-                    record.status = "3";
+                    lightJob.status = "3";
                     if (typeof err == "object") {
-                        record.log = JSON.stringify(err);
+                        lightJob.log = JSON.stringify(err);
                     } else {
-                        record.log = err;
+                        lightJob.log = err;
                     }
                 } else {
-                    record.status = "2";
+                    lightJob.status = "2";
                 }
-                record.save(function (err) {
+                bulkJob.save(lightJob,function (err) {
                     if (err) {
                         console.log("Error-7 in back end service:" + err);
                         return;
@@ -226,16 +224,16 @@ function processJob(record){
             request.action = stateMachine.actions.generate;
             sIdDM.generateSchemeIds(request, function (err) {
                 if (err) {
-                    record.status = "3";
+                    lightJob.status = "3";
                     if (typeof err == "object") {
-                        record.log = JSON.stringify(err);
+                        lightJob.log = JSON.stringify(err);
                     } else {
-                        record.log = err;
+                        lightJob.log = err;
                     }
                 } else {
-                    record.status = "2";
+                    lightJob.status = "2";
                 }
-                record.save(function (err) {
+                bulkJob.save(lightJob,function (err) {
                     if (err) {
                         console.log("Error-8 in back end service:" + err);
                         return;
@@ -248,16 +246,16 @@ function processJob(record){
 
             sIdDM.registerSchemeIds(request, function (err) {
                 if (err) {
-                    record.status = "3";
+                    lightJob.status = "3";
                     if (typeof err == "object") {
-                        record.log = JSON.stringify(err);
+                        lightJob.log = JSON.stringify(err);
                     } else {
-                        record.log = err;
+                        lightJob.log = err;
                     }
                 } else {
-                    record.status = "2";
+                    lightJob.status = "2";
                 }
-                record.save(function (err) {
+                bulkJob.save(lightJob,function (err) {
                     if (err) {
                         console.log("Error-9 in back end service:" + JSON.stringify(err));
                         return;
@@ -277,16 +275,16 @@ function processJob(record){
             request.action = stateMachine.actions.reserve;
             sIdDM.generateSchemeIds(request, function (err) {
                 if (err) {
-                    record.status = "3";
+                    lightJob.status = "3";
                     if (typeof err == "object") {
-                        record.log = JSON.stringify(err);
+                        lightJob.log = JSON.stringify(err);
                     } else {
-                        record.log = err;
+                        lightJob.log = err;
                     }
                 } else {
-                    record.status = "2";
+                    lightJob.status = "2";
                 }
-                record.save(function (err) {
+                bulkJob.save(lightJob,function (err) {
                     if (err) {
                         console.log("Error-10 in back end service:" + err);
                         return;
@@ -299,16 +297,16 @@ function processJob(record){
             request.action = stateMachine.actions.deprecate;
             sIdDM.updateSchemeIds(request, function (err) {
                 if (err) {
-                    record.status = "3";
+                    lightJob.status = "3";
                     if (typeof err == "object") {
-                        record.log = JSON.stringify(err);
+                        lightJob.log = JSON.stringify(err);
                     } else {
-                        record.log = err;
+                        lightJob.log = err;
                     }
                 } else {
-                    record.status = "2";
+                    lightJob.status = "2";
                 }
-                record.save(function (err) {
+                bulkJob.save(lightJob,function (err) {
                     if (err) {
                         console.log("Error-11 in back end service:" + err);
                         return;
@@ -321,16 +319,16 @@ function processJob(record){
             request.action = stateMachine.actions.release;
             sIdDM.updateSchemeIds(request, function (err) {
                 if (err) {
-                    record.status = "3";
+                    lightJob.status = "3";
                     if (typeof err == "object") {
-                        record.log = JSON.stringify(err);
+                        lightJob.log = JSON.stringify(err);
                     } else {
-                        record.log = err;
+                        lightJob.log = err;
                     }
                 } else {
-                    record.status = "2";
+                    lightJob.status = "2";
                 }
-                record.save(function (err) {
+                bulkJob.save(lightJob,function (err) {
                     if (err) {
                         console.log("Error-12 in back end service:" + err);
                         return;
@@ -343,16 +341,16 @@ function processJob(record){
             request.action = stateMachine.actions.publish;
             sIdDM.updateSchemeIds(request, function (err) {
                 if (err) {
-                    record.status = "3";
+                    lightJob.status = "3";
                     if (typeof err == "object") {
-                        record.log = JSON.stringify(err);
+                        lightJob.log = JSON.stringify(err);
                     } else {
-                        record.log = err;
+                        lightJob.log = err;
                     }
                 } else {
-                    record.status = "2";
+                    lightJob.status = "2";
                 }
-                record.save(function (err) {
+                bulkJob.save(lightJob,function (err) {
                     if (err) {
                         console.log("Error-13 in back end service:" + err);
                         return;
