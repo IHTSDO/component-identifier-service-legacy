@@ -1037,7 +1037,7 @@
                             $.get("../views/bulk/details.hbs").then(function(src){
                                 var template = Handlebars.compile(src);
                                 Handlebars.registerHelper("convertStatus", function(status) {
-                                    switch(status) {
+                                    switch(parseInt(status)) {
                                     case 0:
                                         return "Queued";
                                         break;
