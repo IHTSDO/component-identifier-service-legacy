@@ -1055,6 +1055,14 @@
                                 }
                             });
                             res.request = JSON.parse(res.request);
+                            if (res.request.systemIds) {
+                                res.request.batchSize = res.request.systemIds.length;
+                            } else if (res.request.schemeIds) {
+                                res.request.batchSize = res.request.schemeIds.length;
+                            } else if (res.request.sctids) {
+                                res.request.batchSize = res.request.sctids.length;
+                            }
+
                                 $("#jobs-bulk-details").html(template({job: res}));
                                 //records-details-bulk-job
                                 $("#records-get-button-bulk").unbind();
