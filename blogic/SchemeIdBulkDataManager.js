@@ -135,10 +135,10 @@ var getSyncSchemeIdBySystemId=function (scheme, systemId, callback) {
         var objQuery = {scheme: scheme.toUpperCase(), systemId: systemId};
         try {
             var schemeIdRecord = schemeid.findBySystemId.sync(null, objQuery);
-            if (!schemeIdRecord) {
+            if (!schemeIdRecord || schemeIdRecord.length==0) {
                 callback(null, null);
             } else {
-                callback(null, schemeIdRecord);
+                callback(null, schemeIdRecord[0]);
             }
         } catch (e) {
             callback(e, null);

@@ -122,12 +122,11 @@ var getSyncSctidBySystemId=function (namespaceId,systemId, callback) {
     Sync(function () {
         var objQuery = {namespace: namespaceId, systemId: systemId};
         try {
-            //getModel.sync(null);
             var sctIdRecord = sctid.findBySystemId.sync(null, objQuery);
-            if (!sctIdRecord) {
+            if (!sctIdRecord || sctIdRecord.length==0) {
                 callback(null, null);
             } else {
-                callback(null, sctIdRecord);
+                callback(null, sctIdRecord[0]);
             }
         } catch (e) {
             callback(e, null);

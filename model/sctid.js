@@ -160,7 +160,7 @@ sctid.save=function(sctIdRecord,callback){
                 }
             }
         }
-        if (supdate!="") {
+        if (supdate) {
             supdate = supdate.substr(2);
             connection.query("UPDATE sctId SET " + supdate + " ,modified_at=now() WHERE sctid=" + sctIdRecord.sctid, function (error, result) {
                 connection.release();
