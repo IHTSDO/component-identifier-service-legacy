@@ -1312,7 +1312,7 @@
         "/sct/bulk/ids": {
             "get": {
                 "x-swagger-router-controller": "SctidBulk",
-                "operationId": "getSctidsBody",
+                "operationId": "getSctids",
                 "tags": ["SCTIDS - Bulk Operations"],
                 "description": "Returns the required SCTID Records.",
                 "parameters": [
@@ -1351,7 +1351,7 @@
             },
             "post": {
                 "x-swagger-router-controller": "SctidBulk",
-                "operationId": "getSctids",
+                "operationId": "getSctidsBody",
                 "tags": ["SCTIDS - Bulk Operations"],
                 "description": "Returns the required SCTID Records.",
                 "parameters": [
