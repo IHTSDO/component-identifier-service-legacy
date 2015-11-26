@@ -1036,7 +1036,8 @@
                         $.get("/api/bulk/jobs/" + jobId + "?token=" + options.token).done(function(res){
                             $.get("../views/bulk/details.hbs").then(function(src){
                                 var template = Handlebars.compile(src);
-                                switch(status) {
+                                Handlebars.registerHelper("convertStatus", function(status) {
+                                    switch(status) {
                                     case 0:
                                         return "Queued";
                                         break;
@@ -1070,7 +1071,6 @@
                                         $.get("../views/bulk/records.hbs").then(function(src){
 //                                            console.log(records);
                                             var template = Handlebars.compile(src);
-                                            Handlebars.registerHelper("convertStatus", function(status) {
                                             if (!headLoaded)
                                                 $("#records-details-bulk-job").html(template({items: records, fields: fields, headLoaded: headLoaded}));
                                             else
