@@ -231,7 +231,7 @@ module.exports.registerSctids = function registerSctids (req, res, next) {
                     namespace = sctIdHelper.getNamespace(record.sctid);
                     if (namespace!=registrationData.namespace){
                         error=true;
-                        return next("Namespaces differences between sctid: " + record.sctid + " and parameter: " + registrationData.namespace);
+                        return next("Namespaces differences between schemeid: " + record.sctid + " and parameter: " + registrationData.namespace);
                     }
                 });
                 if (error) return;
@@ -307,7 +307,7 @@ module.exports.deprecateSctids = function deprecateSctids (req, res, next) {
                     namespace = sctIdHelper.getNamespace(sctid);
                     if (namespace!=deprecationData.namespace){
                         error=true;
-                        return next("Namespaces differences between sctid: " + sctid + " and parameter: " + deprecationData.namespace);
+                        return next("Namespaces differences between schemeid: " + sctid + " and parameter: " + deprecationData.namespace);
                     }
                 });
                 if (error) return;
@@ -349,7 +349,7 @@ module.exports.releaseSctids = function releaseSctids (req, res, next) {
                     namespace = sctIdHelper.getNamespace(sctid);
                     if (namespace!=releaseData.namespace){
                         error=true;
-                        return next("Namespaces differences between sctid: " + sctid + " and parameter: " + releaseData.namespace);
+                        return next("Namespaces differences between schemeid: " + sctid + " and parameter: " + releaseData.namespace);
                     }
                 });
                 if (error) return;
@@ -391,7 +391,7 @@ module.exports.publishSctids = function publishSctids (req, res, next) {
                     namespace = sctIdHelper.getNamespace(sctid);
                     if (namespace!=publicationData.namespace){
                         error=true;
-                        return next("Namespaces differences between sctid: " + sctid + " and parameter: " + publicationData.namespace);
+                        return next("Namespaces differences between schemeid: " + sctid + " and parameter: " + publicationData.namespace);
                     }
                 });
                 if (error) return;

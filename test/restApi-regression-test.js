@@ -8,9 +8,8 @@ var security = require("../blogic/Security");
 var request = require('supertest');
 var sctIdHelper=require("../utils/SctIdHelper");
 
-//request = request('http://localhost:3000/api');
 //var _host="localhost";
-var _host="162.243.20.236";
+var _host="107.170.138.113";
 var _port="3000";
 var _root="/api";
 var baseUrl = "http://" + _host + ":" + _port + _root;
@@ -218,6 +217,8 @@ var knownUuidMock = guid();
 var unknownUuidMock=guid();
 var newSysId;
 var deprecatedSystemId;
+var reservedSctid = "";
+var reservedSystemId = "";
 describe('SCTIDs', function(){
     it('should generate an SCTID with no additional ids (SingleSctId_01)', function(done){
         var generationData = {
@@ -311,7 +312,7 @@ describe('SCTIDs', function(){
                 done();
             });
     });
-    it('should retrieve a known sctid by systemId (SingleSctId_05)', function(done){
+    it('should retrieve a known schemeid by systemId (SingleSctId_05)', function(done){
         request(baseUrl)
             .get('/sct/namespaces/0/systemids/' + knownUuidMock + '?token=' + token)
             .set('Accept', 'application/json')
@@ -326,7 +327,7 @@ describe('SCTIDs', function(){
                 done();
             });
     });
-    it('should retrieve a known sctid without its legacy ids (SingleSctId_07)', function(done){
+    it('should retrieve a known schemeid without its legacy ids (SingleSctId_07)', function(done){
         request(baseUrl)
             .get('/sct/ids/' + sctIdWithAdditionalIds + '?token=' + token )
             .set('Accept', 'application/json')
@@ -342,7 +343,7 @@ describe('SCTIDs', function(){
             });
     });
 
-    it('should retrieve a known sctid and its legacy ids (SingleSctId_06)', function(done){
+    it('should retrieve a known schemeid and its legacy ids (SingleSctId_06)', function(done){
         request(baseUrl)
             .get('/sct/ids/' + sctIdWithAdditionalIds + '?token=' + token + '&includeAdditionalIds=true')
             .set('Accept', 'application/json')
@@ -400,8 +401,6 @@ describe('SCTIDs', function(){
     });
 
 
-    var reservedSctid = "";
-    var reservedSystemId = "";
     it('should reserve an SCTID (SingleSctId_10)', function(done){
         var reservationData = {
             "namespace": 0,
@@ -460,6 +459,7 @@ describe('SCTIDs', function(){
             .send(publicationData)
             .expect(200)
             .end(function(err, res) {
+                //console.log(res);
                 if (err) return done(err);
                 res.body.sctid.should.not.be.null();
                 res.body.status.should.be.eql("Published");
@@ -480,6 +480,7 @@ describe('SCTIDs', function(){
             .send(deprecationData)
             .expect(200)
             .end(function(err, res) {
+                //console.log(res);
                 if (err) return done(err);
                 res.body.sctid.should.not.be.null();
                 res.body.status.should.be.eql("Deprecated");
@@ -499,7 +500,10 @@ describe('SCTIDs', function(){
             .set('Accept', 'application/json')
             .set('Content-type', 'application/json')
             .send(publicationData)
-            .expect(400, done)
+            .expect(400)
+            .end(function(err, res) {
+                done();
+            });
     });
     it('should register a reserved SCTID with same systemId that was reserved', function(done){
         var registrationData = {
@@ -537,7 +541,10 @@ describe('SCTIDs', function(){
             .set('Accept', 'application/json')
             .set('Content-type', 'application/json')
             .send(registrationData)
-            .expect(400,done)
+            .expect(400)
+            .end(function(err, res) {
+                done();
+            });
 
     });
 
@@ -587,6 +594,7 @@ describe('SCTIDs', function(){
     });
 
     it('should publish a existing registered SCTID (SingleSctId_14)', function(done){
+
         var publicationData = {
             "sctid": reservedSctid,
             "namespace": 0,
@@ -600,6 +608,7 @@ describe('SCTIDs', function(){
             .send(publicationData)
             .expect(200)
             .end(function(err, res) {
+                //console.log(res);
                 if (err) return done(err);
                 res.body.sctid.should.not.be.null();
                 res.body.status.should.be.eql("Published");
@@ -666,6 +675,7 @@ describe('SCTID  BULK', function() {
                                 sctidArray.push(res.body[0].sctid);
                                 sctidArray.push(res.body[1].sctid);
                                 sysIds = res.body[0].systemId + "," + res.body[1].systemId;
+                                res=null;
                                 done();
                             });
                     } else {
@@ -695,6 +705,7 @@ describe('SCTID  BULK', function() {
                 res.body.should.not.be.null();
                 res.body.id.should.not.be.null();
                 jobId = res.body.id;
+                res=null;
                 init = new Date().getTime();
                 PostCode(function (err, job) {
                     if (err) {
@@ -704,17 +715,18 @@ describe('SCTID  BULK', function() {
                         var objJob = JSON.parse(job);
 
                         request(baseUrl)
-                            .get('/bulk/jobs/' + jobId + '/records/?token=' + token)
+                            .get('/bulk/jobs/' + jobId + '/records?token=' + token + "&=" + new Date().getTime())
                             .set('Accept', 'application/json')
+                            .set('Content-type', 'application/json')
                             .expect('Content-Type', /json/)
                             .expect(200)
-                            .end(function (err, res) {
+                            .end(function (err2, res2) {
                                 //console.log(res);
-                                if (err) return done(err);
+                                if (err2) return done(err2);
                                 objJob.status.should.be.eql("2");
-                                res.body.length.should.be.eql(2);
-                                res.body[0].jobId.should.be.eql(jobId);
-                                res.body[0].status.should.be.eql("Published");
+                                res2.body.length.should.be.eql(2);
+                                res2.body[0].jobId.should.be.eql(jobId);
+                                res2.body[0].status.should.be.eql("Published");
                                 done();
                             });
                     } else {
@@ -815,7 +827,7 @@ describe('SCTID  BULK', function() {
             "expirationDate": "2016-01-01",
             "quantity": 20,
             "software": "Mocha Supertest",
-            "comment": "Testing REST API"
+            "comment": "Testing reserve SCTID REST API"
         };
         request(baseUrl)
             .post('/sct/bulk/reserve/?token=' + token)
@@ -934,7 +946,7 @@ describe('SCTID  BULK', function() {
             "records": retArray,
             "namespace": 0,
             "software": "Mocha Supertest",
-            "comment": "Testing REST API"
+            "comment": "Testing fail register REST API"
         };
         request(baseUrl)
             .post('/sct/bulk/register/?token=' + token)
@@ -1011,6 +1023,7 @@ describe('SCTID  BULK', function() {
                             .expect('Content-Type', /json/)
                             .expect(200)
                             .end(function (err, res) {
+                                //console.log(res);
                                 if (err) return done(err);
                                 request(baseUrl)
                                     .get('/bulk/jobs/' + jobId + '/records?token=' + token)
@@ -1022,7 +1035,7 @@ describe('SCTID  BULK', function() {
                                         if (err) return done(err);
                                         res.body.length.should.be.eql(20);
                                         for (var i = 0; i < res.body.length; i++) {
-                                            //console.log(res.body[i].sctid);
+                                            //console.log(res.body[i].schemeid);
                                             res.body[i].jobId.should.be.eql(jobId);
                                             //console.log(res.body[i].status);
                                             res.body[i].status.should.be.eql("Available");

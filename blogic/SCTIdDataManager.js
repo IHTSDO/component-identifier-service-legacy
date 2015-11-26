@@ -3,14 +3,12 @@
  */
 var dbInit=require("../config/dbInit");
 var stateMachine=require("../model/StateMachine");
+var sctid=require("../model/sctid");
 var sctIdHelper=require("../utils/SctIdHelper");
-var db;
 var model;
-//var Sync = require('sync');
 
 function getModel(callback){
     if (model){
-        //console.log("Model from cache.");
         callback(null);
     }else {
         dbInit.getDB(function (err, pdb, podel1) {
@@ -18,9 +16,7 @@ function getModel(callback){
                 callback(err);
             }else {
 
-                db = pdb;
                 model = podel1;
-                //console.log("Model from dbinit.");
                 callback(null);
             }
         })
@@ -43,49 +39,37 @@ var getSctids = function (query, limit, skip, callback){
         skipTo = skip;
     if (query)
         objQuery = query;
-    getModel(function(err) {
+    sctid.find(objQuery,limitR,skipTo, function (err, sctids) {
         if (err) {
             callback(err, null);
-        }else {
-            model.sctId.find(objQuery).limit(parseInt(limitR)).offset(parseInt(skipTo)).run( function (err, sctids) {
-                if (err) {
-                    callback(err,null);
-                }else {
-                    callback(null, sctids);
-                }
-            });
+        } else {
+            callback(null, sctids);
         }
     });
 };
 
-var getSctid=function (sctid, callback){
-    if (!sctIdHelper.validSCTId(sctid)){
-        callback(throwErrMessage("Not valid SCTID."),null);
+var getSctid=function (sctId, callback) {
+    if (!sctIdHelper.validSCTId(sctId)) {
+        callback(throwErrMessage("Not valid SCTID."), null);
         return;
     }
-    var objQuery={sctid: sctid};
-    getModel(function(err) {
+    var objQuery = {sctid: sctId};
+
+    sctid.findById(objQuery, function (err, sctIdRecord) {
         if (err) {
             callback(err, null);
-        }else {
-            getSCTIDRecord(objQuery, function (err, sctIdRecord) {
-                if (err) {
-                    callback(err, null);
-                }else {
-                    if (!sctIdRecord) {
-                        getFreeRecord(sctid, function (err, record) {
-                            if (err) {
-                                callback(err, null);
-                            } else {
-                                //console.log("getSctId record:" + JSON.stringify(record));
-                                callback(null, record);
-                            }
-                        });
+        } else {
+            if (!sctIdRecord) {
+                getFreeRecord(sctId, function (err, record) {
+                    if (err) {
+                        callback(err, null);
                     } else {
-                        callback(null, sctIdRecord);
+                        callback(null, record);
                     }
-                }
-            });
+                });
+            } else {
+                callback(null, sctIdRecord);
+            }
         }
     });
 };
@@ -114,31 +98,16 @@ function getNewRecord(sctid){
     return sctIdRecord;
 }
 
-var getSctidBySystemId=function (namespaceId,systemId, callback){
-    var objQuery={namespace: namespaceId, systemId:systemId};
-    getModel(function(err) {
+var getSctidBySystemId=function (namespaceId,systemId, callback) {
+    var objQuery = {namespace: namespaceId, systemId: systemId};
+
+    sctid.findBySystemId(objQuery, function (err, sctIdRecords) {
         if (err) {
             callback(err, null);
-        }else {
-            getSCTIDRecord(objQuery, function (err, sctIdRecord) {
-                if (err) {
-                    callback(err, null);
-                }else {
-                    callback(null, sctIdRecord);
-                }
-            });
-        }
-    });
-};
+        } else {
 
-function getSCTIDRecord(objQuery, callback){
-    model.sctId.find(objQuery, function (err, sctids) {
-        if (err) {
-            callback(err,null);
-        }else {
-
-            if (sctids.length > 0) {
-                callback(null, sctids[0]);
+            if (sctIdRecords && sctIdRecords.length > 0) {
+                callback(null, sctIdRecords[0]);
             } else {
                 callback(null, null);
             }
@@ -146,32 +115,14 @@ function getSCTIDRecord(objQuery, callback){
     });
 };
 
-
 var generateSctid=function (operation, callback) {
-    getModel(function (err) {
-        if (err) {
-            callback(err, null);
-        } else {
-            if (!operation.autoSysId) {
-                getSctidBySystemId(operation.namespace, operation.systemId ,function(err,sctid){
-                    if (err){
-                        callback(err,null);
-                    }else if (sctid){
+    if (!operation.autoSysId) {
+        getSctidBySystemId(operation.namespace, operation.systemId, function (err, sctid) {
+            if (err) {
+                callback(err, null);
+            } else if (sctid) {
 
-                        callback(null,sctid);
-                    }else{
-                        setNewSCTIdRecord(operation, stateMachine.actions.generate, function (err, sctIdRecord) {
-
-                            if (err) {
-                                callback(err, null);
-                            } else {
-
-                                callback(null, sctIdRecord);
-                            }
-                        });
-
-                    }
-                });
+                callback(null, sctid);
             } else {
                 setNewSCTIdRecord(operation, stateMachine.actions.generate, function (err, sctIdRecord) {
 
@@ -182,24 +133,29 @@ var generateSctid=function (operation, callback) {
                         callback(null, sctIdRecord);
                     }
                 });
+
             }
-        }
-    });
+        });
+    } else {
+        setNewSCTIdRecord(operation, stateMachine.actions.generate, function (err, sctIdRecord) {
+
+            if (err) {
+                callback(err, null);
+            } else {
+
+                callback(null, sctIdRecord);
+            }
+        });
+    }
 };
 
-var reserveSctid=function (operation, callback){
-    getModel(function(err) {
+var reserveSctid=function (operation, callback) {
+
+    setNewSCTIdRecord(operation, stateMachine.actions.reserve, function (err, sctIdRecord) {
         if (err) {
             callback(err, null);
-
-        }else {
-            setNewSCTIdRecord(operation, stateMachine.actions.reserve, function (err, sctIdRecord) {
-                if (err) {
-                    callback(err, null);
-                }else {
-                    callback(null, sctIdRecord);
-                }
-            });
+        } else {
+            callback(null, sctIdRecord);
         }
     });
 };
@@ -380,7 +336,7 @@ function setNewSCTIdRecord(operation,action,callback) {
     setAvailableSCTIDRecord2NewStatus(operation, action, function(err,record) {
 
         if (err) {
-            callback(throwErrMessage("error getting available sctid:" + operation.partitionId.toString() + " for namespace:" + operation.namespace + ", err: " + JSON.stringify(err)), null);
+            callback(throwErrMessage("error getting available partitionId:" + operation.partitionId.toString() + " for namespace:" + operation.namespace + ", err: " + JSON.stringify(err)), null);
             return;
         } else if (record) {
             callback(null, record);
@@ -405,17 +361,13 @@ function counterMode(operation, action, callback){
         } else {
 
             var newSCTId = computeSCTID(operation, seq);
-            //console.log("newSCTId:" + newSCTId);
             getSctid(newSCTId, function (err, sctIdRecord) {
 
                 if (err) {
                     callback(err, null);
 
                 } else {
-                    //console.log("sctIdRecord2:" + JSON.stringify(sctIdRecord));
-
                     var newStatus = stateMachine.getNewStatus(sctIdRecord.status, action);
-                    //console.log("newStatus:" + newStatus);
                     if (newStatus) {
 
                         if (operation.systemId && operation.systemId.trim() != "") {
@@ -444,38 +396,42 @@ function counterMode(operation, action, callback){
         }
     });
 }
+
 function getNextNumber( operation, callback) {
-
-    var key = [parseInt(operation.namespace), operation.partitionId.toString()];
-    model.partitions.get(key, function (err, partition) {
-
+    getModel(function(err) {
         if (err) {
-            callback(throwErrMessage("error getting partition:" + operation.partitionId.toString() + " for namespace:" + operation.namespace + ", err: " + JSON.stringify(err)), null);
-            return;
-        }
-        partition.sequence++;
+            callback(err, null);
 
-        var nextNumber = partition.sequence;
-        partition.save(function (err) {
-            if (err) {
-                callback(err, null);
-            } else {
-                callback(null, nextNumber);
-            }
-        })
+        } else {
+            var key = [parseInt(operation.namespace), operation.partitionId.toString()];
+            model.partitions.get(key, function (err, partition) {
+
+                if (err) {
+                    callback(throwErrMessage("error getting partition:" + operation.partitionId.toString() + " for namespace:" + operation.namespace + ", err: " + JSON.stringify(err)), null);
+                    return;
+                }
+                partition.sequence++;
+
+                var nextNumber = partition.sequence;
+                partition.save(function (err) {
+                    if (err) {
+                        callback(err, null);
+                    } else {
+                        callback(null, nextNumber);
+                    }
+                })
+            });
+        }
     });
 };
 
-
 function setAvailableSCTIDRecord2NewStatus(operation, action, callback){
     var query={namespace: parseInt(operation.namespace), partitionId:operation.partitionId, status: stateMachine.statuses.available };
-
-    model.sctId.find(query ,function(err, sctIdRecords){
+    sctid.find(query ,1, null,function(err, sctIdRecords){
         if (err) {
             callback(err, null);
         }else if (sctIdRecords && sctIdRecords.length>0){
             var newStatus = stateMachine.getNewStatus(sctIdRecords[0].status, action);
-            //console.log("newStatus:" + newStatus);
             if (newStatus) {
 
                 if (operation.systemId && operation.systemId.trim() != "") {
@@ -505,27 +461,23 @@ function setAvailableSCTIDRecord2NewStatus(operation, action, callback){
     });
 }
 
-
-function updateSCTIDRecord(sctidRecord, callback){
-    model.sctId.get(sctidRecord.sctid ,function(err, sctIdRecord){
-
-        sctIdRecord.save(sctidRecord,function(err){
-            if (err){
-                callback(err,null);
-            }else{
-                callback(null,sctidRecord);
-            }
-        })
+function updateSCTIDRecord(sctidRecord, callback) {
+    sctid.save(sctidRecord,function (err,rec) {
+        if (err) {
+            callback(err, null);
+        } else {
+            callback(null, rec);
+        }
     });
 }
 
 function insertSCTIDRecord(newSctidRecord, callback){
 
-    model.sctId.create(newSctidRecord, function (err) {
+    sctid.create(newSctidRecord, function (err,rec) {
         if (err) {
             callback(err, null);
         } else {
-            callback(null, newSctidRecord);
+            callback(null, rec);
         }
     });
 }
@@ -543,23 +495,6 @@ function computeSCTID(operation,seq){
 
 }
 
-var removeSctId=function (query, callback){
-    getModel(function(err) {
-        if (err) {
-            callback(err, null);
-
-        } else {
-            model.sctId.find(query).remove(function (err) {
-                if (err) {
-                    callback(err, null);
-                } else {
-                    callback(null, null);
-                }
-            })
-        }
-    });
-};
-
 var guid = (function() {
     function s4() {
         return Math.floor((1 + Math.random()) * 0x10000)
@@ -571,7 +506,7 @@ var guid = (function() {
             s4() + '-' + s4() + s4() + s4();
     };
 })();
-module.exports.removeSctId=removeSctId;
+
 module.exports.publishSctid=publishSctid;
 module.exports.releaseSctid=releaseSctid;
 module.exports.deprecateSctid=deprecateSctid;

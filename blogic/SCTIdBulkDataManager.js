@@ -4,14 +4,13 @@
 var dbInit=require("../config/dbInit");
 var stateMachine=require("../model/StateMachine");
 var sctIdHelper=require("../utils/SctIdHelper");
-var db={};
 var model;
+var sctid=require("../model/sctid");
 var sets=require('simplesets');
 var Sync = require('sync');
 
 function getModel(callback) {
     if (model) {
-        //console.log("Model from cache.");
         callback(null);
     } else {
         dbInit.getDB(function (err, pdb, podel1) {
@@ -19,9 +18,7 @@ function getModel(callback) {
                 callback(err);
             } else {
 
-                db = pdb;
                 model = podel1;
-                //console.log("Model from dbinit.");
                 callback(null);
             }
         })
@@ -34,64 +31,57 @@ var throwErrMessage=function(msg){
     return err;
 };
 
-var getSctids=function (sctidArray, callback){
+var getSctids=function (sctidArray, callback) {
 
-    sctidArray.forEach(function(sctid){
+    sctidArray.forEach(function (sctId) {
 
-        if (!sctIdHelper.validSCTId(sctid)) {
-            callback(throwErrMessage("Not valid SCTID: " + sctid), null);
+        if (!sctIdHelper.validSCTId(sctId)) {
+            callback(throwErrMessage("Not valid SCTID: " + sctId), null);
             return;
         }
     });
-    var objQuery={sctid: sctidArray};
-    getModel(function(err) {
+    var objQuery = {sctid: sctidArray};
+    sctid.findByIds(objQuery, function (err, sctIdRecords) {
         if (err) {
             callback(err, null);
-        }else {
-            getSCTIDRecords(objQuery, function (err, sctIdRecords) {
-                if (err) {
-                    callback(err, null);
-                    return;
-                }
-                var resArray=[];
-                //if (sctIdRecords ){
-                sctIdRecords.forEach(function(sctIdRecord){
-                    resArray.push(sctIdRecord.sctid);
+            return;
+        }
+        var resArray = [];
+        sctIdRecords.forEach(function (sctIdRecord) {
+            resArray.push(sctIdRecord.sctid);
+        });
+        var rA = new sets.StringSet(resArray);
+        var rQ = new sets.StringSet(sctidArray);
+        var diff = rQ.difference(rA).array();
+
+        if (diff && diff.length > 0) {
+            var cont = 0;
+            diff.forEach(function (sctId) {
+
+                getFreeRecord(sctId, null, function (err, record) {
+                    if (err) {
+                        callback(err, null);
+                    } else {
+                        cont++;
+                        sctIdRecords.push(record);
+                        //console.log("getSctId record:" + JSON.stringify(record));
+                        if (cont == diff.length) {
+                            callback(null, sctIdRecords);
+                            return;
+                        }
+                    }
                 });
-                var rA=new sets.StringSet(resArray);
-                var rQ=new sets.StringSet(sctidArray);
-                var diff=rQ.difference(rA).array();
-
-                if (diff && diff.length>0){
-                    var cont=0;
-                    diff.forEach(function(sctid){
-
-                        getFreeRecord(sctid, null,function (err, record) {
-                            if (err) {
-                                callback(err, null);
-                            } else {
-                                cont++;
-                                sctIdRecords.push(record);
-                                //console.log("getSctId record:" + JSON.stringify(record));
-                                if (cont==diff.length) {
-                                    callback(null, sctIdRecords);
-                                    return;
-                                }
-                            }
-                        });
-                    });
-                }else {
-                    callback(null, sctIdRecords);
-                }
             });
+        } else {
+            callback(null, sctIdRecords);
         }
     });
 };
 
-function getFreeRecord(sctid, systemId, callback){
+function getFreeRecord(sctId, systemId, callback){
     Sync(function() {
         try {
-            var sctIdRecord = getNewRecord(sctid, systemId);
+            var sctIdRecord = getNewRecord(sctId, systemId);
             sctIdRecord.status = stateMachine.statuses.available;
             var newRecord = insertSCTIDRecord.sync(null, sctIdRecord);
 
@@ -101,13 +91,14 @@ function getFreeRecord(sctid, systemId, callback){
         }
     });
 }
-function getNewRecord(sctid, systemId){
+
+function getNewRecord(sctId, systemId){
     var sctIdRecord= {
-        sctid: sctid,
-        sequence: sctIdHelper.getSequence(sctid),
-        namespace: sctIdHelper.getNamespace(sctid),
-        partitionId: sctIdHelper.getPartition(sctid),
-        checkDigit: sctIdHelper.getCheckDigit(sctid)
+        sctid: sctId,
+        sequence: sctIdHelper.getSequence(sctId),
+        namespace: sctIdHelper.getNamespace(sctId),
+        partitionId: sctIdHelper.getPartition(sctId),
+        checkDigit: sctIdHelper.getCheckDigit(sctId)
     };
     if (systemId) {
         sctIdRecord.systemId = systemId;
@@ -117,19 +108,13 @@ function getNewRecord(sctid, systemId){
     return sctIdRecord;
 }
 
-var getSctidBySystemIds=function (namespaceId,systemIds, callback){
-    var objQuery={namespace: namespaceId, systemId:systemIds};
-    getModel(function(err) {
+var getSctidBySystemIds=function (namespaceId,systemIds, callback) {
+    var objQuery = {namespace: namespaceId, systemId: systemIds};
+    sctid.findBySystemIds(objQuery, function (err, sctIdRecords) {
         if (err) {
             callback(err, null);
-        }else {
-            getSCTIDRecords(objQuery, function (err, sctIdRecords) {
-                if (err) {
-                    callback(err, null);
-                }
-                callback(null, sctIdRecords);
-            });
         }
+        callback(null, sctIdRecords);
     });
 };
 
@@ -137,25 +122,14 @@ var getSyncSctidBySystemId=function (namespaceId,systemId, callback) {
     Sync(function () {
         var objQuery = {namespace: namespaceId, systemId: systemId};
         try {
-            getModel.sync(null);
-            var sctIdRecord = getSCTIDRecord.sync(null, objQuery);
-            if (!sctIdRecord) {
+            var sctIdRecord = sctid.findBySystemId.sync(null, objQuery);
+            if (!sctIdRecord || sctIdRecord.length==0) {
                 callback(null, null);
             } else {
-                callback(null, sctIdRecord);
+                callback(null, sctIdRecord[0]);
             }
         } catch (e) {
             callback(e, null);
-        }
-    });
-};
-
-function getSCTIDRecords(objQuery, callback){
-    model.sctId.find(objQuery, function (err, sctids) {
-        if (err) {
-            callback(err,null);
-        }else {
-            callback(null, sctids);
         }
     });
 };
@@ -167,17 +141,16 @@ var registerSctids=function (operation, callback) {
             var records = [];
             var error = false;
             for (var i = 0; i < operation.records.length; i++) {
-                var sctid = operation.records[i].sctid;
+                var sctId = operation.records[i].sctid;
                 var systemId = operation.records[i].systemId;
                 if (error) {
-                    console.log("error ");
                     break;
                 }
-                var sctIdRecord = getSctid.sync(null, sctid, systemId);
+                var sctIdRecord = getSctid.sync(null, sctId, systemId);
                 if (error) {
                     return;
                 }
-                    if (sctIdRecord.sctid == sctid && sctIdRecord.systemId != systemId) {
+                    if (sctIdRecord.sctid == sctId && sctIdRecord.systemId != systemId) {
                         sctIdRecord.systemId=systemId;
                     }
                     var newStatus;
@@ -201,7 +174,7 @@ var registerSctids=function (operation, callback) {
                             cont = 0;
                             for (var j = 0; j < records.length; j++) {
 
-                                records[j].save(function (err) {
+                                sctid.save(records[j], function (err) {
                                     if (err) {
                                         error = true;
                                         callback(err);
@@ -227,18 +200,18 @@ var registerSctids=function (operation, callback) {
             callback(e.message);
         }
     });
-
 };
+
 var updateSctids=function (operation, callback){
     var cont=0;
     var records=[];
     var error=false;
     for (var i=0;i<operation.sctids.length;i++) {
-        var sctid = operation.sctids[i];
+        var sctId = operation.sctids[i];
         if (error) {
             break;
         }
-        getSctid(sctid, null, function (err, sctIdRecord) {
+        getSctid(sctId, null, function (err, sctIdRecord) {
             if (error) {
                 return;
             }
@@ -263,7 +236,7 @@ var updateSctids=function (operation, callback){
                         cont = 0;
                         for (var j = 0; j < records.length; j++) {
 
-                            records[j].save(function (err) {
+                            sctid.save(records[j], function (err) {
                                 if (err) {
                                     error = true;
                                     callback(err);
@@ -289,19 +262,19 @@ var updateSctids=function (operation, callback){
     }
 };
 
-var getSctid=function (sctid, systemId, callback) {
+var getSctid=function (sctId, systemId, callback) {
     Sync(function () {
-        if (!sctIdHelper.validSCTId(sctid)) {
-            callback("Not valid SCTID:" + sctid, null);
+
+        if (!sctIdHelper.validSCTId(sctId)) {
+            callback("Not valid SCTID:" + sctId, null);
             return;
         }
-        var objQuery = {sctid: sctid};
-        getModel.sync(null);
-        var sctIdRecord = getSCTIDRecord.sync(null, objQuery);
+        var objQuery = {sctid: sctId};
+        var sctIdRecord = sctid.findById.sync(null, objQuery);
         if (!sctIdRecord) {
 
             try {
-                var record = getFreeRecord.sync(null, sctid, systemId);
+                var record = getFreeRecord.sync(null, sctId, systemId);
                 callback(null, record);
             } catch (e) {
                 callback(e, null);
@@ -316,7 +289,7 @@ var getSctid=function (sctid, systemId, callback) {
 function insertSCTIDRecord(newSctidRecord, callback){
     Sync(function() {
         try {
-            var newSctidRecord2 = model.sctId.create.sync(null, newSctidRecord);
+            var newSctidRecord2 = sctid.create.sync(null, newSctidRecord);
             callback(null, newSctidRecord2);
         }catch(e){
             callback(e,null);
@@ -353,10 +326,9 @@ var guid = (function() {
 function generateSctid(operation, thisPartition, callback){
     Sync(function() {
         try{
-            getModel.sync(null);
-
             var rec=setAvailableSCTIDRecord2NewStatus.sync(null, operation);
             if (!rec) {
+
                 setNewSCTIdRecord.sync(null, operation, thisPartition);
             }
             callback(null);
@@ -376,7 +348,8 @@ function setAvailableSCTIDRecord2NewStatus(operation, callback){
                 status: stateMachine.statuses.available
             };
 
-            var sctIdRecords = model.sctId.find.sync(null, query);
+            var sctIdRecords = sctid.find.sync(null, query,1,null);
+
             if (sctIdRecords && sctIdRecords.length > 0) {
 
                 var action = operation.action;
@@ -393,7 +366,7 @@ function setAvailableSCTIDRecord2NewStatus(operation, callback){
                     sctIdRecords[0].expirationDate = operation.expirationDate;
                     sctIdRecords[0].comment = operation.comment;
                     sctIdRecords[0].jobId = operation.jobId;
-                    sctIdRecords[0].save.sync(null);
+                    sctid.save.sync(null,sctIdRecords[0]);
                     callback(null,true);
                 } else {
                     callback(null,false);
@@ -434,7 +407,8 @@ function setNewSCTIdRecord(operation,thisPartition,callback) {
                 sctIdRecord.expirationDate = operation.expirationDate;
                 sctIdRecord.comment = operation.comment;
                 sctIdRecord.jobId=operation.jobId;
-                sctIdRecord.save.sync(null);
+                //sctIdRecord.save.sync(null);
+                sctid.save.sync(null,sctIdRecord);
                 callback(null);
             } else {
                 setNewSCTIdRecord.sync(null, operation, thisPartition);
@@ -461,16 +435,6 @@ function getPartition(key,callback) {
         }
     });
 };
-function getSCTIDRecord(objQuery, callback){
-    Sync(function() {
-        var sctids = model.sctId.find.sync(null, objQuery);
-        if (sctids && sctids.length > 0) {
-            callback(null, sctids[0]);
-        } else {
-            callback(null, null);
-        }
-    });
-};
 
 var generateSctids=function (operation, callback) {
     getModel(function (err) {
@@ -478,10 +442,8 @@ var generateSctids=function (operation, callback) {
             console.log("error model:" + err);
             callback(err);
         } else {
-            //var sctIdRecords = [];
             var cont = 0;
             var key = [parseInt(operation.namespace), operation.partitionId.toString()];
-            //console.log("key:" + JSON.stringify(key));
 
             getPartition(key, function (err, data) {
                 if (err) {
@@ -493,7 +455,6 @@ var generateSctids=function (operation, callback) {
                     var thisPartition = data;
                     Sync(function () {
                         var canContinue;
-                        console.log("getting partition :" + JSON.stringify(thisPartition) + " for key:" + JSON.stringify(key));
                         for (var i = 0; i < operation.quantity; i++) {
                             canContinue = true;
 
@@ -503,13 +464,12 @@ var generateSctids=function (operation, callback) {
                                     var sctIdRecord = getSyncSctidBySystemId.sync(null, operation.namespace, operation.systemId);
                                     if (sctIdRecord != null) {
                                         sctIdRecord.jobId = operation.jobId;
-                                        sctIdRecord.save.sync(null);
+                                        sctid.save.sync(null,sctIdRecord);
                                         canContinue = false;
                                     }
                                 }
                                 if (canContinue) {
                                     generateSctid.sync(null, operation, thisPartition);
-                                    //sctIdRecords.push(sctIdRecord);
                                 }
                                 cont++;
                                 if (operation.quantity == cont) {
@@ -517,7 +477,6 @@ var generateSctids=function (operation, callback) {
                                         if (err) {
                                             callback(err);
                                         } else {
-                                            console.log("saving partition :" + JSON.stringify(thisPartition) + " for key:" + JSON.stringify(key));
                                             callback(null);
                                         }
                                     });
@@ -533,6 +492,7 @@ var generateSctids=function (operation, callback) {
         }
     });
 };
+
 module.exports.generateSctids=generateSctids;
 module.exports.registerSctids=registerSctids;
 module.exports.getSctidBySystemIds=getSctidBySystemIds;

@@ -5,17 +5,15 @@
 
 var dbInit=require("../config/dbInit");
 var db;
-var model;
 
 function getModel(){
-    if (!model){
-        dbInit.getDB(function (err, pdb, podel1) {
+    if (!db){
+        dbInit.getDBForDirect(function (err, pdb) {
             if (err) {
                 throw err;
             }else {
 
                 db = pdb;
-                model = podel1;
             }
         })
     }
