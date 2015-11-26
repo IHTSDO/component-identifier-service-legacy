@@ -9,7 +9,7 @@ sctid.findById=function(query,callback){
     db.getDB(function (err,connection)
     {
         if (err) throw err;
-        var sql = "SELECT * FROM sctId WHERE sctid = " + connection.escape(query.sctid);
+        var sql = "SELECT * FROM sctId WHERE sctid = '" + query.sctid + "'";
         connection.query(sql, function(error, rows)
         {
             connection.release();
@@ -34,6 +34,7 @@ sctid.findByIds=function(query,callback){
     {
         if (err) throw err;
         var sql = "SELECT * FROM sctId WHERE sctid in (" + connection.escape(query.sctid) + ")" ;
+        console.log("sctid.findByIds sql:" + sql);
         connection.query(sql,  function(error, rows)
         {
             connection.release();
@@ -53,7 +54,7 @@ sctid.findBySystemId=function(query,callback){
     db.getDB(function (err,connection)
     {
         if (err) throw err;
-        var sql = "SELECT * FROM sctId WHERE systemId = " + connection.escape(query.systemId) + " and namespace=" + connection.escape(query.namespace) ;
+        var sql = "SELECT * FROM sctId WHERE systemId = " + connection.escape(query.systemId) + " and namespace=" + query.namespace ;
         connection.query(sql, function(error, rows)
         {
             connection.release();
@@ -78,7 +79,7 @@ sctid.findBySystemIds=function(query,callback){
     {
         if (err) throw err;
 
-        var sql = "SELECT * FROM sctId WHERE systemId in (" + connection.escape(query.systemId) + ") and namespace=" + connection.escape(query.namespace) ;
+        var sql = "SELECT * FROM sctId WHERE systemId in (" + connection.escape(query.systemId) + ") and namespace=" + query.namespace  ;
         connection.query(sql, function(error, rows)
         {
 
@@ -162,7 +163,7 @@ sctid.save=function(sctIdRecord,callback){
         }
         if (supdate) {
             supdate = supdate.substr(2);
-            connection.query("UPDATE sctId SET " + supdate + " ,modified_at=now() WHERE sctid=" + sctIdRecord.sctid, function (error, result) {
+            connection.query("UPDATE sctId SET " + supdate + " ,modified_at=now() WHERE sctid='" + sctIdRecord.sctid + "'", function (error, result) {
                 connection.release();
                 if (error) {
                     callback (error,null);
