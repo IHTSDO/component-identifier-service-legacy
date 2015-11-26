@@ -1328,7 +1328,7 @@
                         "in": "query",
                         "description": "The required sctids list, separated with commas (,).",
                         "required": true,
-                        "type": "string"
+                        "type": "#/definitions/SctidsList"
                     }
                 ],
                 "responses": {
@@ -3432,6 +3432,13 @@
                     "type": "string"
                 },
                 "email": {
+                    "type": "string"
+                }
+            }
+        },
+        "SctidsList" : {
+            "properties": {
+                "sctids": {
                     "type": "string"
                 }
             }
