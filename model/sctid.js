@@ -34,7 +34,6 @@ sctid.findByIds=function(query,callback){
     {
         if (err) throw err;
         var sql = "SELECT * FROM sctId WHERE sctid in (" + connection.escape(query.sctid) + ")" ;
-        console.log("sctid.findByIds sql:" + sql);
         connection.query(sql,  function(error, rows)
         {
             connection.release();
@@ -202,4 +201,39 @@ sctid.create=function(sctIdRecord,callback){
     });
 };
 
+sctid.count=function(query,callback){
+
+    db.getDB(function (err,connection)
+    {
+        if (err) throw err;
+        var swhere="";
+        for (var field in query) {
+            if (query.hasOwnProperty(field)) {
+
+                swhere += " And " + field + "=" + connection.escape(query[field]) ;
+            }
+        }
+        if (swhere!=""){
+            swhere = " WHERE " + swhere.substr(5);
+        }
+        var sql;
+        sql = "SELECT count(*) as count FROM sctId" + swhere ;
+        connection.query(sql, function(error, rows)
+        {
+            connection.release();
+            if(error)
+            {
+                callback(error, null);
+            }
+            else
+            {
+                if (rows && rows.length>0) {
+                    callback(null, rows[0].count);
+                }else{
+                    callback(null, 0);
+                }
+            }
+        });
+    });
+};
 module.exports=sctid;

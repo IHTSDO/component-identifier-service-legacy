@@ -3,6 +3,7 @@
  */
 
 var dbInit=require("../config/dbInit");
+var sctid=require("../model/sctid");
 var security = require("./../blogic/Security");
 
 module.exports.getStats = function getStats(username, callback){
@@ -48,7 +49,7 @@ module.exports.getStats = function getStats(username, callback){
                                 var total = namespaceResult.length, done = 0;
                                 if (total > 0){
                                     namespaceResult.forEach(function(namespaceR){
-                                        model.sctId.count({namespace: namespaceR.namespace}, function (err, namespaceCount){
+                                        sctid.count({namespace: namespaceR.namespace}, function (err, namespaceCount){
                                             if (err)
                                                 callback(err, null);
                                             else{
@@ -80,7 +81,7 @@ module.exports.getStats = function getStats(username, callback){
                                 var total = namespaceResult.length, done = 0;
                                 if (total > 0){
                                     namespaceResult.forEach(function(namespaceR){
-                                        model.sctId.count({namespace: namespaceR.namespace}, function (err, namespaceCount){
+                                        sctid.count({namespace: namespaceR.namespace}, function (err, namespaceCount){
                                             if (err)
                                                 callback(err, null);
                                             else{
