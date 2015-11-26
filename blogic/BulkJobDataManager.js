@@ -30,8 +30,7 @@ function getNewBulkJobObject(operation, type) {
 }
 
 function getJobs(callback) {
-
-    bulkJob.find(null, null, null, function (err, bulkJobRecords) {
+    bulkJob.findFieldSelect({}, {id:1,name:1,status:1, created_at:1,modified_at:1},100,null,{ "created_at": "D" },function (err, bulkJobRecords) {
         if (err) {
             callback(err, null);
             return;
