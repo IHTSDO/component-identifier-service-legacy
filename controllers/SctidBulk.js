@@ -80,6 +80,24 @@ module.exports.getSctids = function getSctids (req, res, next) {
     });
 };
 
+module.exports.getSctidsBody = function getSctids (req, res, next) {
+    var token = req.swagger.params.token.value;
+    var sctids = req.swagger.params.sctids.value.sctids;
+    var sctidsArray = sctids.replace(/ /g,"").split(",");
+    security.authenticate(token, function(err, data) {
+        if (err) {
+            return next({message: err.message, statusCode: 401});
+        }
+        idDM.getSctids(sctidsArray,function(err,records){
+            if (err){
+                return next(err.message);
+            }
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(records));
+        });
+    });
+};
+
 module.exports.getSctidBySystemIds = function getSctidBySystemIds (req, res, next) {
     var token = req.swagger.params.token.value;
     var systemIds = req.swagger.params.systemIds.value;
