@@ -21,6 +21,6 @@ var database={
     user:dbuser,
     pass:dbpass,
     dbname:dbName,
-    connectionURL:"mysql://" + dbuser + ":" + dbpass + "@localhost/idservice"
+    connectionURL:"mysql://" + dbuser + ":" + dbpass + "@" + host + "/" + dbName
 };
 module.exports.database=database;

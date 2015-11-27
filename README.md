@@ -15,11 +15,23 @@ Cd to the application location and execute the schema creation scripts:
 ```
 cd /opt/component-identifier-service
 npm install
-node config/createSchema.js dbuser=your_db_user dbpass=your_db_pass
-node config/initializeIdSchemes.js dbuser=your_db_user dbpass=your_db_pass // Optional, only if Additional ids will be used
 ```
 
-Start the Service:
+Execute the MySQL Schema generator script to create all the necessary tables and indexes:
+
+config/db_script.sql
+
+Update the host reference in the swagger API definition:
+api/swagger-ids.json
+```
+...
+"host": "localhost:3000",
+...
+```
+
+Update /config/params.js to provide the necesary information for the database connection. Username and password will be passed on the command line on the next step, so there is no requirement to have them hard coded in this file.
+
+Start the Service providing the database information:
 
 `node app.js dbuser=your_db_user dbpass=your_db_pass  &`
 
