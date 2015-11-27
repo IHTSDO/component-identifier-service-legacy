@@ -31,6 +31,12 @@ api/swagger-ids.json
 
 Update /config/params.js to provide the necesary information for the database connection. Username and password will be passed on the command line on the next step, so there is no requirement to have them hard coded in this file.
 
+Setup Crowd credentials for the application in system variables with the following variable names:
+
+- Crowd URL: crowd_url
+- Crowd Application Name: app_name
+- Crowd Application Password: app_password
+
 Start the Service providing the database information:
 
 `node app.js dbuser=your_db_user dbpass=your_db_pass  &`
