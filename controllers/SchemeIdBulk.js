@@ -8,6 +8,7 @@ var idDM=require("./../blogic/SchemeIdBulkDataManager");
 var bulkDM=require("./../blogic/BulkJobDataManager");
 var job=require("../model/JobType");
 var namespace = require("./../blogic/NamespaceDataManager");
+var scheme = require("./../blogic/SchemeDataManager");
 
 function isAbleUser(schemeName, user, callback){
     var able = false;
