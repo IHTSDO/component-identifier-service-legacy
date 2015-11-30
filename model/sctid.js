@@ -96,6 +96,30 @@ sctid.findBySystemIds=function(query,callback){
     });
 };
 
+sctid.findByJobId=function(query,callback){
+
+    db.getDB(function (err,connection)
+    {
+        if (err) throw err;
+
+        var sql = "SELECT * FROM sctId WHERE jobId = " + connection.escape(query.jobId) + " UNION SELECT * FROM sctId_log WHERE jobId =  " + connection.escape(query.jobId);
+        connection.query(sql, function(error, rows)
+        {
+
+            connection.release();
+            if(error)
+            {
+                callback(error, null);
+            }
+            else
+            {
+
+                callback(null, rows);
+            }
+        });
+    });
+};
+
 sctid.find=function(query, limit, skip, callback){
     db.getDB(function (err,connection)
     {

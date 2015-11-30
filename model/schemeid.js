@@ -96,6 +96,30 @@ schemeid.findBySystemIds=function(query,callback){
     });
 };
 
+schemeid.findByJobId=function(query,callback){
+
+    db.getDB(function (err,connection)
+    {
+        if (err) throw err;
+
+        var sql = "SELECT * FROM schemeId WHERE jobId = " + connection.escape(query.jobId) + " UNION SELECT * FROM schemeId_log WHERE jobId =  " + connection.escape(query.jobId);
+        connection.query(sql, function(error, rows)
+        {
+
+            connection.release();
+            if(error)
+            {
+                callback(error, null);
+            }
+            else
+            {
+
+                callback(null, rows);
+            }
+        });
+    });
+};
+
 schemeid.find=function(query, limit, skip, callback){
     db.getDB(function (err,connection)
     {
