@@ -72,7 +72,8 @@ CREATE TABLE `sctId_log` (
   `comment` varchar(255) DEFAULT NULL,
   `jobId` int(11) DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
-  `modified_at` datetime DEFAULT NULL
+  `modified_at` datetime DEFAULT NULL,
+  KEY `job_sctId_log` (`jobId`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -371,7 +372,8 @@ CREATE TABLE `schemeId_log` (
   `comment` varchar(255) DEFAULT NULL,
   `jobId` int(11) DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
-  `modified_at` datetime DEFAULT NULL
+  `modified_at` datetime DEFAULT NULL,
+  KEY `job_sctId_log` (`jobId`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
