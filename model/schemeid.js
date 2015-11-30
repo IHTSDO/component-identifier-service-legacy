@@ -115,7 +115,7 @@ schemeid.findByJobId=function(query,callback){
             {
                 var cleanRows = [];
                 var ids = [];
-                rows.each(function(row) {
+                rows.forEach(function(row) {
                     if (ids.indexOf(row.systemId) == -1) {
                         cleanRows.push(row);
                         ids.push(row.systemId);
