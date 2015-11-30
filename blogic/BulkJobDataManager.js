@@ -60,7 +60,7 @@ function getJobRecords(jobId, callback) {
         if (jobRecord) {
             jobRecord.request = JSON.parse(jobRecord.request);
             if (jobRecord.request.model == job.MODELS.SchemeId) {
-                schemeid.findByJobId({jobId: parseInt(jobId)}, null, null, function (err, schemeIds) {
+                schemeid.findByJobId({jobId: parseInt(jobId)}, function (err, schemeIds) {
                     if (err) {
                         callback(err, null);
                         return;
@@ -74,7 +74,7 @@ function getJobRecords(jobId, callback) {
                     return;
                 });
             } else {
-                sctid.findByJobId({jobId: parseInt(jobId)}, null, null, function (err, sctids) {
+                sctid.findByJobId({jobId: parseInt(jobId)}, function (err, sctids) {
                     if (err) {
                         callback(err, null);
                         return;
