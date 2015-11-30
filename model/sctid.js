@@ -113,8 +113,15 @@ sctid.findByJobId=function(query,callback){
             }
             else
             {
-
-                callback(null, rows);
+                var cleanRows = [];
+                var ids = [];
+                rows.each(function(row) {
+                    if (ids.indexOf(row.systemId) == -1) {
+                        cleanRows.push(row);
+                        ids.push(row.systemId);
+                    }
+                });
+                callback(null, cleanRows);
             }
         });
     });
