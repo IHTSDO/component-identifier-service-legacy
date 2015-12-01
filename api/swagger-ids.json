@@ -1314,7 +1314,7 @@
                 "x-swagger-router-controller": "SctidBulk",
                 "operationId": "getSctids",
                 "tags": ["SCTIDS - Bulk Operations"],
-                "description": "Returns the required SCTID Records.",
+                "description": "Returns the required SCTID Records. Bulk SCTID operations do not currently include AdditionalIds",
                 "parameters": [
                     {
                         "name": "token",
@@ -1353,7 +1353,7 @@
                 "x-swagger-router-controller": "SctidBulk",
                 "operationId": "getSctidsBody",
                 "tags": ["SCTIDS - Bulk Operations"],
-                "description": "Returns the required SCTID Records.",
+                "description": "Returns the required SCTID Records. Bulk SCTID operations do not currently include AdditionalIds",
                 "parameters": [
                     {
                         "name": "token",
