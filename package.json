@@ -19,7 +19,7 @@
     "swagger-tools": "^0.9.0",
     "sync": "^0.2.5",
     "weather-js": "^1.0.2",
-    "fibers": "^1.0.7"
+    "fibers": "1.0.7"
     
   },
   "devDependencies": {
