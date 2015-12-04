@@ -8,7 +8,7 @@ This application requires a MySQL database running on localhost. A new Database 
 
 Clone this project with:
 
-`$ clone https://github.com/termMed/component-identifier-service.git . `
+`$ clone https://github.com:IHTSDO/component-identifier-service.git . `
 
 Cd to the application location and execute the schema creation scripts:
 
