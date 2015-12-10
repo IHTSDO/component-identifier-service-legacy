@@ -215,11 +215,13 @@ module.exports.generateSctid = function generateSctid (req, res, next) {
                                                 sctIdRecordArray.push(snomedIdRecord);
 
                                                 sctIdRecord.additionalIds = sctIdRecordArray;
+                                                console.log("[" + new Date() + "] End single method called: generateSctid, params: " + JSON.stringify(generationData) );
                                                 res.setHeader('Content-Type', 'application/json');
                                                 res.end(JSON.stringify(sctIdRecord));
                                             });
                                         }else{
                                             sctIdRecord.additionalIds = sctIdRecordArray;
+                                            console.log("[" + new Date() + "] End single method called: generateSctid, params: " + JSON.stringify(generationData) );
                                             res.setHeader('Content-Type', 'application/json');
                                             res.end(JSON.stringify(sctIdRecord));
                                         }
@@ -237,10 +239,12 @@ module.exports.generateSctid = function generateSctid (req, res, next) {
                                             sctIdRecordArray.push(snomedIdRecord);
 
                                             sctIdRecord.additionalIds = sctIdRecordArray;
+                                            console.log("[" + new Date() + "] End single method called: generateSctid, params: " + JSON.stringify(generationData) );
                                             res.setHeader('Content-Type', 'application/json');
                                             res.end(JSON.stringify(sctIdRecord));
                                         });
                                     }else{
+                                        console.log("[" + new Date() + "] End single method called: generateSctid, params: " + JSON.stringify(generationData) );
                                         res.setHeader('Content-Type', 'application/json');
                                         res.end(JSON.stringify(sctIdRecord));
                                     }
@@ -249,6 +253,7 @@ module.exports.generateSctid = function generateSctid (req, res, next) {
                         });
                     }else {
                         sctIdRecord.additionalIds=sctIdRecordArray;
+                        console.log("[" + new Date() + "] End single method called: generateSctid, params: " + JSON.stringify(generationData) );
                         res.setHeader('Content-Type', 'application/json');
                         res.end(JSON.stringify(sctIdRecord));
                     }
@@ -277,6 +282,7 @@ module.exports.reserveSctid = function reserveSctid (req, res, next) {
                     if (err) {
                         return next(err.message);
                     }
+                    console.log("[" + new Date() + "] End single method called: reserveSctid, params: " + JSON.stringify(reservationData) );
                     res.setHeader('Content-Type', 'application/json');
                     res.end(JSON.stringify(sctIdRecord));
                 });
@@ -307,6 +313,7 @@ module.exports.registerSctid = function registerSctid (req, res, next) {
                     if (err) {
                         return next(err.message);
                     }
+                    console.log("[" + new Date() + "] End single method called: registerSctid, params: " + JSON.stringify(registrationData) );
                     res.setHeader('Content-Type', 'application/json');
                     res.end(JSON.stringify(sctIdRecord));
                 });
@@ -335,6 +342,7 @@ module.exports.deprecateSctid = function deprecateSctid (req, res, next) {
                     if (err) {
                         return next(err.message);
                     }
+                    console.log("[" + new Date() + "] End single method called: deprecateSctid, params: " + JSON.stringify(deprecationData) );
                     res.setHeader('Content-Type', 'application/json');
                     res.end(JSON.stringify(sctIdRecord));
                 });
@@ -363,6 +371,7 @@ module.exports.releaseSctid = function releaseSctid (req, res, next) {
                     if (err) {
                         return next(err.message);
                     }
+                    console.log("[" + new Date() + "] End single method called: releaseSctid, params: " + JSON.stringify(releaseData) );
                     res.setHeader('Content-Type', 'application/json');
                     res.end(JSON.stringify(sctIdRecord));
                 });
@@ -388,6 +397,7 @@ module.exports.publishSctid = function publishSctid (req, res, next) {
                     if (err) {
                         return next({message:err.message, statusCode: 400});
                     }
+                    console.log("[" + new Date() + "] End single method called: publishSctid, params: " + JSON.stringify(publicationData) );
                     res.setHeader('Content-Type', 'application/json');
                     res.end(JSON.stringify(sctIdRecord));
                 });
