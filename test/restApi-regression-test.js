@@ -9,14 +9,13 @@ var request = require('supertest');
 var sctIdHelper=require("../utils/SctIdHelper");
 
 //var _host="localhost";
-var _host="107.170.138.113";
+var _host="107.170.101.181"; //DEV SERVER
 var _port="3000";
 var _root="/api";
 var baseUrl = "http://" + _host + ":" + _port + _root;
 
 var username = process.env.test_username;
 var password = process.env.test_password;
-
 var token = "";
 
 var guid = (function() {
@@ -181,33 +180,33 @@ describe('Login API', function(){
                 done()
             });
     });
-    it('should fail with a wrong username (Auth_02)', function(done){
-        request(baseUrl)
-            .post('/login')
-            .field('username', 'wrongusername')
-            .field('password', password)
-            .expect(401, done);
-    });
-    it('should fail with a wrong password (Auth_03)', function(done){
-        request(baseUrl)
-            .post('/login')
-            .field('username', username)
-            .field('password', 'wrongpassword')
-            .expect(401, done);
-    });
-    it('should list users', function(done){
-        request(baseUrl)
-            .get('/users?token=' + token)
-            .set('Accept', 'application/json')
-            .expect('Content-Type', /json/)
-            .expect(200)
-            .end(function(err, res) {
-                if (err) return done(err);
-                res.body.should.be.an.Array();
-                res.body.should.containEql("rdavidson");
-                done();
-            });
-    });
+    //it('should fail with a wrong username (Auth_02)', function(done){
+    //    request(baseUrl)
+    //        .post('/login')
+    //        .field('username', 'wrongusername')
+    //        .field('password', password)
+    //        .expect(401, done);
+    //});
+    //it('should fail with a wrong password (Auth_03)', function(done){
+    //    request(baseUrl)
+    //        .post('/login')
+    //        .field('username', username)
+    //        .field('password', 'wrongpassword')
+    //        .expect(401, done);
+    //});
+    //it('should list users', function(done){
+    //    request(baseUrl)
+    //        .get('/users?token=' + token)
+    //        .set('Accept', 'application/json')
+    //        .expect('Content-Type', /json/)
+    //        .expect(200)
+    //        .end(function(err, res) {
+    //            if (err) return done(err);
+    //            res.body.should.be.an.Array();
+    //            res.body.should.containEql("rdavidson");
+    //            done();
+    //        });
+    //});
 });
 
 var firstSctid = "";
@@ -1411,9 +1410,8 @@ describe('SchemeIds', function(){
 
     it('should fail to register a reserved CTV3ID with other existing systemId ', function(done){
         var registrationData = {
-            "sctid": reservedCtv3Id,
+            "schemeId": reservedCtv3Id,
             "systemId": ctv3Uuid,
-            "namespace": 0,
             "software": "Mocha Supertest",
             "comment": "Testing REST API"
         };
@@ -1429,9 +1427,8 @@ describe('SchemeIds', function(){
 
     it('should fail to register a reserved SNOMEDID with other existing systemId ', function(done){
         var registrationData = {
-            "sctid": reservedSnomedId,
+            "schemeId": reservedSnomedId,
             "systemId": snomedIDUuid,
-            "namespace": 0,
             "software": "Mocha Supertest",
             "comment": "Testing REST API"
         };

@@ -221,6 +221,7 @@ function registerNewSctId(operation, callback){
                 sctIdRecord.software = operation.software;
                 sctIdRecord.expirationDate = operation.expirationDate;
                 sctIdRecord.comment = operation.comment;
+                sctIdRecord.jobId= null;
                 updateSCTIDRecord(sctIdRecord, function (err, updatedRecord) {
 
                     if (err) {
@@ -253,6 +254,7 @@ var deprecateSctid=function (operation, callback){
                 sctIdRecord.author = operation.author;
                 sctIdRecord.software = operation.software;
                 sctIdRecord.comment = operation.comment;
+                sctIdRecord.jobId= null;
                 updateSCTIDRecord(sctIdRecord, function (err, updatedRecord) {
 
                     if (err) {
@@ -284,6 +286,7 @@ var releaseSctid=function (operation, callback){
                 sctIdRecord.author = operation.author;
                 sctIdRecord.software = operation.software;
                 sctIdRecord.comment = operation.comment;
+                sctIdRecord.jobId= null;
                 updateSCTIDRecord(sctIdRecord, function (err, updatedRecord) {
 
                     if (err) {
@@ -315,6 +318,8 @@ var publishSctid=function (operation, callback){
                 sctIdRecord.author = operation.author;
                 sctIdRecord.software = operation.software;
                 sctIdRecord.comment = operation.comment;
+                sctIdRecord.jobId = null;
+
                 updateSCTIDRecord(sctIdRecord, function (err, updatedRecord) {
 
                     if (err) {
@@ -379,6 +384,8 @@ function counterMode(operation, action, callback){
                         sctIdRecord.expirationDate = operation.expirationDate;
                         sctIdRecord.comment = operation.comment;
 
+                        sctIdRecord.jobId = null;
+
                         updateSCTIDRecord(sctIdRecord, function (err, updatedRecord) {
 
                             if (err) {
@@ -442,7 +449,7 @@ function setAvailableSCTIDRecord2NewStatus(operation, action, callback){
                 sctIdRecords[0].software = operation.software;
                 sctIdRecords[0].expirationDate = operation.expirationDate;
                 sctIdRecords[0].comment = operation.comment;
-
+                sctIdRecords[0].jobId = null;
                 updateSCTIDRecord(sctIdRecords[0], function (err, updatedRecord) {
 
                     if (err) {
