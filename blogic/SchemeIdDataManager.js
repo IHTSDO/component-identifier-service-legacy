@@ -189,6 +189,7 @@ function registerNewSchemeId(scheme, operation, callback){
                 schemeIdRecord.software = operation.software;
                 schemeIdRecord.expirationDate = operation.expirationDate;
                 schemeIdRecord.comment = operation.comment;
+                schemeIdRecord.jobId = null;
                 updateSchemeIdRecord(schemeIdRecord, function (err, updatedRecord) {
 
                     if (err) {
@@ -266,6 +267,7 @@ var deprecateSchemeId=function (scheme, operation, callback){
                 schemeIdRecord.author = operation.author;
                 schemeIdRecord.software = operation.software;
                 schemeIdRecord.comment = operation.comment;
+                schemeIdRecord.jobId = null;
                 updateSchemeIdRecord(schemeIdRecord, function (err, updatedRecord) {
 
                     if (err) {
@@ -296,6 +298,7 @@ var releaseSchemeId=function (scheme, operation, callback){
                 schemeIdRecord.author = operation.author;
                 schemeIdRecord.software = operation.software;
                 schemeIdRecord.comment = operation.comment;
+                schemeIdRecord.jobId = null;
                 updateSchemeIdRecord(schemeIdRecord, function (err, updatedRecord) {
 
                     if (err) {
@@ -326,6 +329,7 @@ var publishSchemeId=function (scheme, operation, callback){
                 schemeIdRecord.author = operation.author;
                 schemeIdRecord.software = operation.software;
                 schemeIdRecord.comment = operation.comment;
+                schemeIdRecord.jobId = null;
                 updateSchemeIdRecord(schemeIdRecord, function (err, updatedRecord) {
 
                     if (err) {
@@ -386,6 +390,7 @@ function counterMode(scheme, operation, action, callback){
                         schemeIdRecord.software = operation.software;
                         schemeIdRecord.expirationDate = operation.expirationDate;
                         schemeIdRecord.comment = operation.comment;
+                        schemeIdRecord.jobId = null;
 
                         updateSchemeIdRecord(schemeIdRecord, function (err, updatedRecord) {
 
@@ -423,6 +428,7 @@ function setAvailableSchemeIdRecord2NewStatus(scheme, operation, action, callbac
                 schemeIdRecords[0].software = operation.software;
                 schemeIdRecords[0].expirationDate = operation.expirationDate;
                 schemeIdRecords[0].comment = operation.comment;
+                schemeIdRecords[0].jobId = null;
 
                 updateSchemeIdRecord(schemeIdRecords[0], function (err, updatedRecord) {
 
