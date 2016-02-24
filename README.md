@@ -1,4 +1,4 @@
-# Component Identifier Service [![Build Status](https://travis-ci.org/IHTSDO/component-identifier-service.svg?branch=master)](https://travis-ci.org/IHTSDO/component-identifier-service)
+# Component Identifier Service [![Build Status](https://travis-ci.org/IHTSDO/component-identifier-service.svg?branch=master)](https://travis-ci.org/IHTSDO/component-identifier-service) [![Code Climate](https://codeclimate.com/github/IHTSDO/component-identifier-service/badges/gpa.svg)](https://codeclimate.com/github/IHTSDO/component-identifier-service)
 
 A REST Server for managing the generation and assignment of Terminology Component Identifiers. Supports SNOMED CT Identifiers and other identifier Schemes. Pre-bundled implementations for optional generation of legacy identifiers in SNOMED CT (SNOMEDIDs and CTV3IDs)
 
