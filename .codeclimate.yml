@@ -5,7 +5,7 @@ engines:
   coffeelint:
     enabled: true
   duplication:
-    enabled: true
+    enabled: false
     exclude_fingerprints:
       - 8c96e9348e2580ddc512e8dacd8e3313
       - f7dbb5c3156d49104e654717dd9cdf2c
