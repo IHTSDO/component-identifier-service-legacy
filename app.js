@@ -53,7 +53,11 @@ swaggerTools.initializeMiddleware(swaggerDoc, function (middleware) {
                 statusCode = 400;
                 errMessage = err;
             }
-            console.log("[ERROR at " + new Date() + "]\n- "  + JSON.stringify(err) + "\n- req.params:" + JSON.stringify(req.swagger.params) );
+            if (req.swagger) {
+                console.log("[ERROR at " + new Date() + "]\n- "  + JSON.stringify(err) + "\n- req.params:" + JSON.stringify(req.swagger.params) );
+            } else {
+                console.log("[ERROR at " + new Date() + "]\n- "  + JSON.stringify(err) + "\n- req.params: No swagger params" );
+            }
             res.setHeader('Content-Type', 'text/html; charset=utf-8');
             res.statusCode = statusCode;
             res.end(JSON.stringify({"statusCode":statusCode, "message":errMessage}));
