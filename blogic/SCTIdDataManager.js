@@ -30,7 +30,7 @@ var throwErrMessage=function(msg){
 };
 
 var checkSctid = function (sctid, callback) {
-    var schemaToReturn = {"SCTIDDetails" : {
+    var schemaToReturn = {"SCTIDVerification" : {
         "properties": {
             "sctid": {
                 "type": "string"
@@ -47,14 +47,11 @@ var checkSctid = function (sctid, callback) {
             "checkDigit": {
                 "type": "integer"
             },
-            "systemId": {
+            "isSCTIDValid": {
+                "type": "boolean"
+            },
+            "errorMessage": {
                 "type": "string"
-            },
-            "checkDigitOK": {
-                "type": "boolean"
-            },
-            "SCTIDValid": {
-                "type": "boolean"
             },
             "namespaceOrganization": {
                 "type": "string"

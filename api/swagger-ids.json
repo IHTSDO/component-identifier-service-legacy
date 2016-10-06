@@ -1049,7 +1049,7 @@
                     "200": {
                         "description": "Successful request.",
                         "schema": {
-                            "$ref": "#/definitions/SCTIDDetails"
+                            "$ref": "#/definitions/SCTIDVerification"
                         }
                     }
                 }
@@ -3124,7 +3124,7 @@
             "schemeIds"
           ]
         },
-        "SCTIDDetails" : {
+        "SCTIDVerification" : {
             "properties": {
                 "sctid": {
                     "type": "string"
@@ -3141,14 +3141,11 @@
                 "checkDigit": {
                     "type": "integer"
                 },
-                "systemId": {
+                "isSCTIDValid": {
+                    "type": "boolean"
+                },
+                "errorMessage": {
                     "type": "string"
-                },
-                "checkDigitOK": {
-                    "type": "boolean"
-                },
-                "SCTIDValid": {
-                    "type": "boolean"
                 },
                 "namespaceOrganization": {
                     "type": "string"
