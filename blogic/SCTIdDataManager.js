@@ -29,8 +29,8 @@ var throwErrMessage=function(msg){
     return err;
 };
 
-var checkSctid = function (sctid) {
-    return {sctid: sctid};
+var checkSctid = function (sctid, callback) {
+    callback(null, {sctid: sctid});
 };
 
 var getSctids = function (query, limit, skip, callback){
