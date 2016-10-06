@@ -1,4 +1,4 @@
-# Component Identifier Service
+# Component Identifier Service [![Build Status](https://travis-ci.org/IHTSDO/component-identifier-service.svg?branch=master)](https://travis-ci.org/IHTSDO/component-identifier-service) [![Code Climate](https://codeclimate.com/github/IHTSDO/component-identifier-service/badges/gpa.svg)](https://codeclimate.com/github/IHTSDO/component-identifier-service)
 
 A REST Server for managing the generation and assignment of Terminology Component Identifiers. Supports SNOMED CT Identifiers and other identifier Schemes. Pre-bundled implementations for optional generation of legacy identifiers in SNOMED CT (SNOMEDIDs and CTV3IDs)
 
@@ -8,7 +8,7 @@ This application requires a MySQL database running on localhost. A new Database 
 
 Clone this project with:
 
-`$ clone https://github.com/termMed/component-identifier-service.git . `
+`$ clone https://github.com:IHTSDO/component-identifier-service.git . `
 
 Cd to the application location and execute the schema creation scripts:
 

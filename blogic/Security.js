@@ -4,24 +4,14 @@
 var AtlassianCrowd = require('atlassian-crowd');
 
 var options = {
-    "crowd": {
-        "base": "https://dev-crowd.ihtsdotools.org/crowd/"
-    },
-    "application": {
-        "name": "component-id-service",
-        "password": "snomedid"
-    }
+	    "crowd": {
+	        "base": process.env.CROWD_URL
+	     },
+	     "application": {
+	         "name": process.env.CROWD_APP_NAME,
+	         "password": process.env.CROWD_APP_PASSWORD
+	     }
 };
-
-//var options = {
-//    "crowd": {
-//        "base": process.env.crowd_url
-//    },
-//    "application": {
-//        "name": process.env.crowd_app_name,
-//        "password": process.env.crowd_app_password
-//    }
-//};
 
 var authenticationCache = {};
 module.exports.admins = [];
