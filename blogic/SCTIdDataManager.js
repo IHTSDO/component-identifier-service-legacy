@@ -58,6 +58,9 @@ var checkSctid = function (sctid, callback) {
             },
             "namespaceContactEmail": {
                 "type": "string"
+            },
+            "namespaceOrganizationAndContactDetails": {
+                "type": "string"
             }
         }
     }};
