@@ -29,6 +29,10 @@ var throwErrMessage=function(msg){
     return err;
 };
 
+var checkSctid = function (sctid) {
+    return {sctid: sctid};
+};
+
 var getSctids = function (query, limit, skip, callback){
     var objQuery={};
     var limitR = 100;
@@ -523,3 +527,5 @@ module.exports.reserveSctid=reserveSctid;
 module.exports.getSctidBySystemId=getSctidBySystemId;
 module.exports.getSctid=getSctid;
 module.exports.getSctids=getSctids;
+module.exports.checkSctid=checkSctid;
+

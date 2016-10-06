@@ -62,12 +62,14 @@ function isSchemeAbleUser(schemeName, user, callback){
 
 module.exports.checkSctid = function getSctids (req, res, next) {
     var sctid = req.swagger.params.sctid.value;
-    // if (err) {
-    //     return next(err.message);
-    // }else{
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify({sctid: sctid}));
-    // }
+    idDM.checkSctid(sctid, function(err,sctIdDetails){
+        if (err) {
+            return next(err.message);
+        }else{
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(sctIdDetails));
+        }
+    });
 };
 
 
