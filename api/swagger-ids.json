@@ -1024,6 +1024,37 @@
                 }
             }
         },
+        "/sct/check/{sctid}": {
+            "get": {
+                "x-swagger-router-controller": "Sctid",
+                "operationId": "checkSctid",
+                "tags": ["SCTIDS"],
+                "description": "Returns the information about the SNOMED CT ID, where is valid and other technical information.",
+                "parameters": [
+                    {
+                        "name": "sctid",
+                        "in": "path",
+                        "description": "The required id.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Invalid request.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Successful request.",
+                        "schema": {
+                            "$ref": "#/definitions/SCTIDDetails"
+                        }
+                    }
+                }
+            }
+        },
         "/sct/namespaces/{namespaceId}/systemids/{systemId}": {
             "get": {
                 "x-swagger-router-controller": "Sctid",
@@ -3092,6 +3123,40 @@
           "required": [
             "schemeIds"
           ]
+        },
+        "SCTIDDetails" : {
+            "properties": {
+                "sctid": {
+                    "type": "string"
+                },
+                "sequence": {
+                    "type": "integer"
+                },
+                "namespace": {
+                    "type": "integer"
+                },
+                "partitionId": {
+                    "type": "string"
+                },
+                "checkDigit": {
+                    "type": "integer"
+                },
+                "systemId": {
+                    "type": "string"
+                },
+                "checkDigitOK": {
+                    "type": "boolean"
+                },
+                "SCTIDValid": {
+                    "type": "boolean"
+                },
+                "namespaceOrganization": {
+                    "type": "string"
+                },
+                "namespaceContactEmail": {
+                    "type": "string"
+                }
+            }
         },
         "SCTIDRecord" : {
             "properties": {
