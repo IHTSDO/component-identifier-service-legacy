@@ -44,6 +44,9 @@ var checkSctid = function (sctid, callback) {
             "partitionId": {
                 "type": "string"
             },
+            "componentType": {
+                "type": "string"
+            },
             "checkDigit": {
                 "type": "integer"
             },

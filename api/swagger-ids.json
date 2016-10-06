@@ -3147,6 +3147,9 @@
                 "partitionId": {
                     "type": "string"
                 },
+                "componentType": {
+                    "type": "string"
+                },
                 "checkDigit": {
                     "type": "integer"
                 },
