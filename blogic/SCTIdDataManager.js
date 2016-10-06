@@ -30,6 +30,40 @@ var throwErrMessage=function(msg){
 };
 
 var checkSctid = function (sctid, callback) {
+    var schemaToReturn = {"SCTIDDetails" : {
+        "properties": {
+            "sctid": {
+                "type": "string"
+            },
+            "sequence": {
+                "type": "integer"
+            },
+            "namespace": {
+                "type": "integer"
+            },
+            "partitionId": {
+                "type": "string"
+            },
+            "checkDigit": {
+                "type": "integer"
+            },
+            "systemId": {
+                "type": "string"
+            },
+            "checkDigitOK": {
+                "type": "boolean"
+            },
+            "SCTIDValid": {
+                "type": "boolean"
+            },
+            "namespaceOrganization": {
+                "type": "string"
+            },
+            "namespaceContactEmail": {
+                "type": "string"
+            }
+        }
+    }};
     callback(null, {sctid: sctid});
 };
 
