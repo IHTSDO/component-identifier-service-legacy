@@ -29,6 +29,7 @@
                     $("#result-message-initial").hide();
                     $("#result-message-ok").hide();
                     $("#result-message-error").show();
+                    $("#result-details").hide();
                 } else {
                     $("#sctid-field").removeClass("invalid");
                     $("#sctid-field").addClass("valid");
@@ -40,6 +41,14 @@
                             $("#result-message-initial").hide();
                             $("#result-message-ok").show();
                             $("#result-message-error").hide();
+                            $("#result-field-check-digit").html(result.checkDigit);
+                            $("#result-field-component-type").html(result.componentType);
+                            $("#result-field-namespace").html(result.namespace);
+                            $("#result-field-organization").html(result.organizationName);
+                            $("#result-field-partitionId").html(result.partitionId);
+                            $("#result-field-sctid").html(result.sctid);
+                            $("#result-field-sequence").html(result.sequence);
+                            $("#result-details").show();
                         } else {
                             $("#sctid-field").removeClass("valid");
                             $("#sctid-field").addClass("invalid");
@@ -47,6 +56,9 @@
                             $("#result-message-initial").hide();
                             $("#result-message-ok").hide();
                             $("#result-message-error").show();
+                            $("#result-error-message-text").html(result.errorMessage);
+                            $("#result-error-message").show();
+                            $("#result-details").hide();
                         }
                     });
                 }
@@ -113,6 +125,9 @@
                             <i class="material-icons" style="vertical-align: middle;">error</i> Error - The SCTID is Invalid
                         </p>
                     </div>
+                    <div class="row" id="result-error-message" style="display: none;">
+                        <p class="flow-text" id="result-error-message-text"></p>
+                    </div>
                     <div class="row" id="result-details" style="display: none;">
                         <br><br>
                         <p>Details:</p>
@@ -121,31 +136,31 @@
                             <tbody>
                             <tr>
                                 <td style="font-weight: bold;">SCTID</td>
-                                <td>456100087105</td>
+                                <td id="result-field-sctid"></td>
                             </tr>
                             <tr>
                                 <td style="font-weight: bold;">Sequence</td>
-                                <td>456</td>
+                                <td id="result-field-sequence"></td>
                             </tr>
                             <tr>
                                 <td style="font-weight: bold;">Namespace</td>
-                                <td>100087</td>
+                                <td id="result-field-namespace"></td>
                             </tr>
                             <tr>
                                 <td style="font-weight: bold;">PartitionId</td>
-                                <td>10</td>
+                                <td id="result-field-partitionId"></td>
                             </tr>
                             <tr>
                                 <td style="font-weight: bold;">Check-digit</td>
-                                <td>5</td>
+                                <td id="result-field-check-digit"></td>
                             </tr>
                             <tr>
                                 <td style="font-weight: bold;">Organization</td>
-                                <td>Canada Health Infoway</td>
+                                <td id="result-field-organization"></td>
                             </tr>
                             <tr>
                                 <td style="font-weight: bold;">Component type</td>
-                                <td>Extension Concept</td>
+                                <td id="result-field-component-type"></td>
                             </tr>
                             </tbody>
                         </table>
