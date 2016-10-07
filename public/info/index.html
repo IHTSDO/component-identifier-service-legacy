@@ -25,12 +25,30 @@
                 if (sctid.length < 6 || sctid.length > 18) {
                     $("#sctid-field").removeClass("valid");
                     $("#sctid-field").addClass("invalid");
-                    Materialize.toast('Invalid length', 4000, "red") // 4000 is the duration of the toast
+                    Materialize.toast('Invalid length', 4000, "red");
+                    $("#result-message-initial").hide();
+                    $("#result-message-ok").hide();
+                    $("#result-message-error").slideUp();
                 } else {
                     $("#sctid-field").removeClass("invalid");
                     $("#sctid-field").addClass("valid");
-                    $.getJSON( "../api/sct/check/" + sctid, function( data ) {
-                        console.log(data);
+                    $.getJSON( "../api/sct/check/" + sctid, function( result ) {
+                        //console.log(result);
+                        if (result.isSCTIDValid == "true") {
+                            $("#sctid-field").removeClass("invalid");
+                            $("#sctid-field").addClass("valid");
+                            Materialize.toast('SCTID Invalid!', 4000, "red");
+                            $("#result-message-initial").hide();
+                            $("#result-message-ok").hide();
+                            $("#result-message-error").slideUp();
+                        } else {
+                            $("#sctid-field").removeClass("valid");
+                            $("#sctid-field").addClass("invalid");
+                            Materialize.toast('SCTID Valid!', 4000, "green");
+                            $("#result-message-initial").hide();
+                            $("#result-message-ok").slideUp();
+                            $("#result-message-error").hide();
+                        }
                     });
                 }
 
@@ -79,14 +97,29 @@
                 <div class="card-content">
                     <span class="card-title">Results</span>
                     <br><br>
-                    <p class="green-text" style="font-weight: bold; font-size: 200%;">
-                        <i class="material-icons" style="vertical-align: middle;">done</i> OK
-                    </p>
-                    <br><br>
-                    <p>Details:</p>
-                    <br>
-                    <table class="striped responsive-table">
-                        <tbody>
+                    <div class="row center" id="result-message-initial">
+                        <br><br><br><br>
+                        <p class="grey-text" style="font-style: italic">
+                            Validation results
+                        </p>
+                        <br><br><br><br><br>
+                    </div>
+                    <div class="row center" id="result-message-ok" style="display: none;">
+                        <p class="green-text" style="font-weight: bold; font-size: 200%;">
+                            <i class="material-icons" style="vertical-align: middle;">done</i> OK - The SCTID is Valid
+                        </p>
+                    </div>
+                    <div class="row center" id="result-message-error" style="display: none;">
+                        <p class="red-text" style="font-weight: bold; font-size: 200%;">
+                            <i class="material-icons" style="vertical-align: middle;">error</i> Error - The SCTID is Invalid
+                        </p>
+                    </div>
+                    <div class="row" id="result-details" style="display: none;">
+                        <br><br>
+                        <p>Details:</p>
+                        <br>
+                        <table class="striped responsive-table">
+                            <tbody>
                             <tr>
                                 <td style="font-weight: bold;">SCTID</td>
                                 <td>456100087105</td>
@@ -115,8 +148,9 @@
                                 <td style="font-weight: bold;">Component type</td>
                                 <td>Extension Concept</td>
                             </tr>
-                        </tbody>
-                    </table>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
