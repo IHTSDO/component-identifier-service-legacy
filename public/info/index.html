@@ -33,7 +33,7 @@
                     $("#sctid-field").removeClass("invalid");
                     $("#sctid-field").addClass("valid");
                     $.getJSON( "../api/sct/check/" + sctid, function( result ) {
-                        //console.log(result);
+                        console.log(result);
                         if (result.isSCTIDValid == "true") {
                             $("#sctid-field").removeClass("invalid");
                             $("#sctid-field").addClass("valid");
