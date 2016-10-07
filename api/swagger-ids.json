@@ -3139,10 +3139,10 @@
                     "type": "string"
                 },
                 "sequence": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "namespace": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "partitionId": {
                     "type": "string"
@@ -3151,10 +3151,10 @@
                     "type": "string"
                 },
                 "checkDigit": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "isSCTIDValid": {
-                    "type": "boolean"
+                    "type": "string"
                 },
                 "errorMessage": {
                     "type": "string"

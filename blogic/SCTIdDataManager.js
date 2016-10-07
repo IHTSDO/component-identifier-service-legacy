@@ -30,44 +30,20 @@ var throwErrMessage=function(msg){
 };
 
 var checkSctid = function (sctid, callback) {
-    var schemaToReturn = {"SCTIDVerification" : {
-        "properties": {
-            "sctid": {
-                "type": "string"
-            },
-            "sequence": {
-                "type": "integer"
-            },
-            "namespace": {
-                "type": "integer"
-            },
-            "partitionId": {
-                "type": "string"
-            },
-            "componentType": {
-                "type": "string"
-            },
-            "checkDigit": {
-                "type": "integer"
-            },
-            "isSCTIDValid": {
-                "type": "boolean"
-            },
-            "errorMessage": {
-                "type": "string"
-            },
-            "namespaceOrganization": {
-                "type": "string"
-            },
-            "namespaceContactEmail": {
-                "type": "string"
-            },
-            "namespaceOrganizationAndContactDetails": {
-                "type": "string"
-            }
-        }
-    }};
-    callback(null, {sctid: sctid});
+    var result = {
+        "sctid": sctid,
+        "sequence": "12324",
+        "namespace": "100087",
+        "partitionId": "01",
+        "componentType": "Extension concept",
+        "checkDigit": "5",
+        "isSCTIDValid": "true",
+        "errorMessage": "",
+        "namespaceOrganization": "Canada Health Infoway",
+        "namespaceContactEmail": "infoway@canada.ca",
+        "namespaceOrganizationAndContactDetails": ""
+    };
+    callback(null, result);
 };
 
 var getSctids = function (query, limit, skip, callback){
