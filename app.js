@@ -32,11 +32,11 @@ swaggerTools.initializeMiddleware(swaggerDoc, function (middleware) {
     app.use(middleware.swaggerValidator());
 
     // Open cross site access for functioning as an API
-    app.use(function(req, res, next) {
-        res.header("Access-Control-Allow-Origin", "*");
-        res.header("Access-Control-Allow-Headers", "X-Requested-With");
-        next();
-    });
+    // app.use(function(req, res, next) {
+    //     res.header("Access-Control-Allow-Origin", "*");
+    //     res.header("Access-Control-Allow-Headers", "X-Requested-With");
+    //     next();
+    // });
 
     // Route validated requests to appropriate controller
     app.use(middleware.swaggerRouter(options));
