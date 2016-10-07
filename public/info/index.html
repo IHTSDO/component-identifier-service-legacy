@@ -33,21 +33,20 @@
                     $("#sctid-field").removeClass("invalid");
                     $("#sctid-field").addClass("valid");
                     $.getJSON( "../api/sct/check/" + sctid, function( result ) {
-                        console.log(result);
                         if (result.isSCTIDValid == "true") {
                             $("#sctid-field").removeClass("invalid");
                             $("#sctid-field").addClass("valid");
-                            Materialize.toast('SCTID Invalid!', 4000, "red");
-                            $("#result-message-initial").hide();
-                            $("#result-message-ok").hide();
-                            $("#result-message-error").show();
-                        } else {
-                            $("#sctid-field").removeClass("valid");
-                            $("#sctid-field").addClass("invalid");
                             Materialize.toast('SCTID Valid!', 4000, "green");
                             $("#result-message-initial").hide();
                             $("#result-message-ok").show();
                             $("#result-message-error").hide();
+                        } else {
+                            $("#sctid-field").removeClass("valid");
+                            $("#sctid-field").addClass("invalid");
+                            Materialize.toast('SCTID Invalid!', 4000, "red");
+                            $("#result-message-initial").hide();
+                            $("#result-message-ok").hide();
+                            $("#result-message-error").show();
                         }
                     });
                 }
