@@ -9,6 +9,7 @@
     "atlassian-crowd": "^0.4.4",
     "body-parser": "^1.15.2",
     "connect": "^3.4.0",
+    "cors": "^2.8.1",
     "express": "^4.13.1",
     "fibers": "^1.0.15",
     "mysql": "^2.8.0",
