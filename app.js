@@ -31,15 +31,15 @@ swaggerTools.initializeMiddleware(swaggerDoc, function (middleware) {
     // Validate Swagger requests
     app.use(middleware.swaggerValidator());
 
+    // Route validated requests to appropriate controller
+    app.use(middleware.swaggerRouter(options));
+
     // Open cross site access for functioning as an API
     app.use(function(req, res, next) {
         res.header("Access-Control-Allow-Origin", "*");
         res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
         next();
     });
-
-    // Route validated requests to appropriate controller
-    app.use(middleware.swaggerRouter(options));
 
     // Serve the Swagger documents and Swagger UI
     app.use(middleware.swaggerUi());
