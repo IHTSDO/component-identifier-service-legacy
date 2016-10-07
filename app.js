@@ -43,29 +43,29 @@ swaggerTools.initializeMiddleware(swaggerDoc, function (middleware) {
 
     app.use(serveStatic(__dirname + '/public'));
 
-    // app.use(function(err, req, res, next) {
-    //     if (err) {
-    //         var statusCode = 400, errMessage = "";
-    //         if (err.statusCode && err.message) {
-    //             statusCode = err.statusCode;
-    //             errMessage = err.message;
-    //         }else if(err == "No permission for the selected operation"){
-    //             statusCode = 403;
-    //             errMessage = "No permission for the selected operation";
-    //         }else{
-    //             statusCode = 400;
-    //             errMessage = err;
-    //         }
-    //         if (req.swagger) {
-    //             console.log("[ERROR at " + new Date() + "]\n- "  + JSON.stringify(err) + "\n- req.params:" + JSON.stringify(req.swagger.params) );
-    //         } else {
-    //             console.log("[ERROR at " + new Date() + "]\n- "  + JSON.stringify(err) + "\n- req.params: No swagger params" );
-    //         }
-    //         res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    //         res.statusCode = statusCode;
-    //         res.end(JSON.stringify({"statusCode":statusCode, "message":errMessage}));
-    //     }
-    // });
+    app.use(function(err, req, res, next) {
+        if (err) {
+            var statusCode = 400, errMessage = "";
+            if (err.statusCode && err.message) {
+                statusCode = err.statusCode;
+                errMessage = err.message;
+            }else if(err == "No permission for the selected operation"){
+                statusCode = 403;
+                errMessage = "No permission for the selected operation";
+            }else{
+                statusCode = 400;
+                errMessage = err;
+            }
+            if (req.swagger) {
+                console.log("[ERROR at " + new Date() + "]\n- "  + JSON.stringify(err) + "\n- req.params:" + JSON.stringify(req.swagger.params) );
+            } else {
+                console.log("[ERROR at " + new Date() + "]\n- "  + JSON.stringify(err) + "\n- req.params: No swagger params" );
+            }
+            res.setHeader('Content-Type', 'text/html; charset=utf-8');
+            res.statusCode = statusCode;
+            res.end(JSON.stringify({"statusCode":statusCode, "message":errMessage}));
+        }
+    });
 
     // Start the server
     http.createServer(app).listen(serverPort, function () {
