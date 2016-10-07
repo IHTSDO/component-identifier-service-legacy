@@ -18,6 +18,19 @@
     <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
     <script type="text/javascript" src="js/materialize.min.js"></script>
     <script type="text/javascript">
+        switchToValidation = function() {
+            $("#namespaces-perspective").hide();
+            $("#validation-perspective").show();
+            $("#validation-nav-button").addClass("active");
+            $("#namespaces-nav-button").removeClass("active");
+        };
+        switchToNamespaces = function() {
+            $("#validation-perspective").hide();
+            $("#namespaces-perspective").show();
+            $("#validation-nav-button").removeClass("active");
+            $("#namespaces-nav-button").addClass("active");
+            refreshNamespaces();
+        };
         start = function() {
             $("#validate-button").unbind();
             $("#validate-button").click(function() {
@@ -37,7 +50,7 @@
                     $("#sctid-field").addClass("valid");
                     // "http://162.243.1.200:3000/api/sct/check/"
                     // "../api/sct/check/"
-                    $.getJSON("http://162.243.1.200:3000/api/sct/check/" + sctid, function( result ) {
+                    $.getJSON("../api/sct/check/" + sctid, function( result ) {
                         if (result.isSCTIDValid == "true") {
                             $("#sctid-field").removeClass("invalid");
                             $("#sctid-field").addClass("valid");
@@ -74,18 +87,37 @@
                 }
             });
         };
+        var spinner = '<tr><td colspan="3"><div class="col s8 offset-s2"><div class="progress"><div class="indeterminate"></div></div></div></td></tr>';
+
+        var refreshNamespaces = function() {
+            $("#namespaces-table-body").html(spinner);
+            // "../api/sct/namespaces"
+            // "http://162.243.1.200:3000/api/sct/namespaces"
+            $.getJSON("../api/sct/namespaces", function( result ) {
+                var tableBody = "";
+                $.each(result, function(index, loopNamespace) {
+                    console.log(loopNamespace);
+                    tableBody += "<tr>";
+                    tableBody += "<td>" + loopNamespace.namespace + "</td>";
+                    tableBody += "<td>" + loopNamespace.organizationName + "</td>";
+                    tableBody += "<td>" + loopNamespace.email + "</td>";
+                    tableBody += "</tr>";
+                });
+                $("#namespaces-table-body").html(tableBody);
+            });
+        };
     </script>
     <nav>
         <div class="nav-wrapper" style="color: #fff; background-color: #ee6e73">
             <a href="#" class="brand-logo" style="margin-left: 10px;">SCTID Information</a>
             <ul id="nav-mobile" class="right hide-on-med-and-down">
-                <li class="active"><a>SCTID Validation</a></li>
-                <li><a href="namespaces.html">Namespaces Registry</a></li>
-                <li><a href="https://github.com/IHTSDO/component-identifier-service">GitHub</a></li>
+                <li class="active" id="validation-nav-button"><a href="javascript:switchToValidation();">SCTID Validation</a></li>
+                <li id="namespaces-nav-button"><a href="javascript:switchToNamespaces();">Namespaces Registry</a></li>
+                <li><a href="https://github.com/IHTSDO/component-identifier-service" target="_blank">GitHub</a></li>
             </ul>
         </div>
     </nav>
-    <div class="row">
+    <div class="row" id="validation-perspective">
         <div class="col s6 container">
             <div class="card">
                 <div class="card-content">
@@ -102,9 +134,11 @@
                         </div>
                     </div>
                     <br><br>
-                    <p class="red-text text-lighten-2" style="font-style: italic; font-size: 70%;">
-                        * This software performs a structural validation of the SCTID, detecting errors
-                        in length, partitions, check-digit, etc.
+                    <p class="grey-text" style="font-style: italic; font-size: 70%;">
+                        NOTE: This software performs a structural validation of the SCTID, detecting errors
+                        in length, partitions, check-digit, etc. This software does not provide any information
+                        related to actual presence of the SCTID in a release, neither about the component status
+                        or clinical meaning.
                     </p>
                 </div>
                 <div class="card-action">
@@ -125,7 +159,7 @@
                         <p class="grey-text" style="font-style: italic">
                             Validation results
                         </p>
-                        <br><br><br><br><br>
+                        <br><br><br><br><br><br>
                     </div>
                     <div class="row center" id="result-message-ok" style="display: none;">
                         <p class="green-text" style="font-weight: bold; font-size: 200%;">
@@ -180,6 +214,27 @@
                         </table>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+    <div class="row container" id="namespaces-perspective" style="display: none;">
+        <div class="card">
+            <div class="card-content">
+                <span class="card-title"><b>SNOMED CT Namespaces Registry</b></span>
+                <br><br><br>
+                <table class="striped highlight responsive-table">
+                    <thead>
+                        <tr>
+                            <th>Namespace</th>
+                            <th>Organization</th>
+                            <th>Contact</th>
+                        </tr>
+                    </thead>
+                    <tbody id="namespaces-table-body">
+
+                    </tbody>
+                </table>
+                <br><br><br><br><br>
             </div>
         </div>
     </div>
