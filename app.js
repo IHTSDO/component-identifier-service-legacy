@@ -25,17 +25,18 @@ var swaggerDoc = require('./api/swagger-ids.json');
 
 // Initialize the Swagger middleware
 swaggerTools.initializeMiddleware(swaggerDoc, function (middleware) {
-    // Open cross site access for functioning as an API
-    // app.use(function(req, res, next) {
-    //     res.header("Access-Control-Allow-Origin", "*");
-    //     res.header("Access-Control-Allow-Headers", "X-Requested-With");
-    //     next();
-    // });
     // Interpret Swagger resources and attach metadata to request - must be first in swagger-tools middleware chain
     app.use(middleware.swaggerMetadata());
 
     // Validate Swagger requests
     app.use(middleware.swaggerValidator());
+
+    // Open cross site access for functioning as an API
+    app.use(function(req, res, next) {
+        res.header("Access-Control-Allow-Origin", "*");
+        res.header("Access-Control-Allow-Headers", "X-Requested-With");
+        next();
+    });
 
     // Route validated requests to appropriate controller
     app.use(middleware.swaggerRouter(options));
