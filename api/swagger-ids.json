@@ -828,7 +828,7 @@
                         "name": "token",
                         "in": "query",
                         "description": "The security access token.",
-                        "required": true,
+                        "required": false,
                         "type": "string"
                     }
                 ],

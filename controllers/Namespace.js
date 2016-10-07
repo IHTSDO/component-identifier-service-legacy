@@ -51,19 +51,12 @@ module.exports.getNamespace = function getNamespace (req, res, next) {
 };
 
 module.exports.getNamespaces = function getNamespaces (req, res, next) {
-    var token = req.swagger.params.token.value;
-    security.authenticate(token, function(err, data) {
+    namespace.getNamespaces(function(err, namespaces) {
         if (err)
-            return next({message: err.message, statusCode: 401});
+            return next(err.message);
         else{
-            namespace.getNamespaces(function(err, namespaces) {
-                if (err)
-                    return next(err.message);
-                else{
-                    res.setHeader('Content-Type', 'application/json');
-                    res.end(JSON.stringify(namespaces));
-                }
-            });
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(namespaces));
         }
     });
 };
