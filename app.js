@@ -6,6 +6,7 @@ var swaggerTools = require('swagger-tools');
 var serveStatic = require('serve-static');
 var backEndJobService = require('./blogic/BackEndJobService');
 var CleanService = require('./blogic/CleanService');
+var cors = require('cors');
 
 var bodyParser = require('body-parser');
 app.use(bodyParser.json({limit: '50mb'}));
