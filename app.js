@@ -25,6 +25,13 @@ var swaggerDoc = require('./api/swagger-ids.json');
 
 // Initialize the Swagger middleware
 swaggerTools.initializeMiddleware(swaggerDoc, function (middleware) {
+    // Open cross site access for functioning as an API
+    app.use(function(req, res, next) {
+        res.header("Access-Control-Allow-Origin", "*");
+        res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+        next();
+    });
+
     // Interpret Swagger resources and attach metadata to request - must be first in swagger-tools middleware chain
     app.use(middleware.swaggerMetadata());
 
@@ -34,41 +41,34 @@ swaggerTools.initializeMiddleware(swaggerDoc, function (middleware) {
     // Route validated requests to appropriate controller
     app.use(middleware.swaggerRouter(options));
 
-    // Open cross site access for functioning as an API
-    app.use(function(req, res, next) {
-        res.header("Access-Control-Allow-Origin", "*");
-        res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-        next();
-    });
-
     // Serve the Swagger documents and Swagger UI
     app.use(middleware.swaggerUi());
 
     app.use(serveStatic(__dirname + '/public'));
 
-    app.use(function(err, req, res, next) {
-        if (err) {
-            var statusCode = 400, errMessage = "";
-            if (err.statusCode && err.message) {
-                statusCode = err.statusCode;
-                errMessage = err.message;
-            }else if(err == "No permission for the selected operation"){
-                statusCode = 403;
-                errMessage = "No permission for the selected operation";
-            }else{
-                statusCode = 400;
-                errMessage = err;
-            }
-            if (req.swagger) {
-                console.log("[ERROR at " + new Date() + "]\n- "  + JSON.stringify(err) + "\n- req.params:" + JSON.stringify(req.swagger.params) );
-            } else {
-                console.log("[ERROR at " + new Date() + "]\n- "  + JSON.stringify(err) + "\n- req.params: No swagger params" );
-            }
-            res.setHeader('Content-Type', 'text/html; charset=utf-8');
-            res.statusCode = statusCode;
-            res.end(JSON.stringify({"statusCode":statusCode, "message":errMessage}));
-        }
-    });
+    // app.use(function(err, req, res, next) {
+    //     if (err) {
+    //         var statusCode = 400, errMessage = "";
+    //         if (err.statusCode && err.message) {
+    //             statusCode = err.statusCode;
+    //             errMessage = err.message;
+    //         }else if(err == "No permission for the selected operation"){
+    //             statusCode = 403;
+    //             errMessage = "No permission for the selected operation";
+    //         }else{
+    //             statusCode = 400;
+    //             errMessage = err;
+    //         }
+    //         if (req.swagger) {
+    //             console.log("[ERROR at " + new Date() + "]\n- "  + JSON.stringify(err) + "\n- req.params:" + JSON.stringify(req.swagger.params) );
+    //         } else {
+    //             console.log("[ERROR at " + new Date() + "]\n- "  + JSON.stringify(err) + "\n- req.params: No swagger params" );
+    //         }
+    //         res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    //         res.statusCode = statusCode;
+    //         res.end(JSON.stringify({"statusCode":statusCode, "message":errMessage}));
+    //     }
+    // });
 
     // Start the server
     http.createServer(app).listen(serverPort, function () {
