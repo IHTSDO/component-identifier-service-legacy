@@ -24,8 +24,7 @@
                 } else {
                     $("#sctid-field").removeClass("invalid");
                     $("#sctid-field").addClass("valid");
-                    //../api/sct/check/
-                    $.getJSON( "http://162.243.1.200:3000/api/sct/check/" + sctid, function( data ) {
+                    $.getJSON( "../api/sct/check/" + sctid, function( data ) {
                         console.log(data);
                     });
                 }
