@@ -553,7 +553,10 @@
                         }
                     },
                     "200": {
-                        "$ref": "#/definitions/NamespacePermission"
+                        "description": "Groups list.",
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 }
             }

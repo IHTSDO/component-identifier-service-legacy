@@ -67,6 +67,8 @@
                             $("#result-field-sctid").html(result.sctid);
                             $("#result-field-sequence").html(result.sequence);
                             $("#result-details").show();
+                            $("#result-error-message-text").html("");
+                            $("#result-error-message").hide();
                         } else {
                             $("#sctid-field").removeClass("valid");
                             $("#sctid-field").addClass("invalid");
@@ -87,6 +89,7 @@
                     $("#validate-button").click();
                 }
             });
+            $(".button-collapse").sideNav();
         };
         var spinner = '<tr><td colspan="3"><div class="col s8 offset-s2"><div class="progress"><div class="indeterminate"></div></div></div></td></tr>';
 
@@ -111,9 +114,15 @@
     <nav>
         <div class="nav-wrapper" style="color: #fff; background-color: #ee6e73">
             <a href="#" class="brand-logo" style="margin-left: 10px;">SCTID Information</a>
+            <a href="#" data-activates="mobile-menu" class="button-collapse"><i class="material-icons">menu</i></a>
             <ul id="nav-mobile" class="right hide-on-med-and-down">
                 <li class="active" id="validation-nav-button"><a href="javascript:switchToValidation();">SCTID Validation</a></li>
-                <li id="namespaces-nav-button"><a href="javascript:switchToNamespaces();">Namespaces Registry</a></li>
+                <li id="namespaces-nav-button"><a href="javascript:switchToNamespaces();">Namespace Identifier Registry</a></li>
+                <li><a href="https://github.com/IHTSDO/component-identifier-service" target="_blank">GitHub</a></li>
+            </ul>
+            <ul id="mobile-menu" class="side-nav">
+                <li class="active" id="validation-nav-button-m"><a href="javascript:switchToValidation();">SCTID Validation</a></li>
+                <li id="namespaces-nav-button-m"><a href="javascript:switchToNamespaces();">Namespace Identifier Registry</a></li>
                 <li><a href="https://github.com/IHTSDO/component-identifier-service" target="_blank">GitHub</a></li>
             </ul>
         </div>
@@ -221,7 +230,7 @@
     <div class="row container" id="namespaces-perspective" style="display: none;">
         <div class="card">
             <div class="card-content">
-                <span class="card-title"><b>SNOMED CT Namespaces Registry</b></span>
+                <span class="card-title"><b>SNOMED CT Namespace Identifier Registry</b></span>
                 <br><br><br>
                 <table class="striped highlight responsive-table">
                     <thead>
