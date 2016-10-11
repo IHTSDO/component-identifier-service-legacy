@@ -31,6 +31,7 @@ var throwErrMessage=function(msg){
 
 var checkSctid = function (sctid, callback) {
     var err="";
+    console.log("sctid:" + sctid);
     var isValid=null;
     if (!sctIdHelper.validSCTId(sctId)){
         err="sctId is not valid.";
