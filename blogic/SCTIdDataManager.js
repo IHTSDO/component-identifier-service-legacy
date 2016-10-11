@@ -111,12 +111,15 @@ var checkSctid = function (sctid, callback) {
                         result.namespaceOrganization=namespaceResult[0].organizationName;
                         result.namespaceContactEmail=namespaceResult[0].email;
                         result.namespaceOrganizationAndContactDetails=namespaceResult[0].organizationAndContactDetails;
+                        callback(null, result);
                     }
                 });
             }
         });
+    }else{
+        callback(null, result);
+
     }
-    callback(null, result);
 };
 
 var getSctids = function (query, limit, skip, callback){
