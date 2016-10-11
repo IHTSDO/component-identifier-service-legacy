@@ -104,7 +104,8 @@ var checkSctid = function (sctid, callback) {
         "namespaceContactEmail": "",
         "namespaceOrganizationAndContactDetails": ""
     };
-    if (isValid && namespaceId){
+    if (isValid && namespaceId!=null){
+        console.log("getting namespace");
         getModel(function(error) {
             if (error) {
                 err+="\r\n" + error;
@@ -118,6 +119,7 @@ var checkSctid = function (sctid, callback) {
                         result.errorMessage = err;
                         callback(null, result);
                     }else{
+                        console.log("namespaceResult len" + namespaceResult.length);
                         result.namespaceOrganization=namespaceResult[0].organizationName;
                         result.namespaceContactEmail=namespaceResult[0].email;
                         result.namespaceOrganizationAndContactDetails=namespaceResult[0].organizationAndContactDetails;
