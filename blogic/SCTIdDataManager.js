@@ -38,6 +38,7 @@ var checkSctid = function (sctid, callback) {
     }else{
         isValid="true";
     }
+    console.log("isValid:" + isValid);
 
     var checkDigit=null;
     try {
@@ -45,6 +46,7 @@ var checkSctid = function (sctid, callback) {
     }catch(e){
         err+= e;
     }
+    console.log("checkDigit:" + checkDigit);
 
     var partitionId="";
     try {
@@ -52,12 +54,14 @@ var checkSctid = function (sctid, callback) {
     }catch(e){
         err+= e;
     }
+    console.log("partitionId:" + partitionId);
     var sequence=null;
     try {
         sequence=sctIdHelper.getSequence(sctid);
     }catch(e){
         err+= e;
     }
+    console.log("sequence:" + sequence);
     var namespaceId=null;
     try {
         namespaceId=sctIdHelper.getNamespace(sctid);
@@ -65,12 +69,14 @@ var checkSctid = function (sctid, callback) {
         err+= e;
     }
 
+    console.log("namespaceId:" + namespaceId);
     var comment="";
     if (namespace=="0"){
         comment="Core ";
     }else{
         comment="Extension ";
     }
+    console.log("comment:" + comment);
     if (partitionId && partitionId!=""){
         var art=partitionId.substr(1,1);
         if (art=="0"){
@@ -84,6 +90,7 @@ var checkSctid = function (sctid, callback) {
         }
     }
 
+    console.log("comment:" + comment);
     var result = {
         "sctid": sctid,
         "sequence": sequence,
