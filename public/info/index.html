@@ -51,7 +51,7 @@
                     $("#sctid-field").addClass("valid");
                     // "http://162.243.1.200:3000/api/sct/check/"
                     // "../api/sct/check/"
-                    $.getJSON("http://162.243.1.200:3000/api/sct/check/" + sctid, function( result ) {
+                    $.getJSON("../api/sct/check/" + sctid, function( result ) {
                         if (result.isSCTIDValid == "true") {
                             $("#sctid-field").removeClass("invalid");
                             $("#sctid-field").addClass("valid");
