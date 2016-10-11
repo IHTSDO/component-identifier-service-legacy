@@ -155,6 +155,9 @@ module.exports.editNamespace = function editNamespace(id, editedNamespace, callb
                 else{
                     namespace.organizationName =editedNamespace.organizationName;
                     namespace.email =editedNamespace.email;
+                    namespace.dateIssued =editedNamespace.dateIssued;
+                    namespace.organizationAndContactDetails =editedNamespace.organizationAndContactDetails;
+                    namespace.notes =editedNamespace.notes;
                     namespace.save(function(err){
                         if (err)
                             callback(err);

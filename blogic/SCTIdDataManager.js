@@ -30,19 +30,92 @@ var throwErrMessage=function(msg){
 };
 
 var checkSctid = function (sctid, callback) {
+    var err="";
+    var isValid=null;
+    if (!sctIdHelper.validSCTId(sctId)){
+        err="sctId is not valid.";
+    }else{
+        isValid="true";
+    }
+
+    var checkDigit=null;
+    try {
+        checkDigit = sctIdHelper.getCheckDigit(sctid);
+    }catch(e){
+        err+= e;
+    }
+
+    var partitionId="";
+    try {
+        partitionId = sctIdHelper.getPartition(sctid);
+    }catch(e){
+        err+= e;
+    }
+    var sequence=null;
+    try {
+        sequence=sctIdHelper.getSequence(sctid);
+    }catch(e){
+        err+= e;
+    }
+    var namespaceId=null;
+    try {
+        namespaceId=sctIdHelper.getNamespace(sctid);
+    }catch(e){
+        err+= e;
+    }
+
+    var comment="";
+    if (namespace=="0"){
+        comment="Core ";
+    }else{
+        comment="Extension ";
+    }
+    if (partitionId && partitionId!=""){
+        var art=partitionId.substr(1,1);
+        if (art=="0"){
+            comment +="concept";
+        }else if (art=="1"){
+            comment +="description";
+        }else if (art=="2"){
+            comment +="relationship";
+        }else{
+            comment +="artifact";
+        }
+    }
+
     var result = {
         "sctid": sctid,
-        "sequence": "12324",
-        "namespace": "100087",
-        "partitionId": "01",
-        "componentType": "Extension concept",
-        "checkDigit": "5",
-        "isSCTIDValid": "true",
-        "errorMessage": "",
-        "namespaceOrganization": "Canada Health Infoway",
-        "namespaceContactEmail": "infoway@canada.ca",
+        "sequence": sequence,
+        "namespace": namespaceId,
+        "partitionId": partitionId,
+        "componentType": comment,
+        "checkDigit": checkDigit,
+        "isSCTIDValid": isValid,
+        "errorMessage": err,
+        "namespaceOrganization": "",
+        "namespaceContactEmail": "",
         "namespaceOrganizationAndContactDetails": ""
     };
+    if (isValid && namespaceId){
+        getModel(function(error) {
+            if (error) {
+                err+="\r\n" + error;
+                //callback(err, null);
+
+            } else {
+                model.namespace.find({namespace: namespaceId},function (error, namespaceResult) {
+                    if (error)
+                        err+="\r\n" + error;
+                        //callback(err, null);
+                    else{
+                        result.namespaceOrganization=namespaceResult[0].organizationName;
+                        result.namespaceContactEmail=namespaceResult[0].email;
+                        result.namespaceOrganizationAndContactDetails=namespaceResult[0].organizationAndContactDetails;
+                    }
+                });
+            }
+        });
+    }
     callback(null, result);
 };
 

@@ -87,7 +87,10 @@ DROP TABLE IF EXISTS `namespace`;
 CREATE TABLE `namespace` (
   `namespace` int(11) NOT NULL DEFAULT '0',
   `organizationName` varchar(255) DEFAULT NULL,
+  `organizationAndContactDetails`  varchar(2000) DEFAULT NULL,
+  `dateIssued` datetime DEFAULT NULL,
   `email` varchar(255) DEFAULT NULL,
+  `notes` varchar(2000) DEFAULT NULL,
   PRIMARY KEY (`namespace`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
