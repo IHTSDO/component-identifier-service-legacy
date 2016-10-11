@@ -100,14 +100,16 @@ var checkSctid = function (sctid, callback) {
         getModel(function(error) {
             if (error) {
                 err+="\r\n" + error;
-                //callback(err, null);
+                result.errorMessage = err;
+                callback(null, result);
 
             } else {
                 model.namespace.find({namespace: namespaceId},function (error, namespaceResult) {
-                    if (error)
-                        err+="\r\n" + error;
-                        //callback(err, null);
-                    else{
+                    if (error) {
+                        err += "\r\n" + error;
+                        result.errorMessage = err;
+                        callback(null, result);
+                    }else{
                         result.namespaceOrganization=namespaceResult[0].organizationName;
                         result.namespaceContactEmail=namespaceResult[0].email;
                         result.namespaceOrganizationAndContactDetails=namespaceResult[0].organizationAndContactDetails;
