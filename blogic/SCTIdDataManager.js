@@ -119,10 +119,12 @@ var checkSctid = function (sctid, callback) {
                         result.errorMessage = err;
                         callback(null, result);
                     }else{
-                        console.log("namespaceResult len" + namespaceResult.length);
-                        result.namespaceOrganization=namespaceResult[0].organizationName;
-                        result.namespaceContactEmail=namespaceResult[0].email;
-                        result.namespaceOrganizationAndContactDetails=namespaceResult[0].organizationAndContactDetails;
+                        if (namespaceResult.length>0) {
+                            console.log("namespaceResult len" + namespaceResult.length);
+                            result.namespaceOrganization = (namespaceResult[0].organizationName == null) ? "" : namespaceResult[0].organizationName;
+                            result.namespaceContactEmail = (namespaceResult[0].email == null) ? "" : namespaceResult[0].email;
+                            result.namespaceOrganizationAndContactDetails = (namespaceResult[0].organizationAndContactDetails == null) ? "" : namespaceResult[0].organizationAndContactDetails;
+                        }
                         callback(null, result);
                     }
                 });
