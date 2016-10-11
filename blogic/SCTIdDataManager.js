@@ -47,10 +47,13 @@ var checkSctid = function (sctid, callback) {
     }
 
     var partitionId="";
-    try {
-        partitionId = sctIdHelper.getPartition(sctid);
-    }catch(e){
-        err+= e;
+
+    if (isValid=="true") {
+        try {
+            partitionId = sctIdHelper.getPartition(sctid);
+        } catch (e) {
+            err += e;
+        }
     }
     var sequence=null;
     try {
