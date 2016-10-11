@@ -33,7 +33,7 @@ var checkSctid = function (sctid, callback) {
     var err="";
     console.log("sctid:" + sctid);
     var isValid=null;
-    if (!sctIdHelper.validSCTId(sctId)){
+    if (!sctIdHelper.validSCTId(sctid)){
         err="sctId is not valid.";
     }else{
         isValid="true";
