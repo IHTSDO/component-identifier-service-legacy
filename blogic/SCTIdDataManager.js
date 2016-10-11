@@ -31,14 +31,13 @@ var throwErrMessage=function(msg){
 
 var checkSctid = function (sctid, callback) {
     var err="";
-    console.log("sctid:" + sctid);
     var isValid=null;
     if (!sctIdHelper.validSCTId(sctid)){
         err="sctId is not valid.";
+        isValid="false";
     }else{
         isValid="true";
     }
-    console.log("isValid:" + isValid);
 
     var checkDigit=null;
     try {
@@ -46,7 +45,6 @@ var checkSctid = function (sctid, callback) {
     }catch(e){
         err+= e;
     }
-    console.log("checkDigit:" + checkDigit);
 
     var partitionId="";
     try {
@@ -54,14 +52,12 @@ var checkSctid = function (sctid, callback) {
     }catch(e){
         err+= e;
     }
-    console.log("partitionId:" + partitionId);
     var sequence=null;
     try {
         sequence=sctIdHelper.getSequence(sctid);
     }catch(e){
         err+= e;
     }
-    console.log("sequence:" + sequence);
     var namespaceId=null;
     try {
         namespaceId=sctIdHelper.getNamespace(sctid);
@@ -69,28 +65,26 @@ var checkSctid = function (sctid, callback) {
         err+= e;
     }
 
-    console.log("namespaceId:" + namespaceId);
     var comment="";
-    if (namespaceId==0){
-        comment="Core ";
-    }else{
-        comment="Extension ";
-    }
-    console.log("comment:" + comment);
-    if (partitionId && partitionId!=""){
-        var art=partitionId.substr(1,1);
-        if (art=="0"){
-            comment +="concept";
-        }else if (art=="1"){
-            comment +="description";
-        }else if (art=="2"){
-            comment +="relationship";
-        }else{
-            comment +="artifact";
+    if (isValid=="true") {
+        if (namespaceId == 0) {
+            comment = "Core ";
+        } else {
+            comment = "Extension ";
+        }
+        if (partitionId && partitionId != "") {
+            var art = partitionId.substr(1, 1);
+            if (art == "0") {
+                comment += "concept";
+            } else if (art == "1") {
+                comment += "description";
+            } else if (art == "2") {
+                comment += "relationship";
+            } else {
+                comment += "artifact";
+            }
         }
     }
-
-    console.log("comment:" + comment);
     var result = {
         "sctid": sctid,
         "sequence": sequence,
@@ -104,8 +98,7 @@ var checkSctid = function (sctid, callback) {
         "namespaceContactEmail": "",
         "namespaceOrganizationAndContactDetails": ""
     };
-    if (isValid && namespaceId!=null){
-        console.log("getting namespace");
+    if (isValid=="true" && namespaceId!=null){
         getModel(function(error) {
             if (error) {
                 err+="\r\n" + error;
@@ -120,7 +113,6 @@ var checkSctid = function (sctid, callback) {
                         callback(null, result);
                     }else{
                         if (namespaceResult.length>0) {
-                            console.log("namespaceResult len" + namespaceResult.length);
                             result.namespaceOrganization = (namespaceResult[0].organizationName == null) ? "" : namespaceResult[0].organizationName;
                             result.namespaceContactEmail = (namespaceResult[0].email == null) ? "" : namespaceResult[0].email;
                             result.namespaceOrganizationAndContactDetails = (namespaceResult[0].organizationAndContactDetails == null) ? "" : namespaceResult[0].organizationAndContactDetails;
