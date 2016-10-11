@@ -71,7 +71,7 @@ var checkSctid = function (sctid, callback) {
 
     console.log("namespaceId:" + namespaceId);
     var comment="";
-    if (namespace=="0"){
+    if (namespaceId==0){
         comment="Core ";
     }else{
         comment="Extension ";
