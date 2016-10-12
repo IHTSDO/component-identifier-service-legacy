@@ -36,7 +36,7 @@ var checkSctid = function (sctid, callback) {
     var checkDigit=null;
     var sequence=null;
     var namespaceId=null;
-    var isValid=null;
+    var isValid="true";
     var comment = "";
 
     try {
@@ -57,8 +57,6 @@ var checkSctid = function (sctid, callback) {
         if (!sctIdHelper.validSCTId(sctid)) {
             err = "sctId is not valid.";
             isValid = "false";
-        } else {
-            isValid = "true";
         }
 
         try {
