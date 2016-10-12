@@ -114,9 +114,7 @@ var checkSctid = function (sctid, callback) {
         || partitionId==null
         || partitionId==""){
         isValid="false";
-        if (err==""){
-            err="sctId is not valid.";
-        }
+
     }
     var comment="";
     if (isValid=="true") {
