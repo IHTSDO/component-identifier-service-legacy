@@ -31,114 +31,150 @@ var throwErrMessage=function(msg){
 
 var checkSctid = function (sctid, callback) {
     var err="";
-    var isValid=null;
-    if (!sctIdHelper.validSCTId(sctid)){
-        err="sctId is not valid.";
-        isValid="false";
-    }else{
-        isValid="true";
-    }
-
 
     var partitionId="";
+    var checkDigit=null;
+    var sequence=null;
+    var namespaceId=null;
+    var isValid=null;
+    var comment = "";
+
+    try {
+        parseFloat(sctid);
+        if (sctid.length < 6) {
+            err = "SctId length is less than 6 digits.";
+            isValid = "false";
+        } else if (sctid.length > 18) {
+            err = "SctId length is greater than 18 digits.";
+            isValid = "false";
+        }
+    }catch(e) {
+        err = "SctId is not a number.";
+        isValid = "false";
+    }
 
     if (isValid=="true") {
+        if (!sctIdHelper.validSCTId(sctid)) {
+            err = "sctId is not valid.";
+            isValid = "false";
+        } else {
+            isValid = "true";
+        }
+
         try {
             partitionId = sctIdHelper.getPartition(sctid);
         } catch (e) {
-            err +="\r\nPartitionId error:" + e;
+            err += " PartitionId error:" + e;
         }
-    }
-    var partitionCtrl=true;
-    if (partitionId!="") {
-        if (partitionId != "00"
-            && partitionId != "01"
-            && partitionId != "02"
-            && partitionId != "10"
-            && partitionId != "11"
-            && partitionId != "12"
-            && partitionId != "03"
-            && partitionId != "13"
-            && partitionId != "04"
-            && partitionId != "14"
-            && partitionId != "05"
-            && partitionId != "15") {
 
-            err+="\r\nPartition Id " + partitionId + " is wrong.";
-            isValid="false";
-            partitionCtrl=false;
-        }
-    }
+        var partitionCtrl = true;
+        if (partitionId != "") {
+            if (partitionId != "00"
+                && partitionId != "01"
+                && partitionId != "02"
+                && partitionId != "10"
+                && partitionId != "11"
+                && partitionId != "12"
+                && partitionId != "03"
+                && partitionId != "13"
+                && partitionId != "04"
+                && partitionId != "14"
+                && partitionId != "05"
+                && partitionId != "15") {
 
-    var checkDigit=null;
-    try {
-        checkDigit = sctIdHelper.getCheckDigit(sctid);
-    }catch(e){
-        err+= e;
-    }
-
-    if (isValid=="false" && partitionCtrl){
-        try {
-            var id=sctid.substr(0,sctid.length-1);
-            var cd=sctIdHelper.verhoeffCompute(id);
-            if (cd!=checkDigit){
-                err+="\r\nCheck digit should be " + cd + ".";
+                err += " Partition Id " + partitionId + " is wrong.";
+                isValid = "false";
+                partitionCtrl = false;
             }
-        }catch(e){
-            err+="\r\nCheck digit error:" + e;
         }
 
-    }
-    var sequence=null;
-    try {
-        sequence=sctIdHelper.getSequence(sctid);
-    }catch(e){
-        err+= "\r\nSequence error:" + e;
-    }
-    var namespaceId=null;
-    try {
-        namespaceId=sctIdHelper.getNamespace(sctid);
+        var tmp;
+        try {
+            tmp = sctid.toString();
+            tmp.substr(tmp.length - 1, 1);
 
-    }catch(e){
-        err+= "\r\nNamespace error:" + e;
-    }
-    if (namespaceId && partitionCtrl){
-        if (partitionId.substr(0,1)=="1" && namespaceId==0){
-            isValid="false";
-            err+="\r\nPartitionId for extensions and Core namespace";
+            checkDigit = parseInt(tmp.substr(tmp.length - 1, 1));
+        } catch (e) {
+            err += " Check digit error:" + e;
         }
-    }
-    if (sequence==null
-        || namespaceId ==null
-        || checkDigit ==null
-        || partitionId==null
-        || partitionId==""){
-        isValid="false";
 
-    }
-    var comment="";
-    if (isValid=="true") {
-        if (namespaceId == 0) {
-            comment = "Core ";
-        } else {
-            comment = "Extension ";
+        if (isValid == "false" && partitionCtrl && checkDigit != null) {
+            try {
+                var id = sctid.substr(0, sctid.length - 1);
+                var cd = sctIdHelper.verhoeffCompute(id);
+                if (cd != checkDigit) {
+                    err += " Check digit should be " + cd + ".";
+                }
+            } catch (e) {
+                err += " Check digit error:" + e;
+            }
+
         }
-        if (partitionId && partitionId != "") {
-            var art = partitionId.substr(1, 1);
-            if (art == "0") {
-                comment += "concept Id";
-            } else if (art == "1") {
-                comment += "description Id";
-            } else if (art == "2") {
-                comment += "relationship Id";
-            } else if (art == "3") {
-                comment += "subset Id (RF1)";
-            } else if (art == "4") {
-                comment += "mapset Id (RF1)";
-            } else if (art == "5") {
-                comment += "target Id (RF1)";
-            }else {
-                comment += "artifact";
+        try {
+            tmp = sctid.toString();
+            if (partitionId.substr(0, 1) == "1") {
+                if (tmp.length > 10) {
+                    sequence = parseFloat(tmp.substr(0, tmp.length - 10));
+                }
+            } else {
+                sequence = parseFloat(tmp.substr(0, tmp.length - 3));
+            }
+        } catch (e) {
+            err += " Sequence error:" + e;
+        }
+        try {
+            tmp = sctid.toString();
+            if (partitionId.substr(0, 1) == "1") {
+                if (tmp.length > 10) {
+                    namespaceId = parseInt(tmp.substr(tmp.length - 10, 7));
+                } else {
+                    err += " PartitionId for extensions, but Core namespace.";
+                }
+            } else {
+                namespaceId = 0;
+            }
+
+        } catch (e) {
+            err += " Namespace error:" + e;
+        }
+        if (namespaceId && partitionCtrl) {
+            if (partitionId.substr(0, 1) == "1" && namespaceId == 0) {
+                isValid = "false";
+                err += " PartitionId for extensions and Core namespace";
+            }
+        }
+        if (sequence == null
+            || namespaceId == null
+            || checkDigit == null
+            || partitionId == null
+            || partitionId == "") {
+            isValid = "false";
+
+        }
+
+        if (isValid == "true") {
+            if (namespaceId == 0) {
+                comment = "Core ";
+            } else {
+                comment = "Extension ";
+            }
+            if (partitionId && partitionId != "") {
+                var art = partitionId.substr(1, 1);
+                if (art == "0") {
+                    comment += "concept Id";
+                } else if (art == "1") {
+                    comment += "description Id";
+                } else if (art == "2") {
+                    comment += "relationship Id";
+                } else if (art == "3") {
+                    comment += "subset Id (RF1)";
+                } else if (art == "4") {
+                    comment += "mapset Id (RF1)";
+                } else if (art == "5") {
+                    comment += "target Id (RF1)";
+                } else {
+                    comment += "artifact";
+                }
             }
         }
     }
@@ -158,14 +194,14 @@ var checkSctid = function (sctid, callback) {
     if (isValid=="true" && namespaceId!=null){
         getModel(function(error) {
             if (error) {
-                err+="\r\n" + error;
+                err+= " " + error;
                 result.errorMessage = err;
                 callback(null, result);
 
             } else {
                 model.namespace.find({namespace: namespaceId},function (error, namespaceResult) {
                     if (error) {
-                        err += "\r\n" + error;
+                        err += " " + error;
                         result.errorMessage = err;
                         callback(null, result);
                     }else{
