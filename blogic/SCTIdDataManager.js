@@ -39,12 +39,6 @@ var checkSctid = function (sctid, callback) {
         isValid="true";
     }
 
-    var checkDigit=null;
-    try {
-        checkDigit = sctIdHelper.getCheckDigit(sctid);
-    }catch(e){
-        err+= e;
-    }
 
     var partitionId="";
 
@@ -52,22 +46,78 @@ var checkSctid = function (sctid, callback) {
         try {
             partitionId = sctIdHelper.getPartition(sctid);
         } catch (e) {
-            err += e;
+            err +="\r\nPartitionId error:" + e;
         }
+    }
+    var partitionCtrl=true;
+    if (partitionId!="") {
+        if (partitionId != "00"
+            && partitionId != "01"
+            && partitionId != "02"
+            && partitionId != "10"
+            && partitionId != "11"
+            && partitionId != "12"
+            && partitionId != "03"
+            && partitionId != "13"
+            && partitionId != "04"
+            && partitionId != "14"
+            && partitionId != "05"
+            && partitionId != "15") {
+
+            err+="\r\nPartition Id " + partitionId + " is wrong.";
+            isValid="false";
+            partitionCtrl=false;
+        }
+    }
+
+    var checkDigit=null;
+    try {
+        checkDigit = sctIdHelper.getCheckDigit(sctid);
+    }catch(e){
+        err+= e;
+    }
+
+    if (isValid=="false" && partitionCtrl){
+        try {
+            var id=sctid.substr(0,sctid.length-1);
+            var cd=sctIdHelper.verhoeffCompute(id);
+            if (cd!=checkDigit){
+                err+="\r\nCheck digit should be " + cd + ".";
+            }
+        }catch(e){
+            err+="\r\nCheck digit error:" + e;
+        }
+
     }
     var sequence=null;
     try {
         sequence=sctIdHelper.getSequence(sctid);
     }catch(e){
-        err+= e;
+        err+= "\r\nSequence error:" + e;
     }
     var namespaceId=null;
     try {
         namespaceId=sctIdHelper.getNamespace(sctid);
-    }catch(e){
-        err+= e;
-    }
 
+    }catch(e){
+        err+= "\r\nNamespace error:" + e;
+    }
+    if (namespaceId && partitionCtrl){
+        if (partitionId.substr(0,1)=="1" && namespaceId==0){
+            isValid="false";
+            err+="\r\nPartitionId for extensions and Core namespace";
+        }
+    }
+    if (sequence==null
+        || namespaceId ==null
+        || checkDigit ==null
+        || partitionId==null
+        || partitionId==""){
+        isValid="false";
+        if (err=""){
+            err="sctId is not valid.";
+        }
+    }
     var comment="";
     if (isValid=="true") {
         if (namespaceId == 0) {
@@ -78,12 +128,18 @@ var checkSctid = function (sctid, callback) {
         if (partitionId && partitionId != "") {
             var art = partitionId.substr(1, 1);
             if (art == "0") {
-                comment += "concept";
+                comment += "concept Id";
             } else if (art == "1") {
-                comment += "description";
+                comment += "description Id";
             } else if (art == "2") {
-                comment += "relationship";
-            } else {
+                comment += "relationship Id";
+            } else if (art == "3") {
+                comment += "subset Id (RF1)";
+            } else if (art == "4") {
+                comment += "mapset Id (RF1)";
+            } else if (art == "5") {
+                comment += "target Id (RF1)";
+            }else {
                 comment += "artifact";
             }
         }
