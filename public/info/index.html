@@ -32,6 +32,23 @@
             $("#namespaces-nav-button").addClass("active");
             refreshNamespaces();
         };
+        var QueryString = function () {
+            var query_string = {};
+            var query = window.location.search.substring(1);
+            var vars = query.split("&");
+            for (var i = 0; i < vars.length; i++) {
+                var pair = vars[i].split("=");
+                if (typeof query_string[pair[0]] === "undefined") {
+                    query_string[pair[0]] = pair[1];
+                } else if (typeof query_string[pair[0]] === "string") {
+                    var arr = [query_string[pair[0]], pair[1]];
+                    query_string[pair[0]] = arr;
+                } else {
+                    query_string[pair[0]].push(pair[1]);
+                }
+            }
+            return query_string;
+        }();
         start = function() {
             $("#validate-button").unbind();
             $("#validate-button").click(function() {
@@ -49,8 +66,7 @@
                 } else {
                     $("#sctid-field").removeClass("invalid");
                     $("#sctid-field").addClass("valid");
-                    // "http://162.243.1.200:3000/api/sct/check/"
-                    // "../api/sct/check/"
+//                    $.getJSON("http://162.243.1.200:3000/api/sct/check/" + sctid, function( result ) {
                     $.getJSON("../api/sct/check/" + sctid, function( result ) {
                         if (result.isSCTIDValid == "true") {
                             $("#sctid-field").removeClass("invalid");
@@ -62,8 +78,16 @@
                             $("#result-field-check-digit").html(result.checkDigit);
                             $("#result-field-component-type").html(result.componentType);
                             $("#result-field-namespace").html(result.namespace);
-                            $("#result-field-organization").html(result.namespaceOrganization);
-                            $("#result-field-contact").html(result.namespaceContactEmail);
+                            if (result.namespaceOrganization) {
+                                $("#result-field-organization").html(result.namespaceOrganization);
+                            } else {
+                                $("#result-field-organization").html("Not registered");
+                            }
+                            if (result.namespaceContactEmail) {
+                                $("#result-field-contact").html(result.namespaceContactEmail);
+                            } else {
+                                $("#result-field-contact").html("Not registered");
+                            }
                             $("#result-field-partitionId").html(result.partitionId);
                             $("#result-field-sctid").html(result.sctid);
                             $("#result-field-sequence").html(result.sequence);
@@ -85,6 +109,10 @@
                 }
 
             });
+            if (QueryString.sctid) {
+                console.log(QueryString.sctid);
+                $("#sctid-field").val(QueryString.sctid);
+            }
             $("#sctid-field").keyup(function(event){
                 if(event.keyCode == 13){
                     $("#validate-button").click();
@@ -188,40 +216,40 @@
                     </div>
                     <div class="row" id="result-details" style="display: none;">
                         <br><br>
-                        <h5>Details:</h5>
-                        <div class="collection">
-                            <a href="#!" class="collection-item">
+                        <ul class="collection with-header">
+                            <li class="collection-header"><h5>Details</h5></li>
+                            <li class="collection-item">
                                 Component type
                                 <span class="new badge" id="result-field-component-type"></span>
-                            </a>
-                            <a href="#!" class="collection-item">
-                                Organization
-                                <span class="badge" id="result-field-organization"></span>
-                            </a>
-                            <a href="#!" class="collection-item">
+                            </li>
+                            <li class="collection-item">
+                                Organization:<br>
+                                <span id="result-field-organization"></span>
+                            </li>
+                            <li class="collection-item">
                                 SCTID
                                 <span class="badge" id="result-field-sctid"></span>
-                            </a>
-                            <a href="#!" class="collection-item">
+                            </li>
+                            <li class="collection-item">
                                 Sequence
                                 <span class="badge" id="result-field-sequence"></span>
-                            </a>
-                            <a href="#!" class="collection-item">
+                            </li>
+                            <li class="collection-item">
                                 Namespace
                                 <span class="badge" id="result-field-namespace"></span>
-                            </a>
-                            <a href="#!" class="collection-item">
+                            </li>
+                            <li class="collection-item">
                                 PartitionId
                                 <span class="badge" id="result-field-partitionId"></span>
-                            </a>
-                            <a href="#!" class="collection-item">
+                            </li>
+                            <li class="collection-item">
                                 Check-digit
                                 <span class="badge" id="result-field-check-digit"></span>
-                            </a>
-                            <a href="#!" class="collection-item">
-                                Contact
-                                <span class="badge" id="result-field-contact"></span>
-                            </a>
+                            </li>
+                            <li class="collection-item">
+                                Contact:<br>
+                                <span id="result-field-contact"></span>
+                            </li>
                         </div>
                     </div>
                 </div>
