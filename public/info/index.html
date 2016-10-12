@@ -173,13 +173,13 @@
                     </div>
                     <div class="row center" id="result-message-ok" style="display: none;">
                         <p class="green-text" style="font-weight: bold; font-size: 200%;">
-                            <i class="material-icons" style="vertical-align: middle;">done</i> OK - The SCTID is Valid
+                            <i class="material-icons" style="vertical-align: middle;">done</i> The SCTID is Valid
                         </p>
-                        <br><br><br>
+                        <br>
                     </div>
                     <div class="row center" id="result-message-error" style="display: none;">
                         <p class="red-text" style="font-weight: bold; font-size: 200%;">
-                            <i class="material-icons" style="vertical-align: middle;">error</i> Error - The SCTID is Invalid
+                            <i class="material-icons" style="vertical-align: middle;">error</i> The SCTID is Invalid
                         </p>
                         <br><br><br>
                     </div>
@@ -188,40 +188,37 @@
                     </div>
                     <div class="row" id="result-details" style="display: none;">
                         <br><br>
-                        <p>Details:</p>
-                        <br>
-                        <table class="striped responsive-table">
-                            <tbody>
-                            <tr>
-                                <td style="font-weight: bold;">SCTID</td>
-                                <td id="result-field-sctid"></td>
-                            </tr>
-                            <tr>
-                                <td style="font-weight: bold;">Sequence</td>
-                                <td id="result-field-sequence"></td>
-                            </tr>
-                            <tr>
-                                <td style="font-weight: bold;">Namespace</td>
-                                <td id="result-field-namespace"></td>
-                            </tr>
-                            <tr>
-                                <td style="font-weight: bold;">PartitionId</td>
-                                <td id="result-field-partitionId"></td>
-                            </tr>
-                            <tr>
-                                <td style="font-weight: bold;">Check-digit</td>
-                                <td id="result-field-check-digit"></td>
-                            </tr>
-                            <tr>
-                                <td style="font-weight: bold;">Organization</td>
-                                <td id="result-field-organization"></td>
-                            </tr>
-                            <tr>
-                                <td style="font-weight: bold;">Component type</td>
-                                <td id="result-field-component-type"></td>
-                            </tr>
-                            </tbody>
-                        </table>
+                        <h5>Details:</h5>
+                        <div class="collection">
+                            <a href="#!" class="collection-item">
+                                Component type
+                                <span class="new badge" id="result-field-component-type"></span>
+                            </a>
+                            <a href="#!" class="collection-item">
+                                Organization
+                                <span class="badge" id="result-field-organization"></span>
+                            </a>
+                            <a href="#!" class="collection-item">
+                                SCTID
+                                <span class="badge" id="result-field-sctid"></span>
+                            </a>
+                            <a href="#!" class="collection-item">
+                                Sequence
+                                <span class="badge" id="result-field-sequence"></span>
+                            </a>
+                            <a href="#!" class="collection-item">
+                                Namespace
+                                <span class="badge" id="result-field-namespace"></span>
+                            </a>
+                            <a href="#!" class="collection-item">
+                                PartitionId
+                                <span class="badge" id="result-field-partitionId"></span>
+                            </a>
+                            <a href="#!" class="collection-item">
+                                Check-digit
+                                <span class="badge" id="result-field-check-digit"></span>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
