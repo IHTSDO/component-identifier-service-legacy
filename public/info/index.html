@@ -18,6 +18,8 @@
     <!--Import jQuery before materialize.js-->
     <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
     <script type="text/javascript" src="js/materialize.min.js"></script>
+    <script type="text/javascript" src="js/linkifyjs/linkify.min.js"></script>
+    <script type="text/javascript" src="js/linkifyjs/linkify-string.min.js"></script>
     <script type="text/javascript">
         switchToValidation = function() {
             $("#namespaces-perspective").hide();
@@ -79,12 +81,12 @@
                             $("#result-field-component-type").html(result.componentType);
                             $("#result-field-namespace").html(result.namespace);
                             if (result.namespaceOrganization) {
-                                $("#result-field-organization").html(result.namespaceOrganization);
+                                $("#result-field-organization").html(linkifyStr(result.namespaceOrganization));
                             } else {
                                 $("#result-field-organization").html("Not registered");
                             }
                             if (result.namespaceContactEmail) {
-                                $("#result-field-contact").html(result.namespaceContactEmail);
+                                $("#result-field-contact").html(linkifyStr(result.namespaceContactEmail));
                             } else {
                                 $("#result-field-contact").html("Not registered");
                             }
@@ -131,8 +133,8 @@
                 $.each(result, function(index, loopNamespace) {
                     tableBody += "<tr>";
                     tableBody += "<td>" + loopNamespace.namespace + "</td>";
-                    tableBody += "<td>" + loopNamespace.organizationName + "</td>";
-                    tableBody += "<td>" + loopNamespace.email + "</td>";
+                    tableBody += "<td>" + linkifyStr(loopNamespace.organizationName) + "</td>";
+                    tableBody += "<td>" + linkifyStr(loopNamespace.email) + "</td>";
                     tableBody += "</tr>";
                 });
                 $("#namespaces-table-body").html(tableBody);
