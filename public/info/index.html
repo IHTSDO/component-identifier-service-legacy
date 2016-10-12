@@ -62,7 +62,8 @@
                             $("#result-field-check-digit").html(result.checkDigit);
                             $("#result-field-component-type").html(result.componentType);
                             $("#result-field-namespace").html(result.namespace);
-                            $("#result-field-organization").html(result.organizationName);
+                            $("#result-field-organization").html(result.namespaceOrganization);
+                            $("#result-field-contact").html(result.namespaceContactEmail);
                             $("#result-field-partitionId").html(result.partitionId);
                             $("#result-field-sctid").html(result.sctid);
                             $("#result-field-sequence").html(result.sequence);
@@ -100,7 +101,6 @@
             $.getJSON("../api/sct/namespaces", function( result ) {
                 var tableBody = "";
                 $.each(result, function(index, loopNamespace) {
-                    console.log(loopNamespace);
                     tableBody += "<tr>";
                     tableBody += "<td>" + loopNamespace.namespace + "</td>";
                     tableBody += "<td>" + loopNamespace.organizationName + "</td>";
@@ -217,6 +217,10 @@
                             <a href="#!" class="collection-item">
                                 Check-digit
                                 <span class="badge" id="result-field-check-digit"></span>
+                            </a>
+                            <a href="#!" class="collection-item">
+                                Contact
+                                <span class="badge" id="result-field-contact"></span>
                             </a>
                         </div>
                     </div>
