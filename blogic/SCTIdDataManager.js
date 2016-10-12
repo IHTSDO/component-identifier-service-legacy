@@ -30,30 +30,32 @@ var throwErrMessage=function(msg){
 };
 
 var checkSctid = function (sctid, callback) {
-    var err="";
+    var err = "";
 
-    var partitionId="";
-    var checkDigit=null;
-    var sequence=null;
-    var namespaceId=null;
-    var isValid="true";
+    var partitionId = "";
+    var checkDigit = null;
+    var sequence = null;
+    var namespaceId = null;
+    var isValid = "true";
     var comment = "";
 
-    try {
-        parseFloat(sctid);
-        if (sctid.length < 6) {
-            err = "SctId length is less than 6 digits.";
-            isValid = "false";
-        } else if (sctid.length > 18) {
-            err = "SctId length is greater than 18 digits.";
-            isValid = "false";
-        }
-    }catch(e) {
+    if (sctid == null) {
         err = "SctId is not a number.";
+        isValid = "false";
+
+    } else if (sctid.match(/[\D]/)) {
+        err = "SctId is not a number.";
+        isValid = "false";
+
+    } else if (sctid.length < 6) {
+        err = "SctId length is less than 6 digits.";
+        isValid = "false";
+    } else if (sctid.length > 18) {
+        err = "SctId length is greater than 18 digits.";
         isValid = "false";
     }
 
-    if (isValid=="true") {
+    if (isValid == "true") {
         if (!sctIdHelper.validSCTId(sctid)) {
             err = "sctId is not valid.";
             isValid = "false";
@@ -80,7 +82,7 @@ var checkSctid = function (sctid, callback) {
                 && partitionId != "05"
                 && partitionId != "15") {
 
-                err += " Partition Id " + partitionId + " is wrong.";
+                err += " Partition Id " + partitionId + " is not valid.";
                 isValid = "false";
                 partitionCtrl = false;
             }
@@ -189,21 +191,21 @@ var checkSctid = function (sctid, callback) {
         "namespaceContactEmail": "",
         "namespaceOrganizationAndContactDetails": ""
     };
-    if (isValid=="true" && namespaceId!=null){
-        getModel(function(error) {
+    if (isValid == "true" && namespaceId != null) {
+        getModel(function (error) {
             if (error) {
-                err+= " " + error;
+                err += " " + error;
                 result.errorMessage = err;
                 callback(null, result);
 
             } else {
-                model.namespace.find({namespace: namespaceId},function (error, namespaceResult) {
+                model.namespace.find({namespace: namespaceId}, function (error, namespaceResult) {
                     if (error) {
                         err += " " + error;
                         result.errorMessage = err;
                         callback(null, result);
-                    }else{
-                        if (namespaceResult.length>0) {
+                    } else {
+                        if (namespaceResult.length > 0) {
                             result.namespaceOrganization = (namespaceResult[0].organizationName == null) ? "" : namespaceResult[0].organizationName;
                             result.namespaceContactEmail = (namespaceResult[0].email == null) ? "" : namespaceResult[0].email;
                             result.namespaceOrganizationAndContactDetails = (namespaceResult[0].organizationAndContactDetails == null) ? "" : namespaceResult[0].organizationAndContactDetails;
@@ -213,7 +215,7 @@ var checkSctid = function (sctid, callback) {
                 });
             }
         });
-    }else{
+    } else {
         callback(null, result);
 
     }
