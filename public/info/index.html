@@ -141,6 +141,11 @@
                     tableBody += "</tr>";
                 });
                 $("#namespaces-table-body").html(tableBody);
+                $.dynatableSetup({
+                    features: {
+                        pushState: false
+                    }
+                });
                 $("#registry-table").dynatable({
                     table: {
                         features: {
