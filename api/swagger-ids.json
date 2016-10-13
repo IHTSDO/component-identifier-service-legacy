@@ -1031,7 +1031,7 @@
             "get": {
                 "x-swagger-router-controller": "Sctid",
                 "operationId": "checkSctid",
-                "tags": ["SCTIDS"],
+                "tags": ["SCTIDS","Public Validation API"],
                 "description": "Returns the information about the SNOMED CT ID, where is valid and other technical information.",
                 "parameters": [
                     {
