@@ -72,8 +72,8 @@
                 } else {
                     $("#sctid-field").removeClass("invalid");
                     $("#sctid-field").addClass("valid");
-                    $.getJSON("http://162.243.1.200:3000/api/sct/check/" + sctid, function( result ) {
-//                    $.getJSON("../api/sct/check/" + sctid, function( result ) {
+//                    $.getJSON("http://162.243.1.200:3000/api/sct/check/" + sctid, function( result ) {
+                    $.getJSON("../api/sct/check/" + sctid, function( result ) {
                         if (result.isSCTIDValid == "true") {
                             $("#sctid-field").removeClass("invalid");
                             $("#sctid-field").addClass("valid");
@@ -116,8 +116,10 @@
 
             });
             if (QueryString.sctid) {
-                console.log(QueryString.sctid);
                 $("#sctid-field").val(QueryString.sctid);
+            }
+            if (QueryString.home && QueryString.home == "namespaces") {
+                switchToNamespaces();
             }
             $("#sctid-field").keyup(function(event){
                 if(event.keyCode == 13){
@@ -130,8 +132,8 @@
 
         var refreshNamespaces = function() {
             $("#namespaces-table-body").html(spinner);
-            $.getJSON("http://162.243.1.200:3000/api/sct/namespaces", function( result ) {
-//            $.getJSON("../api/sct/namespaces", function( result ) {
+//            $.getJSON("http://162.243.1.200:3000/api/sct/namespaces", function( result ) {
+            $.getJSON("../api/sct/namespaces", function( result ) {
                 var tableBody = "";
                 $.each(result, function(index, loopNamespace) {
                     tableBody += "<tr>";
@@ -164,6 +166,7 @@
                 });
                 //$("#dynatable-per-page").remove();
                 $("#dynatable-search-registry-table").removeClass("dynatable-search");
+                $.find(".dynatable-sort-header")[0].click();
             });
         };
     </script>
