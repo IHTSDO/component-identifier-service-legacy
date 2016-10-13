@@ -13,7 +13,7 @@ var baseUrl = "http://" + _host + ":" + _port + _root;
 describe('Validation API', function(){
     it('should return ok with a valid id', function (done) {
         request(baseUrl)
-            .get('/sct/check/424387007')
+            .get('/sct/check/404684003')
             .set('Accept', 'application/json')
             .expect('Content-Type', /json/)
             .expect(200)
