@@ -57,7 +57,7 @@ var checkSctid = function (sctid, callback) {
 
     if (isValid == "true") {
         if (!sctIdHelper.validSCTId(sctid)) {
-            err = "sctId is not valid.";
+            err = "SctId is not valid.";
             isValid = "false";
         }
 
