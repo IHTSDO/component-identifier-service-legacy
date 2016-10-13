@@ -128,7 +128,8 @@ var checkSctid = function (sctid, callback) {
                 if (tmp.length > 10) {
                     namespaceId = parseInt(tmp.substr(tmp.length - 10, 7));
                 } else {
-                    err += " PartitionId for extensions, but Core namespace.";
+                    err += " PartitionId first digit is '1', it identifies an extension SCTID, " +
+                        "but no namespace could be identified";
                 }
             } else {
                 namespaceId = 0;
@@ -140,7 +141,8 @@ var checkSctid = function (sctid, callback) {
         if (namespaceId && partitionCtrl) {
             if (partitionId.substr(0, 1) == "1" && namespaceId == 0) {
                 isValid = "false";
-                err += " PartitionId for extensions and Core namespace";
+                err += " PartitionId first digit is '1', it identifies an extension SCTID, " +
+                    "but no namespace could be identified";
             }
         }
         if (sequence == null
