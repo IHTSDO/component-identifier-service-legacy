@@ -198,7 +198,7 @@ var checkSctid = function (sctid, callback) {
             if (error) {
                 err += " " + error;
                 result.errorMessage = err;
-                callback(null, result);
+                callback(error, result);
 
             } else {
                 model.namespace.find({namespace: namespaceId}, function (error, namespaceResult) {
