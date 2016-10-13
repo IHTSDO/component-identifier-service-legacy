@@ -6,7 +6,7 @@
         "version": "1.0"
     },
     "produces": ["application/json"],
-    "host": "localhost:3000",
+    "host": "sctid.termspace.com:3000",
     "basePath": "/api",
     "paths": {
 
