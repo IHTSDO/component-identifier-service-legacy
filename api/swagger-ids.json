@@ -824,7 +824,7 @@
             "get": {
                 "x-swagger-router-controller": "Namespace",
                 "operationId": "getNamespaces",
-                "tags": ["Namespaces"],
+                "tags": ["Namespaces","Public SCTID Info API"],
                 "description": "Returns the list of available namespaces.",
                 "parameters": [
                     {
@@ -1031,7 +1031,7 @@
             "get": {
                 "x-swagger-router-controller": "Sctid",
                 "operationId": "checkSctid",
-                "tags": ["SCTIDS","Public Validation API"],
+                "tags": ["SCTIDS","Public SCTID Info API"],
                 "description": "Returns the information about the SNOMED CT ID, where is valid and other technical information.",
                 "parameters": [
                     {
