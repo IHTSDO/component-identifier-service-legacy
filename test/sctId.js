@@ -212,4 +212,21 @@ describe('SCTIDS', function() {
                 });
         });
     });
+
+    describe('#checkSctid()', function () {
+        it('should deprecate a sctId for the namespace', function (done) {
+            sctId.checkSctid("404684003",function (err, result) {
+                if (err) throw err;
+                should.not.exist(err);
+                result.isSCTIDValid.should.be.equal("true");
+                result.sctid.should.be.equal("404684003");
+                result.sequence.should.be.equal("404684");
+                result.namespace.should.be.equal("0");
+                result.partitionId.should.be.equal("00");
+                result.checkDigit.should.be.equal("3");
+                result.componentType.should.be.equal("Core concept Id");
+                done();
+            });
+        });
+    });
 });
