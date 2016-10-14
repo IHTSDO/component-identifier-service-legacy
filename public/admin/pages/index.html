@@ -292,7 +292,7 @@
                     if (typeSelected == "namespaces") {
                         // Load group permissions
 //                        $.get(getUrl + "/groups" + namespaceId + "/users?token=" + options.token).done(function(result) {
-                            $.get("../views/items/permissions.hbs").then(function (src) {
+                            $.get("../views/items/groupPermissions.hbs").then(function (src) {
                                 var context = {
                                     groupName: "namespace-XX"
                                 };
