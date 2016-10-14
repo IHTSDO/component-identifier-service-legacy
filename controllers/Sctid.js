@@ -26,7 +26,22 @@ function isAbleUser(namespaceId, user, callback){
                         if (permission.username == user)
                             able = true;
                     });
-                    callback(able);
+                    if (!able) {
+                        security.getGroups(user,function(err, result) {
+                            if (err) {
+                                console.log("Error accessing groups", err);
+                                callback(able);
+                            } else {
+                                result.groups.forEach(function(loopGroup){
+                                    if (loopGroup.name == "namespace-" + namespaceId)
+                                        able = true;
+                                });
+                                callback(able);
+                            }
+                        });
+                    } else {
+                        callback(able);
+                    }
                 }
             });
         }else
