@@ -289,6 +289,18 @@
                         }
                         loadPermissionsHtml(result);
                     });
+                    if (typeSelected == "namespaces") {
+                        // Load group permissions
+//                        $.get(getUrl + "/groups" + namespaceId + "/users?token=" + options.token).done(function(result) {
+                            $.get("../views/items/permissions.hbs").then(function (src) {
+                                var context = {
+                                    groupName: "namespace-XX"
+                                };
+                                var template = Handlebars.compile(src);
+                                $("#namespaces-group-permissions").html(template(context));
+                            });
+//                        });
+                    }
                 }
                 $("#page-wrapper").html('<br><br><br><br><div class="text-center"><i class="fa fa-spinner fa-spin fa-4x"></i></div>');
                 if (itemsCall != null)
