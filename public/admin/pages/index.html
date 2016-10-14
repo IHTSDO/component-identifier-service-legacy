@@ -291,7 +291,8 @@
                     });
                     if (typeSelected == "namespaces") {
                         // Load group permissions
-                        $.get(getUrl + "/groups" + namespaceId + "/users?token=" + options.token).done(function(result) {
+//                        $.get(getUrl + "/groups/" + namespaceId + "/users?token=" + options.token).done(function(result) {
+                        $.get("/api/groups/namespace-" + namespaceId + "/users?token=" + options.token).done(function(result) {
                             $.get("../views/items/groupPermissions.hbs").then(function (src) {
                                 var context = {
                                     groupName: "namespace-XX"
