@@ -182,7 +182,7 @@
         function setClicks(){
             var itemsCall = null;
             loadItems = function(typeSelected, getUrl, primaryKey, firstClick){
-                function loadPermissions(id, edit){
+                function loadPermissions(id, edit, namespaceId){
                     $("#" + typeSelected + "-permissions-configure").html('<div class="text-center"><i class="fa fa-spinner fa-spin fa-2x"></i></div>');
                     if (itemsCall != null)
                         itemsCall.abort();
@@ -291,7 +291,7 @@
                     });
                     if (typeSelected == "namespaces") {
                         // Load group permissions
-//                        $.get(getUrl + "/groups" + namespaceId + "/users?token=" + options.token).done(function(result) {
+                        $.get(getUrl + "/groups" + namespaceId + "/users?token=" + options.token).done(function(result) {
                             $.get("../views/items/groupPermissions.hbs").then(function (src) {
                                 var context = {
                                     groupName: "namespace-XX"
@@ -299,7 +299,7 @@
                                 var template = Handlebars.compile(src);
                                 $("#namespaces-group-permissions").html(template(context));
                             });
-//                        });
+                        });
                     }
                 }
                 $("#page-wrapper").html('<br><br><br><br><div class="text-center"><i class="fa fa-spinner fa-spin fa-4x"></i></div>');
@@ -329,7 +329,7 @@
                                     $("#item-" + typeSelected + "-details").html(template(context));
                                     $("#item-" + typeSelected + "-details").find("input").first().focus();
                                     if (!itemLoaded.new)
-                                        loadPermissions(itemLoaded[primaryKey], edit);
+                                        loadPermissions(itemLoaded[primaryKey], edit, itemLoaded.namespace);
 //                                    if (!options.adminUser)
                                     $("#edit-button-" + typeSelected).hide();
                                     $("#edit-button-" + typeSelected).unbind();
