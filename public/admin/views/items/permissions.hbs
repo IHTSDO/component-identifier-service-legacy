@@ -1,7 +1,14 @@
 <ul class="list-group">
     <li class="list-group-item text-center">
         <h4 style="display: inline-block; margin: 0px;">Direct permissions for this {{type}}</h4>
-        <span tabindex="-1" id="addPermission-{{typeId}}" class="btn btn-link glyphicon glyphicon-plus pull-right" style="text-decoration: inherit; padding: 0px;"></span>
+        <!--<span tabindex="-1" id="addPermission-{{typeId}}" class="btn btn-link glyphicon glyphicon-plus pull-right" style="text-decoration: inherit; padding: 0px;"></span>-->
+        <span tabindex="-1" id="addPermission-{{typeId}}" class="btn-group pull-right">
+            <button class="btn btn-link pull-right dropdown-toggle" style="text-decoration: inherit; padding: 0px;" type="button" data-toggle="dropdown"><span class="glyphicon glyphicon-plus"></span></button>
+            <ul class="dropdown-menu" role="menu">
+                <li data-mode="User"><a class="addPermission" href="javascript:void(0);">user</a></li>
+                <li data-mode="Group"><a class="addPermission" href="javascript:void(0);">group</a></li>
+            </ul>
+        </span>
         <!--{{#if edit}}-->
         <!--{{/if}}-->
     </li>

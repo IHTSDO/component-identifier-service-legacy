@@ -387,6 +387,40 @@
                 }
             }
         },
+        "/groups": {
+            "get": {
+                "x-swagger-router-controller": "Login",
+                "operationId": "getAllGroups",
+                "tags": ["Authorization"],
+                "description": "Retrieves all groups.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Error.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Groups list.",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/groups/{groupName}/users": {
             "get": {
                 "x-swagger-router-controller": "Login",

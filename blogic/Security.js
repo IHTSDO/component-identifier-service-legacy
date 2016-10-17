@@ -93,6 +93,16 @@ module.exports.findUser = function findUser (username, callback) {
     });
 };
 
+module.exports.getAllGroups = function getAllGroups (callback) {
+    crowd.user.groups(function(err, res) {
+        if(err) {
+            callback(err);
+        } else {
+            callback(null, res);
+        }
+    });
+};
+
 module.exports.getGroups = function getGroups (username, callback) {
     crowd.user.groups(username, function(err, res) {
         if(err) {
