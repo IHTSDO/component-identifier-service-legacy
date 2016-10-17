@@ -36,10 +36,10 @@ function isAbleUser(namespaceId, user, callback){
                                 console.log("Error accessing groups", err);
                                 callback(able);
                             } else {
-                                result.groups.forEach(function(loopGroup){
-                                    if (loopGroup.name == "namespace-" + namespaceId)
+                                result.forEach(function(loopGroup){
+                                    if (loopGroup == "namespace-" + namespaceId)
                                         able = true;
-                                    else if (possibleGroups.indexOf(loopGroup.name) != -1)
+                                    else if (possibleGroups.indexOf(loopGroup) != -1)
                                         able = true;
                                 });
                                 callback(able);
@@ -81,8 +81,8 @@ function isSchemeAbleUser(schemeName, user, callback){
                                 console.log("Error accessing groups", err);
                                 callback(able);
                             } else {
-                                result.groups.forEach(function(loopGroup){
-                                    if (possibleGroups.indexOf(loopGroup.name) != -1)
+                                result.forEach(function(loopGroup){
+                                    if (possibleGroups.indexOf(loopGroup) != -1)
                                         able = true;
                                 });
                                 callback(able);

@@ -20,25 +20,16 @@ module.exports.getNamespacesForUser = function getNamespacesForUser(username, ca
         if (err)
             throw err;
         else{
-            console.log("getNamespacesForUser");
-            console.log(username, namespacesFromGroup);
-            // username.forEach(function (usL) {
-            //     model.permissionsNamespace.find({username: usL}, function (err, permissions){
-            //         console.log(usL, permissions);
-            //     });
-            // });
             model.permissionsNamespace.find({username: username}, function (err, permissions){
                 if (err)
                     callback(err, null);
                 else{
                     var namespaces = [];
                     if (namespacesFromGroup && namespacesFromGroup.length) namespaces = namespacesFromGroup;
-                    console.log(permissions);
                     permissions.forEach(function(permission){
                         if (namespaces.indexOf(permission.namespace) == -1)
                             namespaces.push(permission.namespace);
                     });
-                    console.log(namespaces);
                     model.namespace.find({namespace: namespaces}, function (err, namespaceResult) {
                         if (err)
                             callback(err, null);

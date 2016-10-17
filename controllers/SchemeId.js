@@ -32,8 +32,8 @@ function isAbleUser(schemeName, user, callback){
                                 console.log("Error accessing groups", err);
                                 callback(able);
                             } else {
-                                result.groups.forEach(function(loopGroup){
-                                    if (possibleGroups.indexOf(loopGroup.name) != -1)
+                                result.forEach(function(loopGroup){
+                                    if (possibleGroups.indexOf(loopGroup) != -1)
                                         able = true;
                                 });
                                 callback(able);
