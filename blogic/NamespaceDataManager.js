@@ -20,6 +20,7 @@ module.exports.getNamespacesForUser = function getNamespacesForUser(username, ca
         if (err)
             throw err;
         else{
+            console.log("getNamespacesForUser");
             console.log(username);
             model.permissionsNamespace.find({username: username}, function (err, permissions){
                 if (err)
