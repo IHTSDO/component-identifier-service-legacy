@@ -69,7 +69,7 @@ module.exports.getNamespacesForUser = function getNamespacesForUser (req, res, n
             return next({message: err.message, statusCode: 401});
         else{
             var namespacesFromGroup = [], otherGroups = [];
-            security.getGroups(user,function(err, result) {
+            security.getGroups(username,function(err, result) {
                 if (!err && result && result.groups && result.groups.length) {
                     result.groups.forEach(function(loopGroup){
                         if (loopGroup.name.substr(0, loopGroup.name.indexOf("-")) == "namespace")

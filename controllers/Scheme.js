@@ -101,7 +101,7 @@ module.exports.getSchemesForUser = function getSchemesForUser(req, res, next){
             return next({message: err.message, statusCode: 401});
         }else{
             var groups = [username];
-            security.getGroups(user,function(err, result) {
+            security.getGroups(username, function(err, result) {
                 if (!err && result && result.groups && result.groups.length) {
                     result.groups.forEach(function (group) {
                         groups.push(group.name);
