@@ -23,8 +23,11 @@ function isAbleUser(namespaceId, user, callback){
                     return next(err.message);
                 else{
                     permissions.forEach(function(permission){
+                        // If role == user o manager
                         if (permission.username == user)
                             able = true;
+                        // Else if group
+                        // if user is member of group
                     });
                     if (!able) {
                         security.getGroups(user,function(err, result) {
