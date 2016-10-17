@@ -69,9 +69,9 @@ module.exports.getStats = function getStats(username, callback){
                 });
             }else{
                 var otherGroups = [username], namespacesFromGroup = [];
-                security.getGroups(username, function(err, result) {
-                    if (!err && result.groups && result.groups.length) {
-                        result.groups.forEach(function(loopGroup){
+                security.getGroups(username, function(err, resultG) {
+                    if (!err && resultG.groups && resultG.groups.length) {
+                        resultG.groups.forEach(function(loopGroup){
                             if (loopGroup.name.substr(0, loopGroup.name.indexOf("-")) == "namespace")
                                 namespacesFromGroup.push(loopGroup.name.substr(loopGroup.name.indexOf("-") + 1));
                             else otherGroups.push(loopGroup.name);
