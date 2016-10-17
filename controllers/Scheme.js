@@ -18,29 +18,11 @@ function isAbleToEdit(schemeName, user, callback){
                 if (err)
                     return next(err.message);
                 else{
-                    var possibleGroups = [];
                     permissions.forEach(function(permission){
-                        if (permission.role == "group"){
-                            possibleGroups.push(permission.username);
-                        }else if (permission.username == user && permission.role == "manager")
+                        if (permission.username == user && permission.role == "manager")
                             able = true;
                     });
-                    if (!able && possibleGroups.length) {
-                        security.getGroups(user,function(err, result) {
-                            if (err) {
-                                console.log("Error accessing groups", err);
-                                callback(able);
-                            } else {
-                                result.groups.forEach(function(loopGroup){
-                                    if (possibleGroups.indexOf(loopGroup.name) != -1)
-                                        able = true;
-                                });
-                                callback(able);
-                            }
-                        });
-                    } else {
-                        callback(able);
-                    }
+                    callback(able);
                 }
             });
         }else
@@ -118,13 +100,21 @@ module.exports.getSchemesForUser = function getSchemesForUser(req, res, next){
         if (err) {
             return next({message: err.message, statusCode: 401});
         }else{
-            scheme.getSchemesForUser(username, function (err, schemes){
-                if (err) {
-                    return next(err.message);
-                }else{
-                    res.setHeader('Content-Type', 'application/json');
-                    res.end(JSON.stringify(schemes));
+            var groups = [username];
+            security.getGroups(user,function(err, result) {
+                if (!err && result && result.groups && result.groups.length) {
+                    result.groups.forEach(function (group) {
+                        groups.push(group.name);
+                    });
                 }
+                scheme.getSchemesForUser(groups, function (err, schemes){
+                    if (err) {
+                        return next(err.message);
+                    }else{
+                        res.setHeader('Content-Type', 'application/json');
+                        res.end(JSON.stringify(schemes));
+                    }
+                });
             });
         }
     });

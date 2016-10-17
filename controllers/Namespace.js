@@ -18,29 +18,11 @@ function isAbleToEdit(namespaceId, user, callback){
                 if (err)
                     return next(err.message);
                 else{
-                    var possibleGroups = [];
                     permissions.forEach(function(permission){
-                        if (permission.role == "group"){
-                            possibleGroups.push(permission.username);
-                        }else if (permission.role == "manager" && permission.username == user)
+                        if (permission.role == "manager" && permission.username == user)
                             able = true;
                     });
-                    if (!able && possibleGroups.length) {
-                        security.getGroups(user,function(err, result) {
-                            if (err) {
-                                console.log("Error accessing groups", err);
-                                callback(able);
-                            } else {
-                                result.groups.forEach(function(loopGroup){
-                                    if (possibleGroups.indexOf(loopGroup.name) != -1)
-                                        able = true;
-                                });
-                                callback(able);
-                            }
-                        });
-                    } else {
-                        callback(able);
-                    }
+                    callback(able);
                 }
             });
         }else
@@ -86,13 +68,24 @@ module.exports.getNamespacesForUser = function getNamespacesForUser (req, res, n
         if (err)
             return next({message: err.message, statusCode: 401});
         else{
-            namespace.getNamespacesForUser(username, function(err, namespaces) {
-                if (err)
-                    return next(err.message);
-                else{
-                    res.setHeader('Content-Type', 'application/json');
-                    res.end(JSON.stringify(namespaces));
+            var namespacesFromGroup = [], otherGroups = [];
+            security.getGroups(user,function(err, result) {
+                if (!err && result && result.groups && result.groups.length) {
+                    result.groups.forEach(function(loopGroup){
+                        if (loopGroup.name.substr(0, loopGroup.name.indexOf("-")) == "namespace")
+                            namespacesFromGroup.push(loopGroup.name.substr(loopGroup.name.indexOf("-") + 1));
+                        else otherGroups.push(loopGroup.name);
+                    });
                 }
+                otherGroups.push(username);
+                namespace.getNamespacesForUser(otherGroups, function(err, namespaces) {
+                    if (err)
+                        return next(err.message);
+                    else{
+                        res.setHeader('Content-Type', 'application/json');
+                        res.end(JSON.stringify(namespaces));
+                    }
+                }, namespacesFromGroup);
             });
         }
     });
