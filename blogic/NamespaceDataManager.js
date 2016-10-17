@@ -28,10 +28,12 @@ module.exports.getNamespacesForUser = function getNamespacesForUser(username, ca
                 else{
                     var namespaces = [];
                     if (namespacesFromGroup && namespacesFromGroup.length) namespaces = namespacesFromGroup;
+                    console.log(permissions);
                     permissions.forEach(function(permission){
                         if (namespaces.indexOf(permission.namespace) == -1)
                             namespaces.push(permission.namespace);
                     });
+                    console.log(namespaces);
                     model.namespace.find({namespace: namespaces}, function (err, namespaceResult) {
                         if (err)
                             callback(err, null);
