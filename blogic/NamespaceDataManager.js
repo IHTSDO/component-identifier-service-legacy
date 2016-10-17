@@ -21,7 +21,7 @@ module.exports.getNamespacesForUser = function getNamespacesForUser(username, ca
             throw err;
         else{
             console.log("getNamespacesForUser");
-            console.log(username);
+            console.log(username, namespacesFromGroup);
             model.permissionsNamespace.find({username: username}, function (err, permissions){
                 if (err)
                     callback(err, null);
