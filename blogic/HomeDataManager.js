@@ -86,12 +86,18 @@ module.exports.getStats = function getStats(username, callback){
                                 if (err)
                                     callback(err, null);
                                 else{
-                                    result.namespaces.total = namespaceResult.length;
                                     if (namespacesFromGroup.length){
                                         namespacesFromGroup.forEach(function (namespLoop) {
-                                            namespaceResult.push({namespace: namespLoop});
+                                            var found = false;
+                                            namespaceResult.forEach(function(namesp){
+                                                if (namesp.namespace == namespLoop)
+                                                     found = true;
+                                            });
+                                            if (!found)
+                                                namespaceResult.push({namespace: namespLoop});
                                         });
                                     }
+                                    result.namespaces.total = namespaceResult.length;
                                     var total = namespaceResult.length, done = 0;
                                     if (total > 0){
                                         namespaceResult.forEach(function(namespaceR){
@@ -100,7 +106,10 @@ module.exports.getStats = function getStats(username, callback){
                                                     callback(err, null);
                                                 else{
                                                     done++;
-                                                    result.namespaces[namespaceR.organizationName + " (" + namespaceR.namespace + ")"] = namespaceCount;
+                                                    var name = namespaceR.namespace;
+                                                    if (namespaceR.organizationName)
+                                                        name = namespaceR.organizationName + " (" + namespaceR.namespace + ")";
+                                                    result.namespaces[name] = namespaceCount;
                                                     if (total == done){
                                                         callback(null, result);
                                                     }
