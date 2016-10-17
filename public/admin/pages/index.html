@@ -62,7 +62,8 @@
         });
 
         $.get("/api/groups?token=" + options.token).done(function(res){
-            options.groups = res;
+            if (!res.groups || !res) res = {groups: []};
+            options.groups = res.groups;
         }).fail(function(err){
             console.log(err.message);
         });
@@ -251,7 +252,7 @@
                                             });
                                         }else{
                                             options.groups.forEach(function(group){
-                                                addHtml+= '<option value="' +  group + '">' + group + '</option>';
+                                                addHtml+= '<option value="' +  group.name + '">' + group.name + '</option>';
                                             });
                                         }
                                         addHtml+= '</select>';
