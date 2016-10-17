@@ -70,11 +70,11 @@ module.exports.getStats = function getStats(username, callback){
             }else{
                 var otherGroups = [username], namespacesFromGroup = [];
                 security.getGroups(username, function(err, resultG) {
-                    if (!err && resultG.groups && resultG.groups.length) {
-                        resultG.groups.forEach(function(loopGroup){
-                            if (loopGroup.name.substr(0, loopGroup.name.indexOf("-")) == "namespace")
-                                namespacesFromGroup.push(loopGroup.name.substr(loopGroup.name.indexOf("-") + 1));
-                            else otherGroups.push(loopGroup.name);
+                    if (!err && resultG && resultG.length) {
+                        resultG.forEach(function(loopGroup){
+                            if (loopGroup.substr(0, loopGroup.indexOf("-")) == "namespace")
+                                namespacesFromGroup.push(loopGroup.substr(loopGroup.indexOf("-") + 1));
+                            else otherGroups.push(loopGroup);
                         });
                     }
                     model.permissionsScheme.count({username: otherGroups}, function (err, schemesCount) {

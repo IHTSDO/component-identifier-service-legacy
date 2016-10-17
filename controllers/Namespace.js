@@ -70,12 +70,11 @@ module.exports.getNamespacesForUser = function getNamespacesForUser (req, res, n
         else{
             var namespacesFromGroup = [], otherGroups = [];
             security.getGroups(username,function(err, result) {
-                console.log(result);
-                if (!err && result && result.groups && result.groups.length) {
-                    result.groups.forEach(function(loopGroup){
-                        if (loopGroup.name.substr(0, loopGroup.name.indexOf("-")) == "namespace")
-                            namespacesFromGroup.push(loopGroup.name.substr(loopGroup.name.indexOf("-") + 1));
-                        else otherGroups.push(loopGroup.name);
+                if (!err && result && result.length) {
+                    result.forEach(function(loopGroup){
+                        if (loopGroup.substr(0, loopGroup.indexOf("-")) == "namespace")
+                            namespacesFromGroup.push(loopGroup.substr(loopGroup.indexOf("-") + 1));
+                        else otherGroups.push(loopGroup);
                     });
                 }
                 otherGroups.push(username);

@@ -102,9 +102,9 @@ module.exports.getSchemesForUser = function getSchemesForUser(req, res, next){
         }else{
             var groups = [username];
             security.getGroups(username, function(err, result) {
-                if (!err && result && result.groups && result.groups.length) {
-                    result.groups.forEach(function (group) {
-                        groups.push(group.name);
+                if (!err && result && result.length) {
+                    result.forEach(function (group) {
+                        groups.push(group);
                     });
                 }
                 scheme.getSchemesForUser(groups, function (err, schemes){
