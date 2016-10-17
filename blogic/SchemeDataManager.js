@@ -39,6 +39,7 @@ module.exports.getSchemesForUser = function getSchemesForUser(username, callback
         if (err)
             throw err;
         else{
+            console.log(username);
             model.permissionsScheme.find({username: username}, function (err, permissions){
                 if (err)
                     callback(err, null);
