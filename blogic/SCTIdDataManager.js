@@ -190,8 +190,7 @@ var checkSctid = function (sctid, callback) {
         "isSCTIDValid": isValid,
         "errorMessage": err,
         "namespaceOrganization": "",
-        "namespaceContactEmail": "",
-        "namespaceOrganizationAndContactDetails": ""
+        "namespaceContactEmail": ""
     };
     if (isValid == "true" && namespaceId != null) {
         getModel(function (error) {
@@ -210,7 +209,6 @@ var checkSctid = function (sctid, callback) {
                         if (namespaceResult.length > 0) {
                             result.namespaceOrganization = (namespaceResult[0].organizationName == null) ? "" : namespaceResult[0].organizationName;
                             result.namespaceContactEmail = (namespaceResult[0].email == null) ? "" : namespaceResult[0].email;
-                            result.namespaceOrganizationAndContactDetails = (namespaceResult[0].organizationAndContactDetails == null) ? "" : namespaceResult[0].organizationAndContactDetails;
                         }
                         callback(null, result);
                     }
