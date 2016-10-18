@@ -54,7 +54,8 @@ module.exports.getStats = function getStats(username, callback){
                                                 callback(err, null);
                                             else{
                                                 done++;
-                                                result.namespaces[namespaceR.organizationName + " (" + namespaceR.namespace + ")"] = namespaceCount;
+                                                // result.namespaces[namespaceR.organizationName + " (" + namespaceR.namespace + ")"] = namespaceCount;
+                                                result.namespaces[namespaceR.namespace] = namespaceCount;
                                                 if (total == done){
                                                     callback(null, result);
                                                 }
@@ -106,10 +107,10 @@ module.exports.getStats = function getStats(username, callback){
                                                     callback(err, null);
                                                 else{
                                                     done++;
-                                                    var name = namespaceR.namespace;
-                                                    if (namespaceR.organizationName)
-                                                        name = namespaceR.organizationName + " (" + namespaceR.namespace + ")";
-                                                    result.namespaces[name] = namespaceCount;
+                                                    // var name = namespaceR.namespace;
+                                                    // if (namespaceR.organizationName)
+                                                    //     name = namespaceR.organizationName + " (" + namespaceR.namespace + ")";
+                                                    result.namespaces[namespaceR.namespace] = namespaceCount;
                                                     if (total == done){
                                                         callback(null, result);
                                                     }
