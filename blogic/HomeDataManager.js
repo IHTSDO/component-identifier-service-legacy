@@ -68,36 +68,60 @@ module.exports.getStats = function getStats(username, callback){
                     }
                 });
             }else{
-                model.permissionsScheme.count({username: username}, function (err, schemesCount) {
-                    if (err)
-                        callback(err, null);
-                    else{
-                        result.schemes = schemesCount;
-                        model.permissionsNamespace.find({username: username}, function (err, namespaceResult) {
-                            if (err)
-                                callback(err, null);
-                            else{
-                                result.namespaces.total = namespaceResult.length;
-                                var total = namespaceResult.length, done = 0;
-                                if (total > 0){
-                                    namespaceResult.forEach(function(namespaceR){
-                                        sctid.count({namespace: namespaceR.namespace}, function (err, namespaceCount){
-                                            if (err)
-                                                callback(err, null);
-                                            else{
-                                                done++;
-                                                result.namespaces[namespaceR.organizationName + " (" + namespaceR.namespace + ")"] = namespaceCount;
-                                                if (total == done){
-                                                    callback(null, result);
-                                                }
-                                            }
-                                        });
-                                    });
-                                }else
-                                    callback(null, result);
-                            }
+                var otherGroups = [username], namespacesFromGroup = [];
+                security.getGroups(username, function(err, resultG) {
+                    if (!err && resultG && resultG.length) {
+                        resultG.forEach(function(loopGroup){
+                            if (loopGroup.substr(0, loopGroup.indexOf("-")) == "namespace")
+                                namespacesFromGroup.push(loopGroup.substr(loopGroup.indexOf("-") + 1));
+                            else otherGroups.push(loopGroup);
                         });
                     }
+                    model.permissionsScheme.count({username: otherGroups}, function (err, schemesCount) {
+                        if (err)
+                            callback(err, null);
+                        else{
+                            result.schemes = schemesCount;
+                            model.permissionsNamespace.find({username: otherGroups}, function (err, namespaceResult) {
+                                if (err)
+                                    callback(err, null);
+                                else{
+                                    if (namespacesFromGroup.length){
+                                        namespacesFromGroup.forEach(function (namespLoop) {
+                                            var found = false;
+                                            namespaceResult.forEach(function(namesp){
+                                                if (namesp.namespace == namespLoop)
+                                                     found = true;
+                                            });
+                                            if (!found)
+                                                namespaceResult.push({namespace: namespLoop});
+                                        });
+                                    }
+                                    result.namespaces.total = namespaceResult.length;
+                                    var total = namespaceResult.length, done = 0;
+                                    if (total > 0){
+                                        namespaceResult.forEach(function(namespaceR){
+                                            sctid.count({namespace: namespaceR.namespace}, function (err, namespaceCount){
+                                                if (err)
+                                                    callback(err, null);
+                                                else{
+                                                    done++;
+                                                    var name = namespaceR.namespace;
+                                                    if (namespaceR.organizationName)
+                                                        name = namespaceR.organizationName + " (" + namespaceR.namespace + ")";
+                                                    result.namespaces[name] = namespaceCount;
+                                                    if (total == done){
+                                                        callback(null, result);
+                                                    }
+                                                }
+                                            });
+                                        });
+                                    }else
+                                        callback(null, result);
+                                }
+                            });
+                        }
+                    });
                 });
             }
         }

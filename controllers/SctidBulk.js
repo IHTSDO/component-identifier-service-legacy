@@ -23,11 +23,31 @@ function isAbleUser(namespaceId, user, callback){
                 if (err)
                     return next(err.message);
                 else{
+                    var possibleGroups = [];
                     permissions.forEach(function(permission){
-                        if (permission.username == user)
+                        if (permission.role == "group"){
+                            possibleGroups.push(permission.username);
+                        }else if (permission.username == user)
                             able = true;
                     });
-                    callback(able);
+                    if (!able) {
+                        security.getGroups(user,function(err, result) {
+                            if (err) {
+                                console.log("Error accessing groups", err);
+                                callback(able);
+                            } else {
+                                result.forEach(function(loopGroup){
+                                    if (loopGroup == "namespace-" + namespaceId)
+                                        able = true;
+                                    else if (possibleGroups.indexOf(loopGroup) != -1)
+                                        able = true;
+                                });
+                                callback(able);
+                            }
+                        });
+                    } else {
+                        callback(able);
+                    }
                 }
             });
         }else
@@ -48,11 +68,29 @@ function isSchemeAbleUser(schemeName, user, callback){
                 if (err)
                     return next(err.message);
                 else{
+                    var possibleGroups = [];
                     permissions.forEach(function(permission){
-                        if (permission.username == user)
+                        if (permission.role == "group"){
+                            possibleGroups.push(permission.username);
+                        }else if (permission.username == user)
                             able = true;
                     });
-                    callback(able);
+                    if (!able && possibleGroups.length) {
+                        security.getGroups(user,function(err, result) {
+                            if (err) {
+                                console.log("Error accessing groups", err);
+                                callback(able);
+                            } else {
+                                result.forEach(function(loopGroup){
+                                    if (possibleGroups.indexOf(loopGroup) != -1)
+                                        able = true;
+                                });
+                                callback(able);
+                            }
+                        });
+                    } else {
+                        callback(able);
+                    }
                 }
             });
         }else
