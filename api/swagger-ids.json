@@ -3201,9 +3201,6 @@
                 },
                 "namespaceContactEmail": {
                     "type": "string"
-                },
-                "namespaceOrganizationAndContactDetails": {
-                    "type": "string"
                 }
             }
         },
