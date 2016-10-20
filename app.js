@@ -6,7 +6,7 @@ var swaggerTools = require('swagger-tools');
 var serveStatic = require('serve-static');
 var backEndJobService = require('./blogic/BackEndJobService');
 var CleanService = require('./blogic/CleanService');
-
+var cors = require('cors');
 
 var bodyParser = require('body-parser');
 app.use(bodyParser.json({limit: '50mb'}));
@@ -26,6 +26,9 @@ var swaggerDoc = require('./api/swagger-ids.json');
 
 // Initialize the Swagger middleware
 swaggerTools.initializeMiddleware(swaggerDoc, function (middleware) {
+    // Open cross site access for functioning as an API
+    app.use(cors());
+
     // Interpret Swagger resources and attach metadata to request - must be first in swagger-tools middleware chain
     app.use(middleware.swaggerMetadata());
 

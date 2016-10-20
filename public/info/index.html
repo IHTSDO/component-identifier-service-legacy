@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SCTID Info</title>
+    <style>
+        html {
+            font-family: Roboto, sans-serif;
+        }
+    </style>
+    <!--Import Google Icon Font-->
+    <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">    <!--Import materialize.css-->
+    <link type="text/css" rel="stylesheet" href="css/materialize.min.css"  media="screen,projection"/>
+    <link type="text/css" rel="stylesheet" href="css/jquery.dynatable.css"/>
+
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+</head>
+<body onload="start()">
+    <!--Import jQuery before materialize.js-->
+    <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script type="text/javascript" src="js/materialize.min.js"></script>
+    <script type="text/javascript" src="js/linkifyjs/linkify.min.js"></script>
+    <script type="text/javascript" src="js/linkifyjs/linkify-string.min.js"></script>
+    <script type="text/javascript" src="js/jquery.dynatable.js"></script>
+    <script type="text/javascript">
+        switchToValidation = function() {
+            $("#namespaces-perspective").hide();
+            $("#validation-perspective").show();
+            $("#validation-nav-button").addClass("active");
+            $("#namespaces-nav-button").removeClass("active");
+        };
+        switchToNamespaces = function() {
+            $("#validation-perspective").hide();
+            $("#namespaces-perspective").show();
+            $("#validation-nav-button").removeClass("active");
+            $("#namespaces-nav-button").addClass("active");
+            refreshNamespaces();
+        };
+        var QueryString = function () {
+            var query_string = {};
+            var query = window.location.search.substring(1);
+            var vars = query.split("&");
+            for (var i = 0; i < vars.length; i++) {
+                var pair = vars[i].split("=");
+                if (typeof query_string[pair[0]] === "undefined") {
+                    query_string[pair[0]] = pair[1];
+                } else if (typeof query_string[pair[0]] === "string") {
+                    var arr = [query_string[pair[0]], pair[1]];
+                    query_string[pair[0]] = arr;
+                } else {
+                    query_string[pair[0]].push(pair[1]);
+                }
+            }
+            return query_string;
+        }();
+        start = function() {
+            $(".dropdown-button").dropdown();
+            $("#validate-button").unbind();
+            $("#validate-button").click(function() {
+                var sctid = $("#sctid-field").val();
+                if (sctid.length < 6 || sctid.length > 18) {
+                    $("#sctid-field").removeClass("valid");
+                    $("#sctid-field").addClass("invalid");
+                    Materialize.toast('Invalid length', 4000, "red");
+                    $("#result-message-initial").hide();
+                    $("#result-message-ok").hide();
+                    $("#result-message-error").show();
+                    $("#result-details").hide();
+                    $("#result-error-message-text").html("Valid SCTID Length: between 6 and 18 digits.");
+                    $("#result-error-message").show();
+                } else {
+                    $("#sctid-field").removeClass("invalid");
+                    $("#sctid-field").addClass("valid");
+//                    $.getJSON("http://162.243.1.200:3000/api/sct/check/" + sctid, function( result ) {
+                    $.getJSON("../api/sct/check/" + sctid, function( result ) {
+                        if (result.isSCTIDValid == "true") {
+                            $("#sctid-field").removeClass("invalid");
+                            $("#sctid-field").addClass("valid");
+                            Materialize.toast('SCTID Valid!', 4000, "green");
+                            $("#result-message-initial").hide();
+                            $("#result-message-ok").show();
+                            $("#result-message-error").hide();
+                            $("#result-field-check-digit").html(result.checkDigit);
+                            $("#result-field-component-type").html(result.componentType);
+                            $("#result-field-namespace").html(result.namespace);
+                            if (result.namespaceOrganization) {
+                                $("#result-field-organization").html(linkifyStr(result.namespaceOrganization));
+                            } else {
+                                $("#result-field-organization").html("Not registered");
+                            }
+                            if (result.namespaceContactEmail) {
+                                $("#result-field-contact").html(linkifyStr(result.namespaceContactEmail));
+                            } else {
+                                $("#result-field-contact").html("Not registered");
+                            }
+                            $("#result-field-partitionId").html(result.partitionId);
+                            $("#result-field-sctid").html(result.sctid);
+                            $("#result-field-sequence").html(result.sequence);
+                            $("#result-details").show();
+                            $("#result-error-message-text").html("");
+                            $("#result-error-message").hide();
+                        } else {
+                            $("#sctid-field").removeClass("valid");
+                            $("#sctid-field").addClass("invalid");
+                            Materialize.toast('SCTID Invalid!', 4000, "red");
+                            $("#result-message-initial").hide();
+                            $("#result-message-ok").hide();
+                            $("#result-message-error").show();
+                            $("#result-error-message-text").html(result.errorMessage);
+                            $("#result-error-message").show();
+                            $("#result-details").hide();
+                        }
+                    });
+                }
+
+            });
+            if (QueryString.sctid) {
+                $("#sctid-field").val(QueryString.sctid);
+            }
+            if (QueryString.home && QueryString.home == "namespaces") {
+                switchToNamespaces();
+            }
+            $("#sctid-field").keyup(function(event){
+                if(event.keyCode == 13){
+                    $("#validate-button").click();
+                }
+            });
+            $(".button-collapse").sideNav();
+        };
+        var spinner = '<tr><td colspan="3"><div class="col s8 offset-s2"><div class="progress"><div class="indeterminate"></div></div></div></td></tr>';
+
+        var refreshNamespaces = function() {
+            $("#namespaces-table-body").html(spinner);
+//            $.getJSON("http://162.243.1.200:3000/api/sct/namespaces", function( result ) {
+            $.getJSON("../api/sct/namespaces", function( result ) {
+                var tableBody = "";
+                $.each(result, function(index, loopNamespace) {
+                    tableBody += "<tr>";
+                    tableBody += "<td>" + loopNamespace.namespace + "</td>";
+                    tableBody += "<td>" + linkifyStr(loopNamespace.organizationName) + "</td>";
+                    tableBody += "<td>" + linkifyStr(loopNamespace.email) + "</td>";
+                    tableBody += "</tr>";
+                });
+                $("#namespaces-table-body").html(tableBody);
+                $.dynatableSetup({
+                    features: {
+                        pushState: false
+                    }
+                });
+                $("#registry-table").dynatable({
+                    table: {
+                        features: {
+                            paginate: true,
+                            search: true,
+                            recordCount: true,
+                            perPageSelect: false,
+                            pushState: false
+                        },
+                        dataset: {
+                            sortTypes: {
+                                'Namespace': 'number'
+                            }
+                        }
+                    }
+                });
+                //$("#dynatable-per-page").remove();
+                $("#dynatable-search-registry-table").removeClass("dynatable-search");
+                $.find(".dynatable-sort-header")[0].click();
+            });
+        };
+    </script>
+    <ul id="dropdown-about" class="dropdown-content">
+        <li><a href="https://github.com/IHTSDO/component-identifier-service" target="_blank">GitHub</a></li>
+        <li><a href="/docs" target="_blank">Rest API</a></li>
+        <li><a href="/admin" target="_blank">Admin</a></li>
+    </ul>
+    <nav>
+        <div class="nav-wrapper" style="color: #fff; background-color: #ee6e73">
+            <a href="javascript:switchToValidation();" class="brand-logo" style="margin-left: 10px;">SCTID Information</a>
+            <a href="#" data-activates="mobile-menu" class="button-collapse"><i class="material-icons">menu</i></a>
+            <ul id="nav-mobile" class="right hide-on-med-and-down">
+                <li class="active" id="validation-nav-button"><a href="javascript:switchToValidation();">SCTID Validation</a></li>
+                <li id="namespaces-nav-button"><a href="javascript:switchToNamespaces();">Namespace Identifier Registry</a></li>
+                <li><a class="dropdown-button" href="#!" data-activates="dropdown-about">About<i class="material-icons right">arrow_drop_down</i></a></li>
+            </ul>
+            <ul id="mobile-menu" class="side-nav">
+                <li class="active" id="validation-nav-button-m"><a href="javascript:switchToValidation();">SCTID Validation</a></li>
+                <li id="namespaces-nav-button-m"><a href="javascript:switchToNamespaces();">Namespace Identifier Registry</a></li>
+                <!--<li><a class="dropdown-button" href="#!" data-activates="dropdown-about">About<i class="material-icons right">arrow_drop_down</i></a></li>-->
+            </ul>
+        </div>
+    </nav>
+    <div class="row" id="validation-perspective">
+        <div class="col s12 m6 l6 container">
+            <div class="card">
+                <div class="card-content">
+                    <span class="card-title"><b>SCTID Validation</b></span>
+                    <br><br><br>
+                    <p class="grey-text">SNOMED CT Identifier</p>
+                    <div>
+                        <div class="input-field">
+                            <input placeholder="Enter SCTID to check"
+                                   id="sctid-field"
+                                   type="text"
+                                   class=""
+                                   onkeypress='return event.charCode >= 48 && event.charCode <= 57'>
+                        </div>
+                    </div>
+                    <br><br>
+                    <p class="grey-text" style="font-style: italic; font-size: 70%;">
+                        NOTE: This software performs a structural validation of the SCTID, detecting errors
+                        in length, partitions, check-digit, etc. This software does not provide any information
+                        related to actual presence of the SCTID in a release, neither about the component status
+                        or clinical meaning.
+                    </p>
+                </div>
+                <div class="card-action">
+                    <a class="waves-effect waves-light btn blue" id="validate-button">
+                        <i class="material-icons right">play_arrow</i>
+                        Validate&nbsp;
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col s12 m6 l6">
+            <div class="card">
+                <div class="card-content">
+                    <span class="card-title"><b>Results</b></span>
+                    <br><br>
+                    <div class="row center" id="result-message-initial">
+                        <br><br><br><br>
+                        <p class="grey-text" style="font-style: italic">
+                            Validation results
+                        </p>
+                        <br><br><br><br><br><br><br>
+                    </div>
+                    <div class="row center" id="result-message-ok" style="display: none;">
+                        <p class="green-text" style="font-weight: bold; font-size: 200%;">
+                            <i class="material-icons" style="vertical-align: middle;">done</i> The SCTID is Valid
+                        </p>
+                        <br>
+                    </div>
+                    <div class="row center" id="result-message-error" style="display: none;">
+                        <p class="red-text" style="font-weight: bold; font-size: 200%;">
+                            <i class="material-icons" style="vertical-align: middle;">error</i> The SCTID is Invalid
+                        </p>
+                        <br><br><br>
+                    </div>
+                    <div class="row" id="result-error-message" style="display: none;">
+                        <p class="flow-text" id="result-error-message-text"></p>
+                    </div>
+                    <div class="row" id="result-details" style="display: none;">
+                        <ul class="collection with-header">
+                            <li class="collection-header"><h5>Details</h5></li>
+                            <li class="collection-item">
+                                Component type
+                                <span class="badge"
+                                      style="background-color: #26a69a; border-radius: 2px; color:#fff;font-weight: 300;font-size: 0.8rem;"
+                                      id="result-field-component-type">
+                                </span>
+                            </li>
+                            <li class="collection-item">
+                                Organization:<br>
+                                <span id="result-field-organization" style="font-weight: 300;"></span>
+                            </li>
+                            <li class="collection-item">
+                                SCTID
+                                <span class="badge" id="result-field-sctid"></span>
+                            </li>
+                            <li class="collection-item">
+                                Sequence
+                                <span class="badge" id="result-field-sequence"></span>
+                            </li>
+                            <li class="collection-item">
+                                Namespace
+                                <span class="badge" id="result-field-namespace"></span>
+                            </li>
+                            <li class="collection-item">
+                                PartitionId
+                                <span class="badge" id="result-field-partitionId"></span>
+                            </li>
+                            <li class="collection-item">
+                                Check-digit
+                                <span class="badge" id="result-field-check-digit"></span>
+                            </li>
+                            <li class="collection-item">
+                                Contact:<br>
+                                <span id="result-field-contact" style="font-weight: 300;"></span>
+                            </li>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row container" id="namespaces-perspective" style="display: none;">
+        <div class="card">
+            <div class="card-content">
+                <span class="card-title"><b>SNOMED CT Namespace Identifier Registry</b></span>
+                <br><br><br>
+                <table id="registry-table" class="striped">
+                    <thead>
+                        <tr>
+                            <th width="20%">Namespace</th>
+                            <th width="40%">Organization</th>
+                            <th width="40%">Contact</th>
+                        </tr>
+                    </thead>
+                    <tbody id="namespaces-table-body">
+
+                    </tbody>
+                </table>
+                <br><br><br><br><br>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

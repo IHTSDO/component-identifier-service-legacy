@@ -6,7 +6,7 @@
         "version": "1.0"
     },
     "produces": ["application/json"],
-    "host": "localhost:3000",
+    "host": "sctid.termspace.com:3000",
     "basePath": "/api",
     "paths": {
 
@@ -387,6 +387,40 @@
                 }
             }
         },
+        "/groups": {
+            "get": {
+                "x-swagger-router-controller": "Login",
+                "operationId": "getAllGroups",
+                "tags": ["Authorization"],
+                "description": "Retrieves all groups.",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "The security access token.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Error.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Groups list.",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/groups/{groupName}/users": {
             "get": {
                 "x-swagger-router-controller": "Login",
@@ -553,7 +587,10 @@
                         }
                     },
                     "200": {
-                        "$ref": "#/definitions/NamespacePermission"
+                        "description": "Groups list.",
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 }
             }
@@ -821,14 +858,14 @@
             "get": {
                 "x-swagger-router-controller": "Namespace",
                 "operationId": "getNamespaces",
-                "tags": ["Namespaces"],
+                "tags": ["Namespaces","Public SCTID Info API"],
                 "description": "Returns the list of available namespaces.",
                 "parameters": [
                     {
                         "name": "token",
                         "in": "query",
                         "description": "The security access token.",
-                        "required": true,
+                        "required": false,
                         "type": "string"
                     }
                 ],
@@ -1019,6 +1056,37 @@
                         "description": "Successful request.",
                         "schema": {
                             "$ref": "#/definitions/SCTIDRecord"
+                        }
+                    }
+                }
+            }
+        },
+        "/sct/check/{sctid}": {
+            "get": {
+                "x-swagger-router-controller": "Sctid",
+                "operationId": "checkSctid",
+                "tags": ["SCTIDS","Public SCTID Info API"],
+                "description": "Returns the information about the SNOMED CT ID, where is valid and other technical information.",
+                "parameters": [
+                    {
+                        "name": "sctid",
+                        "in": "path",
+                        "description": "The required id.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Invalid request.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "200": {
+                        "description": "Successful request.",
+                        "schema": {
+                            "$ref": "#/definitions/SCTIDVerification"
                         }
                     }
                 }
@@ -2827,7 +2895,16 @@
                 "organizationName": {
                     "type": "string"
                 },
+                "organizationAndContactDetails": {
+                    "type": "string"
+                },
+                "dateIssued": {
+                    "type": "string"
+                },
                 "email": {
+                    "type": "string"
+                },
+                "notes": {
                     "type": "string"
                 },
                 "partitions": {
@@ -3092,6 +3169,40 @@
           "required": [
             "schemeIds"
           ]
+        },
+        "SCTIDVerification" : {
+            "properties": {
+                "sctid": {
+                    "type": "string"
+                },
+                "sequence": {
+                    "type": "string"
+                },
+                "namespace": {
+                    "type": "string"
+                },
+                "partitionId": {
+                    "type": "string"
+                },
+                "componentType": {
+                    "type": "string"
+                },
+                "checkDigit": {
+                    "type": "string"
+                },
+                "isSCTIDValid": {
+                    "type": "string"
+                },
+                "errorMessage": {
+                    "type": "string"
+                },
+                "namespaceOrganization": {
+                    "type": "string"
+                },
+                "namespaceContactEmail": {
+                    "type": "string"
+                }
+            }
         },
         "SCTIDRecord" : {
             "properties": {

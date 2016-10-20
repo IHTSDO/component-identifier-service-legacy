@@ -61,6 +61,13 @@
             console.log(err.message);
         });
 
+        $.get("/api/groups?token=" + options.token).done(function(res){
+            if (!res.groups || !res) res = {groups: []};
+            options.groups = res.groups;
+        }).fail(function(err){
+            console.log(err.message);
+        });
+
         $.when(adminCall, consumerCall).done(function(){
             options.users = users;
             //console.log("users:", users);
@@ -182,7 +189,7 @@
         function setClicks(){
             var itemsCall = null;
             loadItems = function(typeSelected, getUrl, primaryKey, firstClick){
-                function loadPermissions(id, edit){
+                function loadPermissions(id, edit, namespaceId){
                     $("#" + typeSelected + "-permissions-configure").html('<div class="text-center"><i class="fa fa-spinner fa-spin fa-2x"></i></div>');
                     if (itemsCall != null)
                         itemsCall.abort();
@@ -228,26 +235,36 @@
                                         });
                                     });
 
-                                    $("#addPermission-" + typeSelected).unbind();
-                                    $("#addPermission-" + typeSelected).disableTextSelect();
-                                    $("#addPermission-" + typeSelected).click(function(){
+
+                                    $("#addPermission-" + typeSelected).find(".addPermission").unbind();
+//                                    $("#addPermission-" + typeSelected).disableTextSelect();
+                                    $("#addPermission-" + typeSelected).find(".addPermission").click(function(e){
+                                        var mode = $(e.target).closest("li").attr("data-mode");
                                         var addHtml = "";
                                         addHtml = '<li class="list-group-item">';
                                         addHtml+= '<div class="row">';
                                         addHtml+= '<div class="col-md-5 form-group">';
-                                        addHtml+= '<label for="add-permission-value">User:</label>';
+                                        addHtml+= '<label for="add-permission-value">' + mode + ':</label>';
                                         addHtml+= '<select id="add-permission-value" class="form-control" style="">';
-                                        options.users.forEach(function(user){
-                                            addHtml+= '<option value="' +  user + '">' + user + '</option>';
-                                        });
+                                        if (mode == "User"){
+                                            options.users.forEach(function(user){
+                                                addHtml+= '<option value="' +  user + '">' + user + '</option>';
+                                            });
+                                        }else{
+                                            options.groups.forEach(function(group){
+                                                addHtml+= '<option value="' +  group.name + '">' + group.name + '</option>';
+                                            });
+                                        }
                                         addHtml+= '</select>';
                                         addHtml+= '</div>';
                                         addHtml+= '<div class="col-md-5 form-group">';
-                                        addHtml+= '<label for="add-permission-value-role">Role:</label>';
-                                        addHtml+= '<select id="add-permission-value-role" class="form-control" style="">';
-                                        addHtml+= '<option value="user">user</option>';
-                                        addHtml+= '<option value="manager">manager</option>';
-                                        addHtml+= '</select>';
+                                        if (mode == "User"){
+                                            addHtml+= '<label for="add-permission-value-role">Role:</label>';
+                                            addHtml+= '<select id="add-permission-value-role" class="form-control" style="">';
+                                            addHtml+= '<option value="user">user</option>';
+                                            addHtml+= '<option value="manager">manager</option>';
+                                            addHtml+= '</select>';
+                                        }
                                         addHtml+= '</div>';
                                         addHtml+= '<div class="col-md-2 form-group">';
                                         addHtml+= '<button id="add-permission-ok-' + typeSelected + '" class="btn btn-success btn-sm glyphicon glyphicon-ok pull-right" style=""></button>';
@@ -261,7 +278,9 @@
                                         $("#add-permission-ok-" + typeSelected).disableTextSelect();
                                         $("#add-permission-ok-" + typeSelected).click(function(){
                                             var selectedUsername = $("#add-permission-value").val();
-                                            var selectedRole = $("#add-permission-value-role").val();
+                                            var selectedRole = "group";
+                                            if (mode == "User")
+                                                selectedRole = $("#add-permission-value-role").val();
                                             $("#item-" + typeSelected + "-details").find(".btn").addClass("disabled");
                                             $.post(getUrl + "/" + id + "/permissions/" + selectedUsername + "?token=" + options.token + "&role=" + selectedRole).done(function(res){
                                                 $("#item-" + typeSelected + "-details").find(".btn").removeClass("disabled");
@@ -289,6 +308,20 @@
                         }
                         loadPermissionsHtml(result);
                     });
+                    if (typeSelected == "namespaces") {
+                        // Load group permissions
+//                        $.get(getUrl + "/groups/" + namespaceId + "/users?token=" + options.token).done(function(result) {
+                        $.get("/api/groups/namespace-" + namespaceId + "/users?token=" + options.token).done(function(result) {
+                            $.get("../views/items/groupPermissions.hbs").then(function (src) {
+                                var context = {
+                                    groupName: "namespace-" + namespaceId,
+                                    users: result
+                                };
+                                var template = Handlebars.compile(src);
+                                $("#namespaces-group-permissions").html(template(context));
+                            });
+                        });
+                    }
                 }
                 $("#page-wrapper").html('<br><br><br><br><div class="text-center"><i class="fa fa-spinner fa-spin fa-4x"></i></div>');
                 if (itemsCall != null)
@@ -317,7 +350,7 @@
                                     $("#item-" + typeSelected + "-details").html(template(context));
                                     $("#item-" + typeSelected + "-details").find("input").first().focus();
                                     if (!itemLoaded.new)
-                                        loadPermissions(itemLoaded[primaryKey], edit);
+                                        loadPermissions(itemLoaded[primaryKey], edit, itemLoaded.namespace);
 //                                    if (!options.adminUser)
                                     $("#edit-button-" + typeSelected).hide();
                                     $("#edit-button-" + typeSelected).unbind();

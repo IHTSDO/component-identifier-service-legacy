@@ -53,6 +53,23 @@ module.exports.authenticate = function authenticate (req, res, next) {
     });
 };
 
+module.exports.getAllGroups = function getAllGroups (req, res, next) {
+    var token = req.swagger.params.token.value;
+    security.authenticate(token, function(err, data) {
+        if (err) {
+            return next({message: err.message, statusCode: 401});
+        }
+        security.getAllGroups(function(err2, groups) {
+            if (err2) {
+                return next(err2.message);
+            } else {
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify(groups));
+            }
+        });
+    });
+};
+
 module.exports.getGroups = function getGroups (req, res, next) {
     var token = req.swagger.params.token.value;
     var username = req.swagger.params.username.value;

@@ -29,6 +29,198 @@ var throwErrMessage=function(msg){
     return err;
 };
 
+var checkSctid = function (sctid, callback) {
+    var err = "";
+
+    var partitionId = "";
+    var checkDigit = null;
+    var sequence = null;
+    var namespaceId = null;
+    var isValid = "true";
+    var comment = "";
+
+    if (sctid == null) {
+        err = "SctId is not a number.";
+        isValid = "false";
+
+    } else if (sctid.match(/[\D]/)) {
+        err = "SctId is not a number.";
+        isValid = "false";
+
+    } else if (sctid.length < 6) {
+        err = "SctId length is less than 6 digits.";
+        isValid = "false";
+    } else if (sctid.length > 18) {
+        err = "SctId length is greater than 18 digits.";
+        isValid = "false";
+    }
+
+    if (isValid == "true") {
+        if (!sctIdHelper.validSCTId(sctid)) {
+            err = "SctId is not valid.";
+            isValid = "false";
+        }
+
+        try {
+            partitionId = sctIdHelper.getPartition(sctid);
+        } catch (e) {
+            err += " PartitionId error:" + e;
+        }
+
+        var partitionCtrl = true;
+        if (partitionId != "") {
+            if (partitionId != "00"
+                && partitionId != "01"
+                && partitionId != "02"
+                && partitionId != "10"
+                && partitionId != "11"
+                && partitionId != "12"
+                && partitionId != "03"
+                && partitionId != "13"
+                && partitionId != "04"
+                && partitionId != "14"
+                && partitionId != "05"
+                && partitionId != "15") {
+
+                err += " Partition Id " + partitionId + " is not valid.";
+                isValid = "false";
+                partitionCtrl = false;
+            }
+        }
+
+        var tmp;
+        try {
+            tmp = sctid.toString();
+            tmp.substr(tmp.length - 1, 1);
+
+            checkDigit = parseInt(tmp.substr(tmp.length - 1, 1));
+        } catch (e) {
+            err += " Check digit error:" + e;
+        }
+
+        if (isValid == "false" && partitionCtrl && checkDigit != null) {
+            try {
+                var id = sctid.substr(0, sctid.length - 1);
+                var cd = sctIdHelper.verhoeffCompute(id);
+                if (cd != checkDigit) {
+                    err += " Check digit should be " + cd + ".";
+                }
+            } catch (e) {
+                err += " Check digit error:" + e;
+            }
+
+        }
+        try {
+            tmp = sctid.toString();
+            if (partitionId.substr(0, 1) == "1") {
+                if (tmp.length > 10) {
+                    sequence = parseFloat(tmp.substr(0, tmp.length - 10));
+                }
+            } else {
+                sequence = parseFloat(tmp.substr(0, tmp.length - 3));
+            }
+        } catch (e) {
+            err += " Sequence error:" + e;
+        }
+        try {
+            tmp = sctid.toString();
+            if (partitionId.substr(0, 1) == "1") {
+                if (tmp.length > 10) {
+                    namespaceId = parseInt(tmp.substr(tmp.length - 10, 7));
+                } else {
+                    err += " PartitionId first digit is '1', it identifies an extension SCTID, " +
+                        "but no namespace could be identified";
+                }
+            } else {
+                namespaceId = 0;
+            }
+
+        } catch (e) {
+            err += " Namespace error:" + e;
+        }
+        if (namespaceId && partitionCtrl) {
+            if (partitionId.substr(0, 1) == "1" && namespaceId == 0) {
+                isValid = "false";
+                err += " PartitionId first digit is '1', it identifies an extension SCTID, " +
+                    "but no namespace could be identified";
+            }
+        }
+        if (sequence == null
+            || namespaceId == null
+            || checkDigit == null
+            || partitionId == null
+            || partitionId == "") {
+            isValid = "false";
+
+        }
+
+        if (isValid == "true") {
+            if (namespaceId == 0) {
+                comment = "Core ";
+            } else {
+                comment = "Extension ";
+            }
+            if (partitionId && partitionId != "") {
+                var art = partitionId.substr(1, 1);
+                if (art == "0") {
+                    comment += "concept Id";
+                } else if (art == "1") {
+                    comment += "description Id";
+                } else if (art == "2") {
+                    comment += "relationship Id";
+                } else if (art == "3") {
+                    comment += "subset Id (RF1)";
+                } else if (art == "4") {
+                    comment += "mapset Id (RF1)";
+                } else if (art == "5") {
+                    comment += "target Id (RF1)";
+                } else {
+                    comment += "artifact";
+                }
+            }
+        }
+    }
+    var result = {
+        "sctid": sctid,
+        "sequence": sequence,
+        "namespace": namespaceId,
+        "partitionId": partitionId,
+        "componentType": comment,
+        "checkDigit": checkDigit,
+        "isSCTIDValid": isValid,
+        "errorMessage": err,
+        "namespaceOrganization": "",
+        "namespaceContactEmail": ""
+    };
+    if (isValid == "true" && namespaceId != null) {
+        getModel(function (error) {
+            if (error) {
+                err += " " + error;
+                result.errorMessage = err;
+                callback(error, result);
+
+            } else {
+                model.namespace.find({namespace: namespaceId}, function (error, namespaceResult) {
+                    if (error) {
+                        err += " " + error;
+                        result.errorMessage = err;
+                        callback(null, result);
+                    } else {
+                        if (namespaceResult.length > 0) {
+                            result.namespaceOrganization = (namespaceResult[0].organizationName == null) ? "" : namespaceResult[0].organizationName;
+                            result.namespaceContactEmail = (namespaceResult[0].email == null) ? "" : namespaceResult[0].email;
+                        }
+                        callback(null, result);
+                    }
+                });
+            }
+        });
+    } else {
+        callback(null, result);
+
+    }
+};
+
 var getSctids = function (query, limit, skip, callback){
     var objQuery={};
     var limitR = 100;
@@ -523,3 +715,5 @@ module.exports.reserveSctid=reserveSctid;
 module.exports.getSctidBySystemId=getSctidBySystemId;
 module.exports.getSctid=getSctid;
 module.exports.getSctids=getSctids;
+module.exports.checkSctid=checkSctid;
+

@@ -19,7 +19,7 @@ function isAbleToEdit(schemeName, user, callback){
                     return next(err.message);
                 else{
                     permissions.forEach(function(permission){
-                        if (permission.role == "manager" && permission.username == user)
+                        if (permission.username == user && permission.role == "manager")
                             able = true;
                     });
                     callback(able);
@@ -100,13 +100,21 @@ module.exports.getSchemesForUser = function getSchemesForUser(req, res, next){
         if (err) {
             return next({message: err.message, statusCode: 401});
         }else{
-            scheme.getSchemesForUser(username, function (err, schemes){
-                if (err) {
-                    return next(err.message);
-                }else{
-                    res.setHeader('Content-Type', 'application/json');
-                    res.end(JSON.stringify(schemes));
+            var groups = [username];
+            security.getGroups(username, function(err, result) {
+                if (!err && result && result.length) {
+                    result.forEach(function (group) {
+                        groups.push(group);
+                    });
                 }
+                scheme.getSchemesForUser(groups, function (err, schemes){
+                    if (err) {
+                        return next(err.message);
+                    }else{
+                        res.setHeader('Content-Type', 'application/json');
+                        res.end(JSON.stringify(schemes));
+                    }
+                });
             });
         }
     });

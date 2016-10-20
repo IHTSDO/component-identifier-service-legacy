@@ -15,7 +15,7 @@ module.exports.getNamespaces = function getNamespaces(callback){
     });
 };
 
-module.exports.getNamespacesForUser = function getNamespacesForUser(username, callback){
+module.exports.getNamespacesForUser = function getNamespacesForUser(username, callback, namespacesFromGroup){
     dbInit.getDB(function (err, pdb, model) {
         if (err)
             throw err;
@@ -25,8 +25,10 @@ module.exports.getNamespacesForUser = function getNamespacesForUser(username, ca
                     callback(err, null);
                 else{
                     var namespaces = [];
+                    if (namespacesFromGroup && namespacesFromGroup.length) namespaces = namespacesFromGroup;
                     permissions.forEach(function(permission){
-                        namespaces.push(permission.namespace);
+                        if (namespaces.indexOf(permission.namespace) == -1)
+                            namespaces.push(permission.namespace);
                     });
                     model.namespace.find({namespace: namespaces}, function (err, namespaceResult) {
                         if (err)
@@ -155,6 +157,9 @@ module.exports.editNamespace = function editNamespace(id, editedNamespace, callb
                 else{
                     namespace.organizationName =editedNamespace.organizationName;
                     namespace.email =editedNamespace.email;
+                    namespace.dateIssued =editedNamespace.dateIssued;
+                    namespace.organizationAndContactDetails =editedNamespace.organizationAndContactDetails;
+                    namespace.notes =editedNamespace.notes;
                     namespace.save(function(err){
                         if (err)
                             callback(err);

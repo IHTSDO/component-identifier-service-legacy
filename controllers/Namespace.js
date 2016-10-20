@@ -51,19 +51,12 @@ module.exports.getNamespace = function getNamespace (req, res, next) {
 };
 
 module.exports.getNamespaces = function getNamespaces (req, res, next) {
-    var token = req.swagger.params.token.value;
-    security.authenticate(token, function(err, data) {
+    namespace.getNamespaces(function(err, namespaces) {
         if (err)
-            return next({message: err.message, statusCode: 401});
+            return next(err.message);
         else{
-            namespace.getNamespaces(function(err, namespaces) {
-                if (err)
-                    return next(err.message);
-                else{
-                    res.setHeader('Content-Type', 'application/json');
-                    res.end(JSON.stringify(namespaces));
-                }
-            });
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(namespaces));
         }
     });
 };
@@ -75,13 +68,24 @@ module.exports.getNamespacesForUser = function getNamespacesForUser (req, res, n
         if (err)
             return next({message: err.message, statusCode: 401});
         else{
-            namespace.getNamespacesForUser(username, function(err, namespaces) {
-                if (err)
-                    return next(err.message);
-                else{
-                    res.setHeader('Content-Type', 'application/json');
-                    res.end(JSON.stringify(namespaces));
+            var namespacesFromGroup = [], otherGroups = [];
+            security.getGroups(username,function(err, result) {
+                if (!err && result && result.length) {
+                    result.forEach(function(loopGroup){
+                        if (loopGroup.substr(0, loopGroup.indexOf("-")) == "namespace")
+                            namespacesFromGroup.push(loopGroup.substr(loopGroup.indexOf("-") + 1));
+                        else otherGroups.push(loopGroup);
+                    });
                 }
+                otherGroups.push(username);
+                namespace.getNamespacesForUser(otherGroups, function(err, namespaces) {
+                    if (err)
+                        return next(err.message);
+                    else{
+                        res.setHeader('Content-Type', 'application/json');
+                        res.end(JSON.stringify(namespaces));
+                    }
+                }, namespacesFromGroup);
             });
         }
     });
