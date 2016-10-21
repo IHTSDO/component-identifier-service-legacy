@@ -159,7 +159,7 @@
             loadStats(credentials.username);
             $("#username-label").html(credentials.username);
 //            var iconData = new Identicon(CryptoJS.MD5(credentials.username).toString(), 20).toString();
-            $("#user-avatar").html('<img src="http://robohash.org/' + credentials.username + '?size=20x20&bgset=bg1" alt="User Avatar" class="img-circle" />');
+            $("#user-avatar").html('<img src="https://robohash.org/' + credentials.username + '?size=20x20&bgset=bg1" alt="User Avatar" class="img-circle" />');
             // $("#user-avatar").html('<img src="data:image/png;base64,' + iconData + '" alt="User Avatar" class="img-circle" />');
 
             $("#viewProfileButton").unbind();
@@ -1190,6 +1190,12 @@
                 }
             });
 
+            $("#configure-namespaces-2").unbind();
+            $("#configure-namespaces-2").disableTextSelect();
+            $("#configure-namespaces-2").click(function(){
+                loadItems("namespaces", "/api/sct/namespaces", "namespace");
+            });
+
             $("#configure-namespaces").unbind();
             $("#configure-namespaces").disableTextSelect();
             $("#configure-namespaces").click(function(){
@@ -1681,6 +1687,9 @@
                         </li>
                         <li>
                             <a href="index.html"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
+                        </li>
+                        <li>
+                            <a id="configure-namespaces-2" href="javascript:void(0);"><i class="fa fa-globe fa-fw"></i> Namespaces</a>
                         </li>
                         <li>
                             <a href="#"><i class="fa fa-bookmark fa-fw"></i> SNOMED CT Identifiers<span class="fa arrow"></span></a>
