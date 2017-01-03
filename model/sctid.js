@@ -132,20 +132,14 @@ sctid.find=function(query, limit, skip, callback){
     {
         if (err) throw err;
         var swhere="";
-        var clauseCount=0;
         for (var field in query) {
             if (query.hasOwnProperty(field)) {
+
                 swhere += " And " + field + "=" + connection.escape(query[field]) ;
-                clauseCount++;
             }
         }
         if (swhere!=""){
             swhere = " WHERE " + swhere.substr(5);
-        }
-        if (clauseCount==3 && query.hasOwnProperty("namespace") && query.hasOwnProperty("partitionId")
-            && query.hasOwnProperty("status")) {
-            // Use specific index to prevent order by clause making the select slow
-            swhere = " USE INDEX (nam_par_st)" + swhere
         }
         var sql;
         if (limit && limit>0 && (!skip || skip==0)) {
