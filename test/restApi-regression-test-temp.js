@@ -239,7 +239,7 @@ describe('SCTID  BULK', function() {
         var generationData = {
             "namespace": 0,
             "partitionId": "02",
-            "quantity": 10,
+            "quantity": 100000,
             "systemIds": [],
             "software": "Mocha Supertest",
             "comment": "Testing REST API"
