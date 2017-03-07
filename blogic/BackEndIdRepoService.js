@@ -7,6 +7,7 @@ var idDM = require("./../blogic/SCTIdBulkDataManager");
 var sctIdHelper=require("../utils/SctIdHelper");
 //var sIdDM = require("./../blogic/SchemeIdBulkDataManager");
 var stateMachine=require("../model/StateMachine");
+var Sync = require('sync');
 
 
 
@@ -28,7 +29,6 @@ var idBulkCreation = function (namespace, partitionId, callback){
                         callback(err);
                     } else {
                         idDM.getPartition(key, function (err, thisPartition) {
-                            console.log("step 14 - quant=" + quant);
                             if (err) {
                                 callback(err);
                             } else {
