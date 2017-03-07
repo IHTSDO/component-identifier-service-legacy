@@ -499,3 +499,5 @@ module.exports.getSctidBySystemIds=getSctidBySystemIds;
 module.exports.getSctids=getSctids;
 module.exports.updateSctids=updateSctids;
 module.exports.getFreeRecord=getFreeRecord;
+module.exports.getPartition=getPartition;
+module.exports.getModel=getModel;
