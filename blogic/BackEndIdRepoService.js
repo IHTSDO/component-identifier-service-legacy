@@ -42,8 +42,8 @@ var idBulkCreation = function (namespace, partitionId, callback){
                                         callback(err);
                                     } else {
                                         var count = 0;
-                                        for (var i = 0; i < quant; i++) {
-                                            Sync(function () {
+                                        Sync(function () {
+                                            for (var i = 0; i < quant; i++) {
                                                 count++;
                                                 if (count % 1000 == 0) {
                                                     console.log("#" + count);
@@ -73,9 +73,9 @@ var idBulkCreation = function (namespace, partitionId, callback){
                                                     callback(e);
                                                 }
 
-                                            });
-                                        }
+                                            }
 
+                                        });
                                         var t2 = new Date().getTime();
                                         console.log("Final took: " + (t2 - t1) + " milisecs");
                                     }
