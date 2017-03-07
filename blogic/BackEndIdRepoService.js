@@ -75,9 +75,13 @@ var idBulkCreation = function (namespace, partitionId, callback){
 
                                             }
 
+                                            if (count>=quant){
+                                                callback(null);
+                                            }
+                                            var t2 = new Date().getTime();
+                                            console.log("Final took: " + (t2 - t1) + " milisecs");
                                         });
-                                        var t2 = new Date().getTime();
-                                        console.log("Final took: " + (t2 - t1) + " milisecs");
+
                                     }
                                 });
                             }
