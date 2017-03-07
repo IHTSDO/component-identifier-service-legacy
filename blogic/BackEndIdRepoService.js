@@ -22,58 +22,64 @@ var idBulkCreation = function (namespace, partitionId, callback){
             console.log("step 13 - quant=" + quant);
             if (quant>0) {
                 var key = [parseInt(namespace), partitionId.toString()];
-
-                getPartition(key, function (err, thisPartition) {
-                    console.log("step 14 - quant=" + quant);
+                idDM.getModel(function (err) {
                     if (err) {
+                        console.log("error model:" + err);
                         callback(err);
                     } else {
-                        if (!thisPartition) {
-                            callback("Partition not found for key:" + JSON.stringify(key));
-                        }
-                        var seq=thisPartition.sequence;
-                        thisPartition.sequence = thisPartition.sequence + quant;
-                        thisPartition.save(function (err) {
+                        idDM.getPartition(key, function (err, thisPartition) {
+                            console.log("step 14 - quant=" + quant);
                             if (err) {
                                 callback(err);
                             } else {
-                                var count=0;
-                                for (var i = 0; i < quant; i++) {
-                                    Sync(function () {
-                                        count++;
-                                        if (count % 1000 == 0) {
-                                            console.log("#" + count);
-                                            var t3=new Date().getTime();
-                                            console.log("Partial took: " + (t3-t1) + " milisecs");
-                                        }
-                                        try {
-                                            seq++;
-
-                                            var tmpNsp = namespace.toString();
-                                            if (tmpNsp == "0") {
-                                                tmpNsp = "";
-                                            }
-                                            var base = seq + tmpNsp + partitionId.toString();
-                                            var SCTId = base + sctIdHelper.verhoeffCompute(base);
-
-
-                                            var objQuery = {sctid: SCTId};
-                                            var sctIdRecord = sctid.findById.sync(null, objQuery);
-
-                                            if (!sctIdRecord) {
-
-                                                var systemId = guid();
-                                                idDM.getFreeRecord.sync(null, SCTId, systemId);
-                                            }
-                                        } catch (e) {
-                                            callback(e);
-                                        }
-
-                                    });
+                                if (!thisPartition) {
+                                    callback("Partition not found for key:" + JSON.stringify(key));
                                 }
+                                var seq = thisPartition.sequence;
+                                thisPartition.sequence = thisPartition.sequence + quant;
+                                thisPartition.save(function (err) {
+                                    if (err) {
+                                        callback(err);
+                                    } else {
+                                        var count = 0;
+                                        for (var i = 0; i < quant; i++) {
+                                            Sync(function () {
+                                                count++;
+                                                if (count % 1000 == 0) {
+                                                    console.log("#" + count);
+                                                    var t3 = new Date().getTime();
+                                                    console.log("Partial took: " + (t3 - t1) + " milisecs");
+                                                }
+                                                try {
+                                                    seq++;
 
-                                var t2=new Date().getTime();
-                                console.log("Final took: " + (t2-t1) + " milisecs");
+                                                    var tmpNsp = namespace.toString();
+                                                    if (tmpNsp == "0") {
+                                                        tmpNsp = "";
+                                                    }
+                                                    var base = seq + tmpNsp + partitionId.toString();
+                                                    var SCTId = base + sctIdHelper.verhoeffCompute(base);
+
+
+                                                    var objQuery = {sctid: SCTId};
+                                                    var sctIdRecord = sctid.findById.sync(null, objQuery);
+
+                                                    if (!sctIdRecord) {
+
+                                                        var systemId = guid();
+                                                        idDM.getFreeRecord.sync(null, SCTId, systemId);
+                                                    }
+                                                } catch (e) {
+                                                    callback(e);
+                                                }
+
+                                            });
+                                        }
+
+                                        var t2 = new Date().getTime();
+                                        console.log("Final took: " + (t2 - t1) + " milisecs");
+                                    }
+                                });
                             }
                         });
                     }
@@ -84,6 +90,20 @@ var idBulkCreation = function (namespace, partitionId, callback){
 
 };
 
+
+function getPartition(key,callback) {
+    model.partitions.get(key, function (err, partitions) {
+        if (err) {
+            callback(err, null);
+        } else {
+            if (!partitions) {
+                callback("Partition not found for key:" + JSON.stringify(key), null);
+            } else {
+                callback(null, partitions);
+            }
+        }
+    });
+};
 
 var runner = function (){
 
