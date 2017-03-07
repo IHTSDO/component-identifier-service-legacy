@@ -498,3 +498,4 @@ module.exports.registerSctids=registerSctids;
 module.exports.getSctidBySystemIds=getSctidBySystemIds;
 module.exports.getSctids=getSctids;
 module.exports.updateSctids=updateSctids;
+module.exports.getFreeRecord=getFreeRecord;
