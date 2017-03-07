@@ -6,24 +6,29 @@ var sctid=require("../model/sctid");
 var idDM = require("./../blogic/SCTIdBulkDataManager");
 var sctIdHelper=require("../utils/SctIdHelper");
 //var sIdDM = require("./../blogic/SchemeIdBulkDataManager");
-//var stateMachine=require("../model/StateMachine");
+var stateMachine=require("../model/StateMachine");
 
 
 
 var idBulkCreation = function (namespace, partitionId, callback){
 
-    var query={partitionId:partitionId,namespace:namespace};
+    var t1=new Date().getTime();
+    console.log("step 11");
+    var query={partitionId:partitionId,namespace:namespace, status:stateMachine.statuses.available};
     sctid.count(query,function(err,recs){
+        console.log("step 12");
         if (err==null) {
             var quant=100000-recs;
+            console.log("step 13 - quant=" + quant);
             if (quant>0) {
                 var key = [parseInt(namespace), partitionId.toString()];
 
                 getPartition(key, function (err, thisPartition) {
+                    console.log("step 14 - quant=" + quant);
                     if (err) {
                         callback(err);
                     } else {
-                        if (!data) {
+                        if (!thisPartition) {
                             callback("Partition not found for key:" + JSON.stringify(key));
                         }
                         var seq=thisPartition.sequence;
@@ -32,10 +37,15 @@ var idBulkCreation = function (namespace, partitionId, callback){
                             if (err) {
                                 callback(err);
                             } else {
-
+                                var count=0;
                                 for (var i = 0; i < quant; i++) {
                                     Sync(function () {
-
+                                        count++;
+                                        if (count % 1000 == 0) {
+                                            console.log("#" + count);
+                                            var t3=new Date().getTime();
+                                            console.log("Partial took: " + (t3-t1) + " milisecs");
+                                        }
                                         try {
                                             seq++;
 
@@ -61,6 +71,9 @@ var idBulkCreation = function (namespace, partitionId, callback){
 
                                     });
                                 }
+
+                                var t2=new Date().getTime();
+                                console.log("Final took: " + (t2-t1) + " milisecs");
                             }
                         });
                     }
@@ -76,7 +89,9 @@ var runner = function (){
 
     var namespace='0';
     var partitionId='00';
+    console.log("step 1");
     idBulkCreation(namespace, partitionId, function(err){
+        console.log("step 2");
         if (err){
             console.log("[ERROR] " + (new Date()).getTime() + ": namespace=" + namespace + ", partition=" + partitionId + ". " +  err);
         }
