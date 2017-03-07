@@ -88,6 +88,8 @@ var idBulkCreation = function (namespace, partitionId, callback){
                         });
                     }
                 });
+            }else{
+                callback(null);
             }
         }
     });
