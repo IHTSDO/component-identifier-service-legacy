@@ -33,8 +33,8 @@ var conceptIdBulkCreation = function (namespace, partitionId, idsTotal, callback
                 var jsonDate = now.toJSON();
                 var modified_at = new Date(jsonDate);
 
-                console.log("modified_at:" + modified_at);
-                var sql="UPDATE auxConcept SET modified_at=" + modified_at + "  where modified_at is null limit " + idsTotal;
+                console.log("modified_at:" + connection.escape(modified_at));
+                var sql="UPDATE auxConcept SET modified_at=" + connection.escape(modified_at) + "  where modified_at is null limit " + idsTotal;
                 connection.query(sql, function (error, result) {
                     //connection.release();
                     var t4 = new Date().getTime();
@@ -43,7 +43,7 @@ var conceptIdBulkCreation = function (namespace, partitionId, idsTotal, callback
                         callback (error,null);
                     }
                     else {
-                        sql="SELECT sctid from auxConcept where modified_at=" + modified_at + " limit " + idsTotal;
+                        sql="SELECT sctid from auxConcept where modified_at=" + connection.escape(modified_at) + " limit " + idsTotal;
                         connection.query(sql, function (error, result) {
                             connection.release();
                             var t5 = new Date().getTime();
