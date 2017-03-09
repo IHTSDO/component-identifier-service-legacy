@@ -54,6 +54,10 @@ var conceptIdBulkCreation = function (namespace, partitionId, idsTotal, callback
                             else {
 
                                 callback(null, result);
+                                sql="Delete from auxConcept where modified_at=" + connection.escape(modified_at) + " limit " + idsTotal;
+                                connection.query(sql, function (error, result) {
+                                    connection.release();
+                                });
                             }
                         });
                     }
