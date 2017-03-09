@@ -45,7 +45,6 @@ var conceptIdBulkCreation = function (namespace, partitionId, idsTotal, callback
                     else {
                         sql="SELECT sctid from auxConcept where modified_at=" + connection.escape(modified_at) + " limit " + idsTotal;
                         connection.query(sql, function (error, result) {
-                            connection.release();
                             var t5 = new Date().getTime();
                             console.log("Partial call to select data took: " + (t5 - t4) + " milisecs");
                             if (error) {
