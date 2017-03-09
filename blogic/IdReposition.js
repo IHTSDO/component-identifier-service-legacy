@@ -66,7 +66,7 @@ var idBulkCreation = function (auxTable, namespace, partitionId, idsTotal, callb
                                                         var systemId = guid();
                                                         idDM.insertAssignedRecord.sync(null, SCTId, systemId);
 
-                                                        var auxRecord={sctid:sctId, partitionId:partitionId, namespace:namespace, modified_at: null};
+                                                        var auxRecord={sctid:SCTId, partitionId:partitionId, namespace:namespace, modified_at: null};
                                                         auxTable.create.sync(null, auxRecord);
                                                     }
                                                 } catch (e) {
