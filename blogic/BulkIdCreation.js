@@ -30,8 +30,8 @@ var conceptIdBulkCreation = function (namespace, partitionId, idsTotal, callback
                 var t3 = new Date().getTime();
                 console.log("Partial call to get db connection took: " + (t3 - t2) + " milisecs");
 
-                var modified_at=new Date();
-                var sql="UPDATE auxConcept SET modified_at='" + modified_at + "'  where modified_at is null limit " + idsTotal;
+                var modified_at=new Date().getTime();
+                var sql="UPDATE auxConcept SET modified_at=" + modified_at + "  where modified_at is null limit " + idsTotal;
                 connection.query(sql, function (error, result) {
                     //connection.release();
                     var t4 = new Date().getTime();
