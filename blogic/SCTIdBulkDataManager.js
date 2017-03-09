@@ -91,6 +91,20 @@ function getFreeRecord(sctId, systemId, callback){
         }
     });
 }
+function insertAssignedRecord(sctId, systemId, callback){
+    Sync(function() {
+        try {
+            var sctIdRecord = getNewRecord(sctId, systemId);
+            sctIdRecord.status = stateMachine.statuses.assigned;
+            var newRecord = insertSCTIDRecord.sync(null, sctIdRecord);
+
+
+            callback(null, newRecord);
+        }catch (e){
+            callback(e,null);
+        }
+    });
+}
 
 function getNewRecord(sctId, systemId){
     var sctIdRecord= {
@@ -296,7 +310,38 @@ function insertSCTIDRecord(newSctidRecord, callback){
         }
     });
 }
-
+//function insertAuxConceptRecord(newSctidRecord, callback){
+//    Sync(function() {
+//        try {
+//            var newSctidRecord2 = auxConcept.create.sync(null, newSctidRecord);
+//            callback(null, newSctidRecord2);
+//        }catch(e){
+//            callback(e,null);
+//        }
+//    });
+//}
+//
+//function insertAuxDescriptionRecord(newSctidRecord, callback){
+//    Sync(function() {
+//        try {
+//            var newSctidRecord2 = auxDescription.create.sync(null, newSctidRecord);
+//            callback(null, newSctidRecord2);
+//        }catch(e){
+//            callback(e,null);
+//        }
+//    });
+//}
+//
+//function insertAuxRelationshipRecord(newSctidRecord, callback){
+//    Sync(function() {
+//        try {
+//            var newSctidRecord2 = auxRelationship.create.sync(null, newSctidRecord);
+//            callback(null, newSctidRecord2);
+//        }catch(e){
+//            callback(e,null);
+//        }
+//    });
+//}
 
 function computeSCTID(operation,seq){
 
@@ -498,6 +543,6 @@ module.exports.registerSctids=registerSctids;
 module.exports.getSctidBySystemIds=getSctidBySystemIds;
 module.exports.getSctids=getSctids;
 module.exports.updateSctids=updateSctids;
-module.exports.getFreeRecord=getFreeRecord;
 module.exports.getPartition=getPartition;
 module.exports.getModel=getModel;
+module.exports.insertAssignedRecord=insertAssignedRecord;
