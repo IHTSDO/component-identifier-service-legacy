@@ -6,6 +6,7 @@ var job=require("../model/JobType");
 var sctid=require("../model/sctid");
 var schemeid=require("../model/schemeid");
 var bulkJob=require("../model/job");
+var idBulk = require("./../blogic/BulkIdCreation");
 
 function saveJob(operation, type, callback) {
     var obj = getNewBulkJobObject(operation, type);
@@ -74,20 +75,35 @@ function getJobRecords(jobId, callback) {
                     return;
                 });
             } else {
-                sctid.findByJobId({jobId: parseInt(jobId)}, function (err, sctids) {
-                    if (err) {
-                        callback(err, null);
-                        return;
-                    }
-                    if (!sctids || sctids.length == 0) {
+                if (jobRecord.request.type == job.JOBTYPE.generateSctids) {
+                    idBulk.idsRetrieve(jobRecord.request, function(err, sctids){
+                        if (err) {
+                            callback(err, null);
+                            return;
+                        }
+                        if (!sctids || sctids.length == 0) {
 
-                        callback(null, null);
+                            callback(null, null);
+                            return;
+                        }
+                        callback(null, sctids);
                         return;
-                    }
-                    callback(null, sctids);
-                    return;
-                });
+                    });
+                }else {
+                    sctid.findByJobId({jobId: parseInt(jobId)}, function (err, sctids) {
+                        if (err) {
+                            callback(err, null);
+                            return;
+                        }
+                        if (!sctids || sctids.length == 0) {
 
+                            callback(null, null);
+                            return;
+                        }
+                        callback(null, sctids);
+                        return;
+                    });
+                }
             }
         }
     });

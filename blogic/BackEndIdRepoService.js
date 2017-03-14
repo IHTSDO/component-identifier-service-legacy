@@ -4,8 +4,8 @@
 
 var idRepo = require("./../blogic/IdReposition");
 var auxConcept=require("../model/auxConcept");
-//var auxDescription=require("../model/auxDescription");
-//var auxRelationship=require("../model/auxRelationship");
+var auxDescription=require("../model/auxDescription");
+var auxRelationship=require("../model/auxRelationship");
 
 var idTotal=100000;
 
@@ -19,18 +19,18 @@ var runner = function (){
         if (err){
             console.log("[ERROR] " + (new Date()).getTime() + ": namespace=" + namespace + ", partition=" + partitionId + ". " +  err);
         }
-        //partitionId='01';
-        //idRepo.idBulkCreation(auxDescription, namespace, partitionId, idTotal, function(err){
-        //    if (err){
-        //        console.log("[ERROR] " + (new Date()).getTime() + ": namespace=" + namespace + ", partition=" + partitionId + ". " +  err);
-        //    }
-        //    partitionId='02';
-        //    idRepo.idBulkCreation(auxRelationship, namespace, partitionId, idTotal, function(err) {
-        //        if (err) {
-        //            console.log("[ERROR] " + (new Date()).getTime() + ": namespace=" + namespace + ", partition=" + partitionId + ". " + err);
-        //        }
-        //    });
-        //});
+        partitionId='01';
+        idRepo.idBulkCreation(auxDescription, namespace, partitionId, idTotal, function(err){
+            if (err){
+                console.log("[ERROR] " + (new Date()).getTime() + ": namespace=" + namespace + ", partition=" + partitionId + ". " +  err);
+            }
+            partitionId='02';
+            idRepo.idBulkCreation(auxRelationship, namespace, partitionId, idTotal, function(err) {
+                if (err) {
+                    console.log("[ERROR] " + (new Date()).getTime() + ": namespace=" + namespace + ", partition=" + partitionId + ". " + err);
+                }
+            });
+        });
     });
 };
 
