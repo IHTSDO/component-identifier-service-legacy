@@ -95,7 +95,7 @@ function processJob(record){
                     });
                 });
             }else {
-
+                console.log("End job service: checking available ids");
                 idBulk.createAvailableIds(request, function (err) {
 
                     if (err) {
