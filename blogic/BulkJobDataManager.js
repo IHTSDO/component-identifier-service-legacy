@@ -89,7 +89,7 @@ function getJobRecords(jobId, callback) {
                             jobRecord.request.jobId = jobId;
                             idBulk.idsRetrieve(jobRecord.request, function (err, sctids) {
                                 if (err) {
-                                    callback(err, null);
+                                    callback({message:err,number:404}, null);
                                     return;
                                 }
                                 if (!sctids || sctids.length == 0) {
