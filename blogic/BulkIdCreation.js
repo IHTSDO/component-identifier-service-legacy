@@ -75,7 +75,7 @@ var conceptIdBulkCreation = function (namespace, partitionId, idsTotal, request,
                                     connection.query(sql, function (error, result) {
                                         connection.release();
                                         idRepo.idBulkCreation(auxDescription, namespace, partitionId, idsTotal, function (err) {
-                                            console.log("created ids, total availables=" + idsTotal);
+                                            console.log("End of concept id generation");
                                             if (err) {
                                                 var str = "[ERROR] " + (new Date()).getTime() + ": namespace=" + namespace + ", partition=" + partitionId + ". " + err;
                                                 console.log(str);
@@ -153,7 +153,7 @@ var descriptionIdBulkCreation = function (namespace, partitionId, idsTotal, requ
                                         connection.query(sql, function (error, result) {
                                             connection.release();
                                             idRepo.idBulkCreation(auxDescription, namespace, partitionId, idsTotal, function (err) {
-                                                console.log("created ids, total availables=" + idsTotal);
+                                                console.log("End of description id generation");
                                                 if (err) {
                                                     var str = "[ERROR] " + (new Date()).getTime() + ": namespace=" + namespace + ", partition=" + partitionId + ". " + err;
                                                     console.log(str);
@@ -236,7 +236,7 @@ var relationshipIdBulkCreation = function (namespace, partitionId, idsTotal, req
                                         //connection.query(sql, function (error, result) {
                                             connection.release();
                                             idRepo.idBulkCreation(auxRelationship, namespace, partitionId, idsTotal, function (err) {
-                                                console.log("created ids, total availables=" + idsTotal);
+                                                console.log("End of relationship id generation");
                                                 if (err) {
                                                     var str = "[ERROR] " + (new Date()).getTime() + ": namespace=" + namespace + ", partition=" + partitionId + ". " + err;
                                                     console.log(str);
