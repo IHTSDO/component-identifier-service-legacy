@@ -300,7 +300,7 @@ var createIds = function (auxTable, namespace, partitionId, idsTotal, callback) 
 };
 
 var createAvailableIds = function (request, callback) {
-
+    var t1 = new Date().getTime();
     var auxTable;
     if (request.partitionId.substr(1,1)=="0") {
         auxTable = auxConcept;
@@ -312,7 +312,7 @@ var createAvailableIds = function (request, callback) {
     createIds(auxTable, request.namespace, request.partitionId, request.quantity,function (err) {
 
         var t2 = new Date().getTime();
-        console.log("Partial call to testing space ids took: " + (t2 - t1) + " milisecs");
+        console.log("Partial call to testing available ids took: " + (t2 - t1) + " milisecs");
         if (err) {
             callback(err);
         } else {
