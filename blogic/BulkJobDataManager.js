@@ -76,20 +76,48 @@ function getJobRecords(jobId, callback) {
                 });
             } else {
                 if (jobRecord.request.type == job.JOBTYPE.generateSctids) {
-                    jobRecord.request.jobId=jobId;
-                    idBulk.idsRetrieve(jobRecord.request, function(err, sctids){
-                        if (err) {
-                            callback(err, null);
-                            return;
-                        }
-                        if (!sctids || sctids.length == 0) {
 
-                            callback(null, null);
+                    sctid.recordExists({jobId: parseInt(jobId)}, function(err,exists){
+
+                        if (err){
+                            callback(err,null);
                             return;
                         }
-                        callback(null, sctids);
-                        return;
-                    });
+                        if (!exists) {
+                            console.log("doesn`t exists jobId: " + jobId);
+                            jobRecord.request.jobId = jobId;
+                            idBulk.idsRetrieve(jobRecord.request, function (err, sctids) {
+                                if (err) {
+                                    callback(err, null);
+                                    return;
+                                }
+                                if (!sctids || sctids.length == 0) {
+
+                                    callback(null, null);
+                                    return;
+                                }
+                                callback(null, sctids);
+                                return;
+
+                            });
+                        }else{
+                            console.log("already exists jobId: " + jobId);
+
+
+                            sctid.findByJobId({jobId: parseInt(jobId)}, function (err, sctids) {
+                                if (err) {
+                                    callback(err, null);
+                                    return;
+                                }
+                                if (!sctids || sctids.length == 0) {
+
+                                    callback(null, null);
+                                    return;
+                                }
+                                callback(null, sctids);
+                                return;
+                            });
+                        }
                 }else {
                     sctid.findByJobId({jobId: parseInt(jobId)}, function (err, sctids) {
                         if (err) {
