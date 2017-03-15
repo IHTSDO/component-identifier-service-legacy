@@ -74,6 +74,13 @@ var conceptIdBulkCreation = function (namespace, partitionId, idsTotal, request,
                                     sql = "Delete from auxConcept where modified_at=" + connection.escape(modified_at) + " limit " + idsTotal;
                                     connection.query(sql, function (error, result) {
                                         connection.release();
+                                        idRepo.idBulkCreation(auxDescription, namespace, partitionId, idsTotal, function (err) {
+                                            console.log("created ids, total availables=" + idsTotal);
+                                            if (err) {
+                                                var str = "[ERROR] " + (new Date()).getTime() + ": namespace=" + namespace + ", partition=" + partitionId + ". " + err;
+                                                console.log(str);
+                                            }
+                                        });
                                     });
                                 }
                             }
@@ -145,6 +152,13 @@ var descriptionIdBulkCreation = function (namespace, partitionId, idsTotal, requ
                                         sql = "Delete from auxDescription where modified_at=" + connection.escape(modified_at) + " limit " + idsTotal;
                                         connection.query(sql, function (error, result) {
                                             connection.release();
+                                            idRepo.idBulkCreation(auxDescription, namespace, partitionId, idsTotal, function (err) {
+                                                console.log("created ids, total availables=" + idsTotal);
+                                                if (err) {
+                                                    var str = "[ERROR] " + (new Date()).getTime() + ": namespace=" + namespace + ", partition=" + partitionId + ". " + err;
+                                                    console.log(str);
+                                                }
+                                            });
                                         });
                                     });
 
@@ -221,6 +235,13 @@ var relationshipIdBulkCreation = function (namespace, partitionId, idsTotal, req
                                         sql = "Delete from auxRelationship where modified_at=" + connection.escape(modified_at) + " limit " + idsTotal;
                                         connection.query(sql, function (error, result) {
                                             connection.release();
+                                            idRepo.idBulkCreation(auxRelationship, namespace, partitionId, idsTotal, function (err) {
+                                                console.log("created ids, total availables=" + idsTotal);
+                                                if (err) {
+                                                    var str = "[ERROR] " + (new Date()).getTime() + ": namespace=" + namespace + ", partition=" + partitionId + ". " + err;
+                                                    console.log(str);
+                                                }
+                                            });
                                         });
                                     });
 

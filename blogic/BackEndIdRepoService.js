@@ -34,5 +34,5 @@ var runner = function (){
     });
 };
 
-setInterval(runner,900000);
+setInterval(runner,1200000);
 //setTimeout(runner,5000);
