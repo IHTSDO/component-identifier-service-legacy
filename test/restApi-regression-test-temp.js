@@ -14,9 +14,10 @@ var _port="3000";
 var _root="/api";
 var baseUrl = "http://" + _host + ":" + _port + _root;
 
-var username = process.env.test_username;
-var password = process.env.test_password;
-console.log(username,password);
+//var username = process.env.test_username;
+var username = "arodriguez";
+//var password = process.env.test_password;
+var password = "snomed11";
 var token = "";
 
 var guid = (function() {
@@ -272,12 +273,12 @@ describe('SCTID  BULK', function() {
                                 if (err) return done(err);
                                 objJob.status.should.be.eql("2");
                                 res.body.should.not.be.null();
-                                // res.body.length.should.be.eql(2);
-                                res.body[0].jobId.should.be.eql(jobId);
-                                res.body[0].status.should.be.eql("Assigned");
+                                res.body.length.should.be.eql(100000);
+                                //res.body[0].jobId.should.be.eql(jobId);
+                                //res.body[0].status.should.be.eql("Assigned");
                                 sctidArray.push(res.body[0].sctid);
                                 sctidArray.push(res.body[1].sctid);
-                                sysIds = res.body[0].systemId + "," + res.body[1].systemId;
+                                //sysIds = res.body[0].systemId + "," + res.body[1].systemId;
                                 res=null;
                                 done();
                             });

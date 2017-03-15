@@ -43,7 +43,7 @@ var conceptIdBulkCreation = function (namespace, partitionId, idsTotal, request,
                         callback (error,null);
                     }
                     else {
-                        sql="SELECT sctid from auxConcept where modified_at=" + connection.escape(modified_at) + " limit " + idsTotal;
+                        sql="SELECT sctid, systemId from auxConcept where modified_at=" + connection.escape(modified_at) + " limit " + idsTotal;
                         connection.query(sql, function (error, result) {
                             var t5 = new Date().getTime();
                             console.log("Partial call to select data took: " + (t5 - t4) + " milisecs");
@@ -127,7 +127,7 @@ var descriptionIdBulkCreation = function (namespace, partitionId, idsTotal, requ
                         callback (error,null);
                     }
                     else {
-                        sql="SELECT sctid from auxDescription where modified_at=" + connection.escape(modified_at) + " limit " + idsTotal;
+                        sql="SELECT sctid, systemId from auxDescription where modified_at=" + connection.escape(modified_at) + " limit " + idsTotal;
                         connection.query(sql, function (error, result) {
                             var t5 = new Date().getTime();
                             console.log("Partial call to select data took: " + (t5 - t4) + " milisecs");
@@ -211,7 +211,7 @@ var relationshipIdBulkCreation = function (namespace, partitionId, idsTotal, req
                         callback (error,null);
                     }
                     else {
-                        sql="SELECT sctid from auxRelationship where modified_at=" + connection.escape(modified_at) + " limit " + idsTotal;
+                        sql="SELECT sctid, systemId from auxRelationship where modified_at=" + connection.escape(modified_at) + " limit " + idsTotal;
                         connection.query(sql, function (error, result) {
                             var t5 = new Date().getTime();
                             console.log("Partial call to select data took: " + (t5 - t4) + " milisecs");
