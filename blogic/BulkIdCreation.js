@@ -232,8 +232,8 @@ var relationshipIdBulkCreation = function (namespace, partitionId, idsTotal, req
 
                                     connection.query(sql, function (error, result) {
 
-                                        //sql = "Delete from auxRelationship where modified_at=" + connection.escape(modified_at) + " limit " + idsTotal;
-                                        //connection.query(sql, function (error, result) {
+                                        sql = "Delete from auxRelationship where modified_at=" + connection.escape(modified_at) + " limit " + idsTotal;
+                                        connection.query(sql, function (error, result) {
                                             connection.release();
                                             idRepo.idBulkCreation(auxRelationship, namespace, partitionId, idsTotal, function (err) {
                                                 console.log("End of relationship id generation");
@@ -242,7 +242,7 @@ var relationshipIdBulkCreation = function (namespace, partitionId, idsTotal, req
                                                     console.log(str);
                                                 }
                                             });
-                                        //});
+                                        });
                                     });
 
                                 }else{
