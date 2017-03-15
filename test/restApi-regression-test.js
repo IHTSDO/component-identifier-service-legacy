@@ -8,8 +8,7 @@ var security = require("../blogic/Security");
 var request = require('supertest');
 var sctIdHelper=require("../utils/SctIdHelper");
 
-//var _host="localhost";
-var _host="107.170.101.181"; //DEV SERVER
+var _host="localhost";
 var _port="3000";
 var _root="/api";
 var baseUrl = "http://" + _host + ":" + _port + _root;
