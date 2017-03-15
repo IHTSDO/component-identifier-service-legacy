@@ -104,7 +104,7 @@ function getJobRecords(jobId, callback) {
                             console.log("already exists jobId: " + jobId);
 
 
-                            sctid.findByJobId({jobId: parseInt(jobId)}, function (err, sctids) {
+                            sctid.findJustSctIdByJobId({jobId: parseInt(jobId)}, function (err, sctids) {
                                 if (err) {
                                     callback(err, null);
                                     return;
