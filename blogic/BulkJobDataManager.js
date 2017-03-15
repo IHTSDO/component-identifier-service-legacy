@@ -76,6 +76,7 @@ function getJobRecords(jobId, callback) {
                 });
             } else {
                 if (jobRecord.request.type == job.JOBTYPE.generateSctids) {
+                    jobRecord.request.jobId=jobId;
                     idBulk.idsRetrieve(jobRecord.request, function(err, sctids){
                         if (err) {
                             callback(err, null);

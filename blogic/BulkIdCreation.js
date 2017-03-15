@@ -251,7 +251,7 @@ var testQuantity = function (auxTable, namespace, partitionId, idsTotal, callbac
         console.log("step 12");
         if (err == null) {
             var quant = idsTotal - recs;
-            console.log("step testing quantity - quant=" + quant);
+            console.log("step testing quantity in aux table, required - existent: " + quant);
             if (quant > 0) {
                 callback("It is necesary wait for ids reposition. Try again in few minutes");
                 createIds(auxTable, namespace, partitionId, idsTotal,function(err) {
@@ -275,9 +275,9 @@ var createIds = function (auxTable, namespace, partitionId, idsTotal, callback) 
         console.log("step 12");
         if (err == null) {
             var quant = idsTotal - recs;
-            console.log("step testing quantity - quant=" + quant);
+            console.log("step create Ids, checking quantity" );
             if (quant > 0) {
-                console.log("need to create ids, total=" + idsTotal);
+                console.log("need to create " + quant + " ids, up to " + idsTotal);
                 idRepo.idBulkCreation(auxTable, namespace, partitionId, idsTotal, function (err) {
                     console.log("created ids, total availables=" + idsTotal);
                     if (err) {
@@ -290,6 +290,7 @@ var createIds = function (auxTable, namespace, partitionId, idsTotal, callback) 
                 });
 
             } else {
+                console.log("ids quantity in aux table is ok");
                 callback(null);
             }
 
