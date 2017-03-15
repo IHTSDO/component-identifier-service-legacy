@@ -232,8 +232,8 @@ var relationshipIdBulkCreation = function (namespace, partitionId, idsTotal, req
 
                                     connection.query(sql, function (error, result) {
 
-                                        sql = "Delete from auxRelationship where modified_at=" + connection.escape(modified_at) + " limit " + idsTotal;
-                                        connection.query(sql, function (error, result) {
+                                        //sql = "Delete from auxRelationship where modified_at=" + connection.escape(modified_at) + " limit " + idsTotal;
+                                        //connection.query(sql, function (error, result) {
                                             connection.release();
                                             idRepo.idBulkCreation(auxRelationship, namespace, partitionId, idsTotal, function (err) {
                                                 console.log("created ids, total availables=" + idsTotal);
@@ -242,7 +242,7 @@ var relationshipIdBulkCreation = function (namespace, partitionId, idsTotal, req
                                                     console.log(str);
                                                 }
                                             });
-                                        });
+                                        //});
                                     });
 
                                 }else{
@@ -300,7 +300,7 @@ var createIds = function (auxTable, namespace, partitionId, idsTotal, callback) 
             if (quant > 0) {
                 console.log("need to create " + quant + " ids, up to " + idsTotal);
                 idRepo.idBulkCreation(auxTable, namespace, partitionId, idsTotal, function (err) {
-                    console.log("created ids, total availables=" + idsTotal);
+                    console.log("End of id generation");
                     if (err) {
                         var str = "[ERROR] " + (new Date()).getTime() + ": namespace=" + namespace + ", partition=" + partitionId + ". " + err;
                         console.log(str);

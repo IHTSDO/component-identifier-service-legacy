@@ -34,5 +34,7 @@ var runner = function (){
     });
 };
 
+runner();
+
 setInterval(runner,1200000);
 //setTimeout(runner,5000);
