@@ -13,8 +13,10 @@ var _port="3000";
 var _root="/api";
 var baseUrl = "http://" + _host + ":" + _port + _root;
 
-var username = process.env.test_username;
-var password = process.env.test_password;
+//var username = process.env.test_username;
+var username = "arodriguez";
+//var password = process.env.test_password;
+var password = "snomed11";
 var token = "";
 
 var guid = (function() {
