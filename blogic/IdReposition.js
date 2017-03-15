@@ -39,7 +39,7 @@ var idBulkCreation = function (auxTable, namespace, partitionId, idsTotal, callb
                                         Sync(function () {
                                             for (var i = 0; i < quant; i++) {
                                                 count++;
-                                                if (count % 1000 == 0) {
+                                                if (count % 10000 == 0) {
                                                     console.log("#" + count);
                                                     var t3 = new Date().getTime();
                                                     console.log("Partial took: " + (t3 - t1) + " milisecs");

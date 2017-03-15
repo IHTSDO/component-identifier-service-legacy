@@ -34,5 +34,5 @@ var runner = function (){
 
 runner();
 
-setInterval(runner,1200000);
+setInterval(runner,36000000);
 //setTimeout(runner,5000);
