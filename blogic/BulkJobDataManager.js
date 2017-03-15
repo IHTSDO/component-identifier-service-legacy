@@ -77,10 +77,10 @@ function getJobRecords(jobId, callback) {
             } else {
                 if (jobRecord.request.type == job.JOBTYPE.generateSctids) {
 
-                    sctid.recordExists({jobId: parseInt(jobId)}, function(err,exists){
+                    sctid.recordExists({jobId: parseInt(jobId)}, function(err,exists) {
 
-                        if (err){
-                            callback(err,null);
+                        if (err) {
+                            callback(err, null);
                             return;
                         }
                         if (!exists) {
@@ -100,7 +100,7 @@ function getJobRecords(jobId, callback) {
                                 return;
 
                             });
-                        }else{
+                        } else {
                             console.log("already exists jobId: " + jobId);
 
 
@@ -118,6 +118,7 @@ function getJobRecords(jobId, callback) {
                                 return;
                             });
                         }
+                    });
                 }else {
                     sctid.findByJobId({jobId: parseInt(jobId)}, function (err, sctids) {
                         if (err) {
