@@ -63,12 +63,7 @@ module.exports.getJobRecords=function getJobRecords(req, res, next) {
             }
             res.setHeader('Content-Type', 'application/json');
             res.end(JSON.stringify(records));
-            //var recs=[
-            //    {
-            //        "sctid": "6778641020"
-            //    }
-            //    ];
-            //res.end(JSON.stringify(recs));
+
             var t3 = new Date().getTime();
             console.log("getJobRecords took: " + (t3 - t2) + " milisecs");
         });
