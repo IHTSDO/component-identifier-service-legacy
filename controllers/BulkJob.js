@@ -52,6 +52,7 @@ module.exports.getJob=function getJob(req, res, next) {
 module.exports.getJobRecords=function getJobRecords(req, res, next) {
     var token = req.swagger.params.token.value;
     var jobId = req.swagger.params.jobId.value;
+    var t2 = new Date().getTime();
     security.authenticate(token, function(err, data) {
         if (err) {
             return next({message: err.message, statusCode: 401});
@@ -62,6 +63,8 @@ module.exports.getJobRecords=function getJobRecords(req, res, next) {
             }
             res.setHeader('Content-Type', 'application/json');
             res.end(JSON.stringify(records));
+            var t3 = new Date().getTime();
+            console.log("getJobRecords took: " + (t3 - t2) + " milisecs");
         });
     });
 };
