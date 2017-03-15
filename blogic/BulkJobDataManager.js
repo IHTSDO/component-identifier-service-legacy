@@ -118,8 +118,8 @@ function getJobRecords(jobId, callback) {
                                     return;
                                 }
                                 callback(null, sctids);
-                                var t3 = new Date().getTime();
-                                console.log("getting existent job records took: " + (t3 - t2) + " milisecs");
+                                //var t3 = new Date().getTime();
+                                //console.log("getting existent job records took: " + (t3 - t2) + " milisecs");
                                 return;
                             });
                         }

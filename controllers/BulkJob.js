@@ -61,11 +61,15 @@ module.exports.getJobRecords=function getJobRecords(req, res, next) {
             if (err){
                 return next(err.message);
             }
-            var t3 = new Date().getTime();
-            console.log("partial 1 getJobRecords took: " + (t3 - t2) + " milisecs");
             res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify(records));
-            t3 = new Date().getTime();
+            //res.end(JSON.stringify(records));
+            var recs=[
+                {
+                    "sctid": "6778641020"
+                }
+                ];
+            res.end(JSON.stringify(recs));
+            var t3 = new Date().getTime();
             console.log("getJobRecords took: " + (t3 - t2) + " milisecs");
         });
     });
