@@ -11,13 +11,10 @@ var Sync = require('sync');
 var idBulkCreation = function (auxTable, namespace, partitionId, idsTotal, callback){
 
     var t1=new Date().getTime();
-    console.log("step 11");
     var query={partitionId:partitionId,namespace:namespace, modified_at:null};
     auxTable.availableCount(query,function(err,recs){
-        console.log("step 12");
         if (err==null) {
             var quant=idsTotal-recs;
-            console.log("step 13 - quant=" + quant);
             if (quant>0) {
                 var key = [parseInt(namespace), partitionId.toString()];
                 idDM.getModel(function (err) {
@@ -64,9 +61,9 @@ var idBulkCreation = function (auxTable, namespace, partitionId, idsTotal, callb
                                                     if (!sctIdRecord) {
 
                                                         var systemId = guid();
-                                                        var sctidRec=idDM.insertAssignedRecord.sync(null, SCTId, systemId);
+                                                        idDM.insertAssignedRecord.sync(null, SCTId, systemId);
 
-                                                        var auxRecord={sctid:SCTId, systemId:sctidRec.systemId, namespace:namespace, partitionId:partitionId, modified_at: null};
+                                                        var auxRecord={sctid:SCTId, systemId:systemId, namespace:namespace, partitionId:partitionId, modified_at: null};
                                                         auxTable.create.sync(null, auxRecord);
                                                     }
                                                 } catch (e) {
@@ -77,7 +74,7 @@ var idBulkCreation = function (auxTable, namespace, partitionId, idsTotal, callb
 
                                             if (count>=quant){
                                                 var t2 = new Date().getTime();
-                                                console.log("Final took: " + (t2 - t1) + " milisecs");
+                                                console.log("Final idBulkCreation method, took: " + (t2 - t1) + " milisecs");
                                                 callback(null);
                                             }
                                         });

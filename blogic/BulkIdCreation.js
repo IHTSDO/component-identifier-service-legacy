@@ -269,7 +269,6 @@ var testQuantity = function (auxTable, namespace, partitionId, idsTotal, callbac
 
 
     auxTable.availableCount(query, function (err, recs) {
-        console.log("step 12");
         if (err == null) {
             var quant = idsTotal - recs;
             console.log("step testing quantity in aux table, required - existent: " + quant);
@@ -293,7 +292,6 @@ var createIds = function (auxTable, namespace, partitionId, idsTotal, callback) 
 
 
     auxTable.availableCount(query, function (err, recs) {
-        console.log("step 12");
         if (err == null) {
             var quant = idsTotal - recs;
             console.log("step create Ids, checking quantity" );
