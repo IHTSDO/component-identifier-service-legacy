@@ -103,6 +103,7 @@ function getJobRecords(jobId, callback) {
                         } else {
                             console.log("already exists jobId: " + jobId);
 
+                            var t2 = new Date().getTime();
 
                             sctid.findJustSctIdByJobId({jobId: parseInt(jobId)}, function (err, sctids) {
                                 if (err) {
@@ -115,6 +116,8 @@ function getJobRecords(jobId, callback) {
                                     return;
                                 }
                                 callback(null, sctids);
+                                var t3 = new Date().getTime();
+                                console.log("getting existent job records took: " + (t3 - t2) + " milisecs");
                                 return;
                             });
                         }
