@@ -85,7 +85,7 @@ function getJobRecords(jobId, callback) {
                             return;
                         }
                         if (!exists) {
-                            console.log("doesn`t exists jobId: " + jobId);
+                            console.log("generating records for jobId: " + jobId);
                             jobRecord.request.jobId = jobId;
                             idBulk.idsRetrieve(jobRecord.request, function (err, sctids) {
                                 if (err) {
