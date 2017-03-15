@@ -237,10 +237,12 @@ describe('SCTID  BULK', function() {
     it('Test bulk generate api for 100000 brand new SctIDs (BulkSctId_01)', function (done) {
         var sysId1 = guid();
         var sysId2 = guid();
+
+        var quantity=100000;
         var generationData = {
             "namespace": 0,
             "partitionId": "02",
-            "quantity": 10000,
+            "quantity": quantity,
             "systemIds": [],
             "software": "Mocha Supertest",
             "comment": "Testing REST API"
@@ -273,7 +275,7 @@ describe('SCTID  BULK', function() {
                                 if (err) return done(err);
                                 objJob.status.should.be.eql("2");
                                 res.body.should.not.be.null();
-                                res.body.length.should.be.eql(10000);
+                                res.body.length.should.be.eql(quantity);
                                 //res.body[0].jobId.should.be.eql(jobId);
                                 //res.body[0].status.should.be.eql("Assigned");
                                 sctidArray.push(res.body[0].sctid);
