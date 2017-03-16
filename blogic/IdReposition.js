@@ -10,7 +10,7 @@ var Sync = require('sync');
 
 var idBulkCreation = function (auxTable, namespace, partitionId, idsTotal, callback){
 
-    var t1=new Date().getTime();
+    //var t1=new Date().getTime();
     var query={partitionId:partitionId,namespace:namespace, modified_at:null};
     auxTable.availableCount(query,function(err,recs){
         if (err==null) {
@@ -39,11 +39,11 @@ var idBulkCreation = function (auxTable, namespace, partitionId, idsTotal, callb
                                         Sync(function () {
                                             for (var i = 0; i < quant; i++) {
                                                 count++;
-                                                if (count % 10000 == 0) {
-                                                    console.log("#" + count);
-                                                    var t3 = new Date().getTime();
-                                                    console.log("Partial took: " + (t3 - t1) + " milisecs");
-                                                }
+                                                //if (count % 10000 == 0) {
+                                                //    console.log("#" + count);
+                                                    //var t3 = new Date().getTime();
+                                                    //console.log("Partial took: " + (t3 - t1) + " milisecs");
+                                                //}
                                                 try {
                                                     seq++;
 
@@ -73,8 +73,8 @@ var idBulkCreation = function (auxTable, namespace, partitionId, idsTotal, callb
                                             }
 
                                             if (count>=quant){
-                                                var t2 = new Date().getTime();
-                                                console.log("Final idBulkCreation method, took: " + (t2 - t1) + " milisecs");
+                                                //var t2 = new Date().getTime();
+                                                //console.log("Final idBulkCreation method, took: " + (t2 - t1) + " milisecs");
                                                 callback(null);
                                             }
                                         });

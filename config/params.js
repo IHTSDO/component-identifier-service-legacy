@@ -3,7 +3,7 @@
  */
 
 var dbuser = "root";
-var dbpass = "snomedid99";
+var dbpass = "";
 var dbName="idservice";
 var host="localhost";
 

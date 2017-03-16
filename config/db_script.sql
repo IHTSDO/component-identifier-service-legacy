@@ -410,6 +410,46 @@ CREATE TABLE `partitions` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+DROP TABLE IF EXISTS `auxConcept`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `auxConcept` (
+  `sctid` varchar(18) CHARACTER SET utf8 NOT NULL DEFAULT '',
+  `systemId` varchar(36) CHARACTER SET utf8 NOT NULL DEFAULT '',
+  `namespace` int(11) DEFAULT NULL,
+  `partitionId` varchar(2) CHARACTER SET utf8 DEFAULT NULL,
+  `modified_at` datetime DEFAULT NULL,
+  key modified_atKey(`modified_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+DROP TABLE IF EXISTS `auxDescription`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `auxDescription` (
+  `sctid` varchar(18) CHARACTER SET utf8 NOT NULL DEFAULT '',
+  `systemId` varchar(36) CHARACTER SET utf8 NOT NULL DEFAULT '',
+  `namespace` int(11) DEFAULT NULL,
+  `partitionId` varchar(2) CHARACTER SET utf8 DEFAULT NULL,
+  `modified_at` datetime DEFAULT NULL,
+  key modified_atKey(`modified_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+DROP TABLE IF EXISTS `auxRelationship`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `auxRelationship` (
+  `sctid` varchar(18) CHARACTER SET utf8 NOT NULL DEFAULT '',
+  `systemId` varchar(36) CHARACTER SET utf8 NOT NULL DEFAULT '',
+  `namespace` int(11) DEFAULT NULL,
+  `partitionId` varchar(2) CHARACTER SET utf8 DEFAULT NULL,
+  `modified_at` datetime DEFAULT NULL,
+  key modified_atKey(`modified_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+
 --
 -- Dumping events for database 'idservice'
 --
