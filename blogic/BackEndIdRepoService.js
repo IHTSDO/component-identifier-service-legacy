@@ -16,18 +16,13 @@ var runner = function (){
             console.log("[ERROR] " + (new Date()).getTime() + ": namespace=" + namespace + ", partition=" + partitionId + ". " + err);
             return;
         }
-        console.log("namespaces " + namespaces);
         if (namespaces) {
 
-            console.log("namespaces length " + namespaces.length);
             namespaces.forEach(function (namespaceRecord) {
-                if (namespaceRecord.namespace==0){
-                    console.log("namespaceRecord.idPregenerate=" + namespaceRecord.idPregenerate);
-                }
                 if (namespaceRecord.idPregenerate && namespaceRecord.idPregenerate == "1") {
                     console.log("Ids pregeneration for namespaceId " + namespaceRecord.namespace);
                     var namespace = namespaceRecord.namespace + "";
-                    var partitionId = '00';
+                    var partitionId = "00";
                     idRepo.idBulkCreation(auxConcept, namespace, partitionId, idTotal, function (err) {
                         if (err) {
                             console.log("[ERROR] " + (new Date()).getTime() + ": namespace=" + namespace + ", partition=" + partitionId + ". " + err);
