@@ -3,7 +3,6 @@ var dbInit=require("../config/dbInit");
 module.exports.getNamespaces = function getNamespaces(callback){
     dbInit.getDB(function (err, pdb, model) {
 
-        console.log("ini db in getNamespaces");
         if (err)
             throw err;
         else{

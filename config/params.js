@@ -14,7 +14,6 @@ process.argv.forEach(function (val, index, array) {
     } else if (parts[0] == "dbpass") {
         dbpass = parts[1];
     }
-    //console.log ("params user: " + dbuser + " pass : " + dbpass);
 });
 
 var database={

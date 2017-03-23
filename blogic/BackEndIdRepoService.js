@@ -22,13 +22,11 @@ var runner = function (){
                 if (namespaceRecord.idPregenerate && namespaceRecord.idPregenerate == "1") {
                     console.log("Ids pregeneration for namespaceId " + namespaceRecord.namespace);
                     var namespace = namespaceRecord.namespace.toString();
-                    //var namespace = '1000119';
                     var preffPartition="0";
                     if (namespace!="0"){
                         preffPartition="1";
                     }
                     var partitionId = preffPartition + "0";
-    console.log("Ids pregeneration for namespaceId " + namespace);
                     idRepo.idBulkCreation(auxConcept, namespace, partitionId, idTotal, function (err) {
                         if (err) {
                             console.log("[ERROR] " + (new Date()).getTime() + ": namespace=" + namespace + ", partition=" + partitionId + ". " + err);

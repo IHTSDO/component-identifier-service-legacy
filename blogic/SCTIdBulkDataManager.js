@@ -11,14 +11,12 @@ var Sync = require('sync');
 
 function getModel(callback) {
     if (model) {
-        console.log("exists db in sctidbulkdM");
         callback(null);
     } else {
         dbInit.getDB(function (err, pdb, podel1) {
             if (err) {
                 callback(err);
             } else {
-                console.log("init db in sctidbulkdM");
                 model = podel1;
                 callback(null);
             }
@@ -469,10 +467,8 @@ function setNewSCTIdRecord(operation,thisPartition,callback) {
 };
 
 function getPartition(key,callback) {
-    console.log(JSON.stringify(key));
     model.partitions.get(key, function (err, partitions) {
         if (err) {
-            console.log("Partition sequence not found for key:" + JSON.stringify(key));
             callback(err, null);
         } else {
             if (!partitions) {

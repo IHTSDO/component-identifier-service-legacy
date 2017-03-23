@@ -10,7 +10,6 @@ var params=require("../config/params");
 var dbmodel=require("../model/dbmodel");
 var gModel;
 var gdb;
-var Sync = require('sync');
 
 var getDBForDirect=function (callback ) {
     if (gdb) {
@@ -33,12 +32,10 @@ var define=false;
 var dbDefine=function(db, callback ){
 
     if (define){
-        console.log("get db existing in define");
         callback(null,db);
         return;
     }
     define=true;
-    console.log("defining db ");
     try {
         db.use(modts, dbmodel.mUse);
 
@@ -68,8 +65,6 @@ var getDB=function (callback ) {
 
     if (gModel!=null){
 
-        console.log("get db existing in gModel");
-
         callback(null, gdb, gModel);
     }else {
         orm.connect(params.database.connectionURL, function (err, db) {
@@ -84,8 +79,6 @@ var getDB=function (callback ) {
 
                     //gModel = model;
                     gdb = dbr;
-
-                    console.log("define get db in gModel");
 
                     callback(null, gdb, gModel);
                 }
