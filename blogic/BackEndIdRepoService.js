@@ -8,7 +8,7 @@ var auxDescription=require("../model/auxDescription");
 var auxRelationship=require("../model/auxRelationship");
 var namespaceDm = require("../blogic/NamespaceDataManager");
 
-var idTotal=1000;
+var idTotal=100000;
 
 var runner = function (){
     namespaceDm.getNamespaces(function(err, namespaces) {
@@ -53,4 +53,3 @@ var runner = function (){
 runner();
 
 setInterval(runner,36000000);
-//setTimeout(runner,5000);
