@@ -11,17 +11,18 @@ var namespaceDm = require("../blogic/NamespaceDataManager");
 var idTotal=1000;
 
 var runner = function (){
-    namespaceDm.getNamespaces(function(err, namespaces) {
-        if (err) {
-            console.log("[ERROR] " + (new Date()).getTime() + ": namespace=" + namespace + ", partition=" + partitionId + ". " + err);
-            return;
-        }
-        if (namespaces) {
-
-            namespaces.forEach(function (namespaceRecord) {
-                if (namespaceRecord.idPregenerate && namespaceRecord.idPregenerate == "1") {
-                    console.log("Ids pregeneration for namespaceId " + namespaceRecord.namespace);
-                    var namespace = namespaceRecord.namespace;
+    //namespaceDm.getNamespaces(function(err, namespaces) {
+    //    if (err) {
+    //        console.log("[ERROR] " + (new Date()).getTime() + ": namespace=" + namespace + ", partition=" + partitionId + ". " + err);
+    //        return;
+    //    }
+    //    if (namespaces) {
+    //
+    //        namespaces.forEach(function (namespaceRecord) {
+    //            if (namespaceRecord.idPregenerate && namespaceRecord.idPregenerate == "1") {
+    //                console.log("Ids pregeneration for namespaceId " + namespaceRecord.namespace);
+    //                var namespace = namespaceRecord.namespace;
+                    var namespace = '0';
                     var partitionId = '00';
                     idRepo.idBulkCreation(auxConcept, namespace, partitionId, idTotal, function (err) {
                         if (err) {
@@ -40,10 +41,10 @@ var runner = function (){
                             });
                         });
                     });
-                }
-            });
-        }
-    });
+    //            }
+    //        });
+    //    }
+    //});
 };
 
 runner();
