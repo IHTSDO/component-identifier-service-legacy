@@ -11,18 +11,18 @@ var namespaceDm = require("../blogic/NamespaceDataManager");
 var idTotal=1000;
 
 var runner = function (){
-    //namespaceDm.getNamespaces(function(err, namespaces) {
-    //    if (err) {
-    //        console.log("[ERROR] " + (new Date()).getTime() + ": namespace=" + namespace + ", partition=" + partitionId + ". " + err);
-    //        return;
-    //    }
-    //    if (namespaces) {
-    //
-    //        namespaces.forEach(function (namespaceRecord) {
-    //            if (namespaceRecord.idPregenerate && namespaceRecord.idPregenerate == "1") {
-    //                console.log("Ids pregeneration for namespaceId " + namespaceRecord.namespace);
-    //                var namespace = namespaceRecord.namespace;
-                    var namespace = '1000119';
+    namespaceDm.getNamespaces(function(err, namespaces) {
+        if (err) {
+            console.log("[ERROR] " + (new Date()).getTime() + ": namespace=" + namespace + ", partition=" + partitionId + ". " + err);
+            return;
+        }
+        if (namespaces) {
+
+            namespaces.forEach(function (namespaceRecord) {
+                if (namespaceRecord.idPregenerate && namespaceRecord.idPregenerate == "1") {
+                    console.log("Ids pregeneration for namespaceId " + namespaceRecord.namespace);
+                    var namespace = namespaceRecord.namespace.toString();
+                    //var namespace = '1000119';
                     var partitionId = '00';
     console.log("Ids pregeneration for namespaceId " + namespace);
                     idRepo.idBulkCreation(auxConcept, namespace, partitionId, idTotal, function (err) {
@@ -42,10 +42,10 @@ var runner = function (){
                             });
                         });
                     });
-    //            }
-    //        });
-    //    }
-    //});
+                }
+            });
+        }
+    });
 };
 
 runner();
