@@ -12,16 +12,19 @@ var idBulkCreation = function (auxTable, namespace, partitionId, idsTotal, callb
 
     //var t1=new Date().getTime();
     var query={partitionId:partitionId,namespace:namespace, modified_at:null};
+    console.log("availableCount query:" + JSON.stringify(query));
     auxTable.availableCount(query,function(err,recs){
         if (err==null) {
             var quant=idsTotal-recs;
             if (quant>0) {
                 var key = [parseInt(namespace), partitionId.toString()];
+                console.log("getModel" );
                 idDM.getModel(function (err) {
                     if (err) {
                         console.log("error model:" + err);
                         callback(err);
                     } else {
+                        console.log("getPartition for:" + JSON.stringify(key));
                         idDM.getPartition(key, function (err, thisPartition) {
                             if (err) {
                                 callback(err);
