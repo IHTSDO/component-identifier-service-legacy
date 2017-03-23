@@ -60,6 +60,7 @@ var getDB=function (callback ) {
     if (inFunction){
 
         callback(null, gdb, gModel);
+        return;
     }
     inFunction=true;
     if (gModel!=null){
