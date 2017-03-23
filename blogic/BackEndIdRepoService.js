@@ -16,7 +16,9 @@ var runner = function (){
             console.log("[ERROR] " + (new Date()).getTime() + ": namespace=" + namespace + ", partition=" + partitionId + ". " + err);
             return;
         }
+        console.log("namespaces " + namespaces);
         if (namespaces) {
+            console.log("namespaces " + namespaces.length);
             namespaces.forEach(function (namespaceRecord) {
                 if (namespaceRecord.idPregenerate && namespaceRecord.idPregenerate == "1") {
                     console.log("Ids pregeneration for namespaceId " + namespaceRecord.namespace);
