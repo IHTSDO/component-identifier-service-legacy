@@ -10,6 +10,7 @@ var params=require("../config/params");
 var dbmodel=require("../model/dbmodel");
 var gModel;
 var gdb;
+var Sync = require('sync');
 
 var getDBForDirect=function (callback ) {
     if (gdb) {
@@ -33,7 +34,7 @@ var dbDefine=function(db, callback ){
     try {
         db.use(modts, dbmodel.mUse);
 
-        var model = dbmodel.model;
+        gModel = dbmodel.model;
         for (var table in dbmodel.model) {
             if (dbmodel.model.hasOwnProperty(table)) {
                 if (dbmodel.model[table].features) {
@@ -50,43 +51,34 @@ var dbDefine=function(db, callback ){
                 model[table] = record;
             }
         }
-        callback(null,db, model);
+        callback(null,db);
     }catch(e){
         callback(e,null,null);
     }
 };
-var inFunction=false;
 var getDB=function (callback ) {
 
-    while (inFunction){
-        console.log("in function");
-    }
-    inFunction=true;
     if (gModel!=null){
 
         console.log("get db existing in gModel");
 
-        inFunction=false;
         callback(null, gdb, gModel);
     }else {
         orm.connect(params.database.connectionURL, function (err, db) {
             if (err) {
-                inFunction=false;
                 callback(err, null, null);
             }
-            dbDefine(db, function (err, dbr, model) {
+            dbDefine(db, function (err, dbr) {
 
                 if (err) {
-                    inFunction=false;
                     callback(err, null, null);
                 } else {
 
-                    gModel = model;
+                    //gModel = model;
                     gdb = dbr;
 
                     console.log("define get db in gModel");
 
-                    inFunction=false;
                     callback(null, gdb, gModel);
                 }
             });
