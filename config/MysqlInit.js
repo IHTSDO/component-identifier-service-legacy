@@ -13,6 +13,10 @@ var pool      =    mysql.createPool({
 });
 
 var getDB=function (callback ) {
+
+    console.log( "mysqlInit: dbuser:" + params.database.user ) ;
+    console.log( "mysqlInit: pass:" + params.database.pass ) ;
+
     pool.getConnection(function (err, connection) {
         if (err) {
             connection.release();
