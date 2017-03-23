@@ -34,8 +34,8 @@ var namespaceRecord={name: "namespace",
 
 var partitionRecord={name: "partitions",
     fields: {
-        partitionId: { type: 'text', key: true },
         namespace: { type: 'integer', key: true },
+        partitionId: { type: 'text', key: true },
         sequence: {type: 'integer', size:8}
     }
     , features:{
