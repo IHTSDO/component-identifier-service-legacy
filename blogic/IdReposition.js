@@ -16,7 +16,7 @@ var idBulkCreation = function (auxTable, namespace, partitionId, idsTotal, callb
         if (err==null) {
             var quant=idsTotal-recs;
             if (quant>0) {
-                var key = [parseInt(namespace), partitionId.toString()];
+                var key = [partitionId.toString(),namespace];
                 idDM.getModel(function (err) {
                     if (err) {
                         console.log("error model:" + err);
