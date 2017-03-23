@@ -29,8 +29,16 @@ var getDBForDirect=function (callback ) {
     }
 
 };
+var define=false;
 var dbDefine=function(db, callback ){
 
+    if (define){
+        console.log("get db existing in define");
+        callback(null,db);
+        return;
+    }
+    define=true;
+    console.log("defining db ");
     try {
         db.use(modts, dbmodel.mUse);
 
