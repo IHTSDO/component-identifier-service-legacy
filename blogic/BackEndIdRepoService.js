@@ -22,7 +22,7 @@ var runner = function (){
                 if (namespaceRecord.idPregenerate && namespaceRecord.idPregenerate == "1") {
                     console.log("Ids pregeneration for namespaceId " + namespaceRecord.namespace);
                     var namespace = '0';
-                    var partitionId = "00";
+                    var partitionId = '00';
                     idRepo.idBulkCreation(auxConcept, namespace, partitionId, idTotal, function (err) {
                         if (err) {
                             console.log("[ERROR] " + (new Date()).getTime() + ": namespace=" + namespace + ", partition=" + partitionId + ". " + err);
