@@ -55,13 +55,18 @@ var dbDefine=function(db, callback ){
         callback(e,null,null);
     }
 };
-
+var inFunction=false;
 var getDB=function (callback ) {
-
+    while (inFunction){
+        console.log("in function");
+    }
+    inFunction=true;
     if (gModel!=null){
 
         console.log("get db existing in gModel");
+
         callback(null, gdb, gModel);
+        inFunction=false;
     }else {
         orm.connect(params.database.connectionURL, function (err, db) {
             if (err) {
@@ -78,6 +83,8 @@ var getDB=function (callback ) {
 
                     console.log("define get db in gModel");
                     callback(null, gdb, gModel);
+
+                    inFunction=false;
                 }
             });
 

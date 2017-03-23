@@ -6,7 +6,7 @@ var idRepo = require("./../blogic/IdReposition");
 var auxConcept=require("../model/auxConcept");
 var auxDescription=require("../model/auxDescription");
 var auxRelationship=require("../model/auxRelationship");
-//var namespaceDm = require("../blogic/NamespaceDataManager");
+var namespaceDm = require("../blogic/NamespaceDataManager");
 
 var idTotal=1000;
 
