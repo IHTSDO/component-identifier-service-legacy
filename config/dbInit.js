@@ -57,8 +57,9 @@ var dbDefine=function(db, callback ){
 };
 var inFunction=false;
 var getDB=function (callback ) {
-    while (inFunction){
-        console.log("in function");
+    if (inFunction){
+
+        callback(null, gdb, gModel);
     }
     inFunction=true;
     if (gModel!=null){
