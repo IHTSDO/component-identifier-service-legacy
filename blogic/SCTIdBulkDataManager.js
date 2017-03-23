@@ -468,6 +468,7 @@ function setNewSCTIdRecord(operation,thisPartition,callback) {
 };
 
 function getPartition(key,callback) {
+    console.log(JSON.stringify(key));
     model.partitions.get(key, function (err, partitions) {
         if (err) {
             callback(err, null);
