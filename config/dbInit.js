@@ -48,7 +48,7 @@ var dbDefine=function(db, callback ){
                         dbmodel.model[table].fields
                     );
                 }
-                model[table] = record;
+                gModel[table] = record;
             }
         }
         callback(null,db);
