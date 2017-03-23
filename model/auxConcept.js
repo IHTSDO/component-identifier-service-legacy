@@ -34,7 +34,7 @@ auxConcept.availableCount=function(query,callback){
         if (err) throw err;
 
         var sql;
-        sql = "SELECT count(*) as count FROM auxConcept where modified_at is null" ;
+        sql = "SELECT count(*) as count FROM auxConcept where modified_at is null and namespace=" + connection.escape(query.namespace)  ;
         console.log("sql:" + sql);
         connection.query(sql, function(error, rows)
         {

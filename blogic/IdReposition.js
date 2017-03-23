@@ -11,7 +11,7 @@ var Sync = require('sync');
 var idBulkCreation = function (auxTable, namespace, partitionId, idsTotal, callback){
 
     //var t1=new Date().getTime();
-    var query={partitionId:partitionId,namespace:namespace, modified_at:null};
+    var query={namespace:namespace};
     console.log("availableCount query:" + JSON.stringify(query));
     auxTable.availableCount(query,function(err,recs){
         if (err==null) {
@@ -66,7 +66,7 @@ var idBulkCreation = function (auxTable, namespace, partitionId, idsTotal, callb
                                                         var systemId = guid();
                                                         idDM.insertAssignedRecord.sync(null, SCTId, systemId);
 
-                                                        var auxRecord={sctid:SCTId, systemId:systemId, namespace:namespace, partitionId:partitionId, modified_at: null};
+                                                        var auxRecord={sctid:SCTId, systemId:systemId, namespace:namespace, modified_at: null};
                                                         auxTable.create.sync(null, auxRecord);
                                                     }
                                                 } catch (e) {

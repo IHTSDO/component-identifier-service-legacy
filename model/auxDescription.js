@@ -34,7 +34,7 @@ auxDescription.availableCount=function(query,callback){
         if (err) throw err;
 
         var sql;
-        sql = "SELECT count(*) as count FROM auxDescription where modified_at is null" ;
+        sql = "SELECT count(*) as count FROM auxDescription where modified_at is null and namespace=" + connection.escape(query.namespace);
         connection.query(sql, function(error, rows)
         {
             connection.release();
