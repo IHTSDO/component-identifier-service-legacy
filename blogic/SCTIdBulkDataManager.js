@@ -11,13 +11,14 @@ var Sync = require('sync');
 
 function getModel(callback) {
     if (model) {
+        console.log("exists db in sctidbulkdM");
         callback(null);
     } else {
         dbInit.getDB(function (err, pdb, podel1) {
             if (err) {
                 callback(err);
             } else {
-
+                console.log("init db in sctidbulkdM");
                 model = podel1;
                 callback(null);
             }
