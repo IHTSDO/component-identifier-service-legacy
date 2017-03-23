@@ -91,6 +91,7 @@ CREATE TABLE `namespace` (
   `dateIssued` datetime DEFAULT NULL,
   `email` varchar(255) DEFAULT NULL,
   `notes` varchar(2000) DEFAULT NULL,
+  `idPregenerate` varchar(1) DEFAULT NULL,
   PRIMARY KEY (`namespace`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;

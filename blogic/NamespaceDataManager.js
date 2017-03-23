@@ -160,6 +160,7 @@ module.exports.editNamespace = function editNamespace(id, editedNamespace, callb
                     namespace.dateIssued =editedNamespace.dateIssued;
                     namespace.organizationAndContactDetails =editedNamespace.organizationAndContactDetails;
                     namespace.notes =editedNamespace.notes;
+                    namespace.idPregenerate=editedNamespace.idPregenerate;
                     namespace.save(function(err){
                         if (err)
                             callback(err);
