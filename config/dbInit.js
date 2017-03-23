@@ -31,10 +31,6 @@ var getDBForDirect=function (callback ) {
 var dbDefine=function(db, callback ){
 
     try {
-        if (inFunction){
-            callback(null,db, gModel);
-            return;
-        }
         db.use(modts, dbmodel.mUse);
 
         var model = dbmodel.model;
@@ -62,6 +58,9 @@ var dbDefine=function(db, callback ){
 var inFunction=false;
 var getDB=function (callback ) {
 
+    while (inFunction){
+        console.log("in function");
+    }
     inFunction=true;
     if (gModel!=null){
 

@@ -6,7 +6,7 @@ var idRepo = require("./../blogic/IdReposition");
 var auxConcept=require("../model/auxConcept");
 var auxDescription=require("../model/auxDescription");
 var auxRelationship=require("../model/auxRelationship");
-//var namespaceDm = require("../blogic/NamespaceDataManager");
+var namespaceDm = require("../blogic/NamespaceDataManager");
 
 var idTotal=1000;
 
@@ -22,7 +22,7 @@ var runner = function (){
     //            if (namespaceRecord.idPregenerate && namespaceRecord.idPregenerate == "1") {
     //                console.log("Ids pregeneration for namespaceId " + namespaceRecord.namespace);
     //                var namespace = namespaceRecord.namespace;
-                    var namespace = '0';
+                    var namespace = '1000119';
                     var partitionId = '00';
                     idRepo.idBulkCreation(auxConcept, namespace, partitionId, idTotal, function (err) {
                         if (err) {
