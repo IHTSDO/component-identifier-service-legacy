@@ -20,6 +20,9 @@ var runner = function (){
         if (namespaces) {
             console.log("namespaces " + namespaces.length);
             namespaces.forEach(function (namespaceRecord) {
+                if (namespaceRecord.namespace==0){
+                    console.log("namespaceRecord.idPregenerate=" + namespaceRecord.idPregenerate);
+                }
                 if (namespaceRecord.idPregenerate && namespaceRecord.idPregenerate == "1") {
                     console.log("Ids pregeneration for namespaceId " + namespaceRecord.namespace);
                     var namespace = namespaceRecord.namespace;
