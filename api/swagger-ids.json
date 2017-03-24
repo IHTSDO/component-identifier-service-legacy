@@ -6,7 +6,7 @@
         "version": "1.0"
     },
     "produces": ["application/json"],
-    "host": "sctid.termspace.com:3000",
+    "host": "localhost:3000",
     "basePath": "/api",
     "paths": {
 
@@ -2905,6 +2905,9 @@
                     "type": "string"
                 },
                 "notes": {
+                    "type": "string"
+                },
+                "idPregenerate": {
                     "type": "string"
                 },
                 "partitions": {
