@@ -34,7 +34,7 @@ var conceptIdBulkCreation = function (namespace, partitionId, idsTotal, request,
                 var modified_at = new Date(jsonDate);
 
                 //console.log("modified_at:" + connection.escape(modified_at));
-                var sql="UPDATE auxConcept SET modified_at=" + connection.escape(modified_at) + "  where modified_at is null limit " + idsTotal;
+                var sql="UPDATE auxConcept SET modified_at=" + connection.escape(modified_at) + "  where modified_at is null and namespace=" + connection.escape(namespace) + " limit " + idsTotal;
                 connection.query(sql, function (error, result) {
                     //connection.release();
                     //var t4 = new Date().getTime();
@@ -118,7 +118,7 @@ var descriptionIdBulkCreation = function (namespace, partitionId, idsTotal, requ
                 var modified_at = new Date(jsonDate);
 
                 //console.log("modified_at:" + connection.escape(modified_at));
-                var sql="UPDATE auxDescription SET modified_at=" + connection.escape(modified_at) + "  where modified_at is null limit " + idsTotal;
+                var sql="UPDATE auxDescription SET modified_at=" + connection.escape(modified_at) + "  where modified_at is null and namespace=" + connection.escape(namespace) + " limit " + idsTotal;
                 connection.query(sql, function (error, result) {
                     //connection.release();
                     //var t4 = new Date().getTime();
@@ -202,7 +202,7 @@ var relationshipIdBulkCreation = function (namespace, partitionId, idsTotal, req
                 var modified_at = new Date(jsonDate);
 
                 //console.log("modified_at:" + connection.escape(modified_at));
-                var sql="UPDATE auxRelationship SET modified_at=" + connection.escape(modified_at) + "  where modified_at is null limit " + idsTotal;
+                var sql="UPDATE auxRelationship SET modified_at=" + connection.escape(modified_at) + "  where modified_at is null and namespace=" + connection.escape(namespace) + " limit " + idsTotal;
                 connection.query(sql, function (error, result) {
                     //connection.release();
                     //var t4 = new Date().getTime();
@@ -265,7 +265,7 @@ var relationshipIdBulkCreation = function (namespace, partitionId, idsTotal, req
 };
 
 var testQuantity = function (auxTable, namespace, partitionId, idsTotal, callback) {
-    var query = {partitionId: partitionId, namespace: namespace, modified_at: null};
+    var query = { namespace: namespace};
 
 
     auxTable.availableCount(query, function (err, recs) {
@@ -288,7 +288,7 @@ var testQuantity = function (auxTable, namespace, partitionId, idsTotal, callbac
     });
 };
 var createIds = function (auxTable, namespace, partitionId, idsTotal, callback) {
-    var query = {partitionId: partitionId, namespace: namespace, modified_at: null};
+    var query = {namespace: namespace};
 
 
     auxTable.availableCount(query, function (err, recs) {
