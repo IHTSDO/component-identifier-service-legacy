@@ -13,14 +13,6 @@
         <button tabindex="-1" id="edit-button-namespaces" class="pull-right btn btn-default" type="button">Edit</button>
     {{/if}}
 </p>
-<p>Email:
-    {{#if edit}}
-        <!--<input tabindex="2" id="edit-namespace-email" value="{{item.email}}" placeholder="email" type="text">-->
-        <textarea tabindex="2" id="edit-namespace-email" class="form-control" rows="5">{{item.email}}</textarea>
-    {{else}}
-        {{item.email}}
-    {{/if}}
-</p>
 <p>Organization Name:
     {{#if edit}}
         <!--<input tabindex="3" id="edit-namespace-organizationName" value="{{item.organizationName}}" placeholder="Organization Name" type="text">-->
@@ -28,6 +20,14 @@
     {{else}}
         {{item.organizationName}}
         <button tabindex="-1" id="delete-button-namespaces" style="margin-bottom: 10px;" class="pull-right btn btn-default" type="button">Delete this namespace</button>
+    {{/if}}
+</p>
+<p>Email:
+    {{#if edit}}
+        <!--<input tabindex="2" id="edit-namespace-email" value="{{item.email}}" placeholder="email" type="text">-->
+        <textarea tabindex="2" id="edit-namespace-email" class="form-control" rows="5">{{item.email}}</textarea>
+    {{else}}
+        {{item.email}}
     {{/if}}
 </p>
 <br>

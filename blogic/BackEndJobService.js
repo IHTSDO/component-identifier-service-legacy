@@ -7,6 +7,7 @@ var bulkJob=require("../model/job");
 var idDM = require("./../blogic/SCTIdBulkDataManager");
 var sIdDM = require("./../blogic/SchemeIdBulkDataManager");
 var stateMachine=require("../model/StateMachine");
+var idBulk = require("./../blogic/BulkIdCreation");
 
 var runner = function (){
 
@@ -63,36 +64,60 @@ function processJob(record){
             id:record.id
         };
         if (request.type == job.JOBTYPE.generateSctids) {
-            if (!request.systemIds || request.systemIds.length == 0) {
-                var arrayUuids = [];
-                for (var i = 0; i < request.quantity; i++) {
-                    arrayUuids.push(guid());
-                }
-                request.systemIds = arrayUuids;
-            }
             request.action = stateMachine.actions.generate;
-
-            idDM.generateSctids(request, function (err) {
-
-                if (err) {
-                    lightJob.status = "3";
-                    if (typeof err == "object") {
-                        lightJob.log = JSON.stringify(err);
-                    } else {
-                        lightJob.log = err;
+            if (request.generateLegacyIds && request.generateLegacyIds.toUpperCase()=="TRUE" &&
+                request.partitionId.substr(1,1)=="0") {
+                if (!request.systemIds || request.systemIds.length == 0) {
+                    var arrayUuids = [];
+                    for (var i = 0; i < request.quantity; i++) {
+                        arrayUuids.push(guid());
                     }
-                } else {
-                    lightJob.status = "2";
+                    request.systemIds = arrayUuids;
                 }
-                bulkJob.save(lightJob,function (err) {
+                idDM.generateSctids(request, function (err) {
                     if (err) {
-                        console.log("Error-2 in back end service:" + err);
-                        return;
+                        lightJob.status = "3";
+                        if (typeof err == "object") {
+                            lightJob.log = JSON.stringify(err);
+                        } else {
+                            lightJob.log = err;
+                        }
                     } else {
-                        console.log("End job " + record.name + " - id:" + record.id);
+                        lightJob.status = "2";
                     }
+                    bulkJob.save(lightJob, function (err) {
+                        if (err) {
+                            console.log("Error-2 in back end service:" + err);
+                            return;
+                        } else {
+                            console.log("End job " + record.name + " - id:" + record.id);
+                        }
+                    });
                 });
-            });
+            }else {
+                console.log("End job service: checking available ids");
+                idBulk.createAvailableIds(request, function (err) {
+
+                    if (err) {
+                        lightJob.status = "3";
+                        if (typeof err == "object") {
+                            lightJob.log = JSON.stringify(err);
+                        } else {
+                            lightJob.log = err;
+                        }
+                    } else {
+                        lightJob.status = "2";
+                    }
+                    bulkJob.save(lightJob, function (err) {
+                        if (err) {
+                            console.log("Error-2 in back end service:" + err);
+                            return;
+                        } else {
+                            console.log("End job " + record.name + " - id:" + record.id);
+                        }
+                    });
+                });
+            }
         } else if (request.type == job.JOBTYPE.registerSctids) {
 
             idDM.registerSctids(request, function (err) {
@@ -233,7 +258,7 @@ function processJob(record){
                 } else {
                     lightJob.status = "2";
                 }
-                bulkJob.save(lightJob,function (err) {
+                bulkJob.save(lightJob, function (err) {
                     if (err) {
                         console.log("Error-8 in back end service:" + err);
                         return;

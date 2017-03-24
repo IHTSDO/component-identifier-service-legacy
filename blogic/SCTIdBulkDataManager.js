@@ -17,7 +17,6 @@ function getModel(callback) {
             if (err) {
                 callback(err);
             } else {
-
                 model = podel1;
                 callback(null);
             }
@@ -84,6 +83,20 @@ function getFreeRecord(sctId, systemId, callback){
             var sctIdRecord = getNewRecord(sctId, systemId);
             sctIdRecord.status = stateMachine.statuses.available;
             var newRecord = insertSCTIDRecord.sync(null, sctIdRecord);
+
+            callback(null, newRecord);
+        }catch (e){
+            callback(e,null);
+        }
+    });
+}
+function insertAssignedRecord(sctId, systemId, callback){
+    Sync(function() {
+        try {
+            var sctIdRecord = getNewRecord(sctId, systemId);
+            sctIdRecord.status = stateMachine.statuses.assigned;
+            var newRecord = insertSCTIDRecord.sync(null, sctIdRecord);
+
 
             callback(null, newRecord);
         }catch (e){
@@ -296,7 +309,38 @@ function insertSCTIDRecord(newSctidRecord, callback){
         }
     });
 }
-
+//function insertAuxConceptRecord(newSctidRecord, callback){
+//    Sync(function() {
+//        try {
+//            var newSctidRecord2 = auxConcept.create.sync(null, newSctidRecord);
+//            callback(null, newSctidRecord2);
+//        }catch(e){
+//            callback(e,null);
+//        }
+//    });
+//}
+//
+//function insertAuxDescriptionRecord(newSctidRecord, callback){
+//    Sync(function() {
+//        try {
+//            var newSctidRecord2 = auxDescription.create.sync(null, newSctidRecord);
+//            callback(null, newSctidRecord2);
+//        }catch(e){
+//            callback(e,null);
+//        }
+//    });
+//}
+//
+//function insertAuxRelationshipRecord(newSctidRecord, callback){
+//    Sync(function() {
+//        try {
+//            var newSctidRecord2 = auxRelationship.create.sync(null, newSctidRecord);
+//            callback(null, newSctidRecord2);
+//        }catch(e){
+//            callback(e,null);
+//        }
+//    });
+//}
 
 function computeSCTID(operation,seq){
 
@@ -428,7 +472,7 @@ function getPartition(key,callback) {
             callback(err, null);
         } else {
             if (!partitions) {
-                callback("Partition not found for key:" + JSON.stringify(key), null);
+                callback("Partition sequence not found for key:" + JSON.stringify(key), null);
             } else {
                 callback(null, partitions);
             }
@@ -498,3 +542,6 @@ module.exports.registerSctids=registerSctids;
 module.exports.getSctidBySystemIds=getSctidBySystemIds;
 module.exports.getSctids=getSctids;
 module.exports.updateSctids=updateSctids;
+module.exports.getPartition=getPartition;
+module.exports.getModel=getModel;
+module.exports.insertAssignedRecord=insertAssignedRecord;

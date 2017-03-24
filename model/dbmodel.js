@@ -24,7 +24,11 @@ var namespaceRecord={name: "namespace",
     fields: {
         namespace: { type: 'integer', key: true },
         organizationName: String,
-        email: String
+        organizationAndContactDetails: String,
+        dateIssued: String,
+        email: String,
+        notes: String,
+        idPregenerate: String
     }
 };
 

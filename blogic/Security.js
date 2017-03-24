@@ -3,14 +3,24 @@
  */
 var AtlassianCrowd = require('atlassian-crowd');
 
+//var options = {
+//	    "crowd": {
+//	        "base": process.env.CROWD_URL
+//	     },
+//	     "application": {
+//	         "name": process.env.CROWD_APP_NAME,
+//	         "password": process.env.CROWD_APP_PASSWORD
+//	     }
+//};
+
 var options = {
-	    "crowd": {
-	        "base": process.env.CROWD_URL
-	     },
-	     "application": {
-	         "name": process.env.CROWD_APP_NAME,
-	         "password": process.env.CROWD_APP_PASSWORD
-	     }
+    "crowd": {
+        "base": "https://dev-crowd.ihtsdotools.org/crowd/"
+    },
+    "application": {
+        "name": "component-id-service",
+        "password": "CwUCP39QmZ7Qx7QDZBbVAMyW"
+    }
 };
 
 var authenticationCache = {};

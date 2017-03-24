@@ -2907,6 +2907,9 @@
                 "notes": {
                     "type": "string"
                 },
+                "idPregenerate": {
+                    "type": "string"
+                },
                 "partitions": {
                     "type": "array",
                     "items": {

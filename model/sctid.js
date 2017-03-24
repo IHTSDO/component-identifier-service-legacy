@@ -96,6 +96,31 @@ sctid.findBySystemIds=function(query,callback){
     });
 };
 
+
+
+sctid.findJustSctIdByJobId=function(query,callback){
+
+    db.getDB(function (err,connection)
+    {
+        if (err) throw err;
+
+        var sql = "SELECT sctid FROM sctId WHERE jobId = " + connection.escape(query.jobId) ;
+        connection.query(sql, function(error, rows)
+        {
+
+            connection.release();
+            if(error)
+            {
+                callback(error, null);
+            }
+            else
+            {
+
+                callback(null, rows);
+            }
+        });
+    });
+};
 sctid.findByJobId=function(query,callback){
 
     db.getDB(function (err,connection)
@@ -143,9 +168,14 @@ sctid.find=function(query, limit, skip, callback){
         }
         var sql;
         if (limit && limit>0 && (!skip || skip==0)) {
-            sql = "SELECT * FROM sctId" + swhere + " limit " + limit;
+            //sql = "SELECT * FROM sctId" + swhere + " order by sctid limit " + limit;
+            //sql = "SELECT * FROM sctId" + swhere + " limit " + limit;
+            sql = "SELECT * FROM sctId USE INDEX (nam_par_st)" + swhere + " limit " + limit;
+
         }else{
-            sql = "SELECT * FROM sctId" + swhere;
+            //sql = "SELECT * FROM sctId" + swhere + " order by sctid";
+            //sql = "SELECT * FROM sctId" + swhere ;
+            sql = "SELECT * FROM sctId USE INDEX (nam_par_st)" + swhere;
         }
         connection.query(sql, function(error, rows)
         {
@@ -262,6 +292,42 @@ sctid.count=function(query,callback){
                     callback(null, rows[0].count);
                 }else{
                     callback(null, 0);
+                }
+            }
+        });
+    });
+};
+
+sctid.recordExists=function(query,callback){
+
+    db.getDB(function (err,connection)
+    {
+        if (err) throw err;
+        var swhere="";
+        for (var field in query) {
+            if (query.hasOwnProperty(field)) {
+
+                swhere += " And " + field + "=" + connection.escape(query[field]) ;
+            }
+        }
+        if (swhere!=""){
+            swhere = " WHERE " + swhere.substr(5);
+        }
+        var sql;
+        sql = "SELECT 0 as rowExists FROM sctId" + swhere  + " limit 1";
+        connection.query(sql, function(error, rows)
+        {
+            connection.release();
+            if(error)
+            {
+                callback(error, null);
+            }
+            else
+            {
+                if (rows && rows.length>0) {
+                    callback(null, true);
+                }else{
+                    callback(null, false);
                 }
             }
         });
