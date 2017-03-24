@@ -170,12 +170,12 @@ sctid.find=function(query, limit, skip, callback){
         if (limit && limit>0 && (!skip || skip==0)) {
             //sql = "SELECT * FROM sctId" + swhere + " order by sctid limit " + limit;
             //sql = "SELECT * FROM sctId" + swhere + " limit " + limit;
-            sql = "SELECT * FROM sctId USE INDEX (nam_par_st)" + swhere + " order by sctid limit " + limit;
+            sql = "SELECT * FROM sctId USE INDEX (nam_par_st)" + swhere + " limit " + limit;
 
         }else{
             //sql = "SELECT * FROM sctId" + swhere + " order by sctid";
             //sql = "SELECT * FROM sctId" + swhere ;
-            sql = "SELECT * FROM sctId USE INDEX (nam_par_st)" + swhere + " order by sctid";
+            sql = "SELECT * FROM sctId USE INDEX (nam_par_st)" + swhere;
         }
         connection.query(sql, function(error, rows)
         {
