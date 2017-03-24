@@ -101,7 +101,7 @@ var cleanUpExpiredIds = function (callback){
                 return;
             }
         });
-    db.driver.execQuery("Delete from auxConcept where modified_at < (now() - interval 30 minute)",null,
+    db.driver.execQuery("Delete from auxConcept where modified_at < (now() - interval 2 hour)",null,
         function (err, data) {
             if (err) {
                 var str="\n[Error] in clean up auxConcept table : "+ JSON.stringify(err);
@@ -135,7 +135,7 @@ var cleanUpExpiredIds = function (callback){
             }
         });
 
-    db.driver.execQuery("Delete from auxDescription where modified_at < (now() - interval 30 minute)",null,
+    db.driver.execQuery("Delete from auxDescription where modified_at < (now() - interval 2 hour)",null,
         function (err, data) {
             if (err) {
                 var str="\n[Error] in clean up auxDescription table : "+ JSON.stringify(err);
@@ -168,7 +168,7 @@ var cleanUpExpiredIds = function (callback){
                 return;
             }
         });
-    db.driver.execQuery("Delete from auxRelationship where modified_at < (now() - interval 30 minute)",null,
+    db.driver.execQuery("Delete from auxRelationship where modified_at < (now() - interval 2 hour)",null,
         function (err, data) {
             if (err) {
                 var str="\n[Error] in clean up auxRelationship table : "+ JSON.stringify(err);
