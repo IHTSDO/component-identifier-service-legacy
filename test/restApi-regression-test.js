@@ -8,13 +8,15 @@ var security = require("../blogic/Security");
 var request = require('supertest');
 var sctIdHelper=require("../utils/SctIdHelper");
 
-var _host="localhost";
+var _host="162.243.1.200";
 var _port="3000";
 var _root="/api";
 var baseUrl = "http://" + _host + ":" + _port + _root;
 
-var username = process.env.test_username;
-var password = process.env.test_password;
+//var username = process.env.test_username;
+//var password = process.env.test_password;
+var username = "arodriguez";
+var password = "snomed11";
 var token = "";
 
 var guid = (function() {
