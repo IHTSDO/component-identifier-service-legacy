@@ -242,7 +242,7 @@ sctid.updateJobId=function(existingSystemId, jobId, callback){
         if (err) {
             throw err;
         }else{
-            connection.query("UPDATE sctId SET JobId=" + conection.escape(jobId) + " ,modified_at=now() WHERE systemId in (" + conection.escape(existingSystemId) + ")", function (error) {
+            connection.query("UPDATE sctId SET JobId=" + connection.escape(jobId) + " ,modified_at=now() WHERE systemId in (" + connection.escape(existingSystemId) + ")", function (error) {
                 connection.release();
                 if (error) {
                     callback (error,null);
