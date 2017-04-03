@@ -50,6 +50,6 @@ var runner = function (){
     });
 };
 
-runner();
+//runner();
 
-setInterval(runner,36000000);
+//setInterval(runner,36000000);
