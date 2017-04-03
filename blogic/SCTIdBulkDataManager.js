@@ -9,6 +9,7 @@ var sctid=require("../model/sctid");
 var sets=require('simplesets');
 var Sync = require('sync');
 
+
 function getModel(callback) {
     if (model) {
         callback(null);
@@ -437,6 +438,7 @@ function getPartition(key,callback) {
 };
 
 var generateSctids=function (operation, callback) {
+    var chunk = 10000;
     getModel(function (err) {
         if (err) {
             console.log("error model:" + err);
@@ -445,48 +447,120 @@ var generateSctids=function (operation, callback) {
             var cont = 0;
             var key = [parseInt(operation.namespace), operation.partitionId.toString()];
 
-            getPartition(key, function (err, data) {
-                if (err) {
-                    callback(err);
-                } else {
-                    if (!data) {
-                        callback("Partition not found for key:" + JSON.stringify(key));
-                    }
-                    var thisPartition = data;
-                    Sync(function () {
-                        var canContinue;
-                        for (var i = 0; i < operation.quantity; i++) {
-                            canContinue = true;
 
-                            try {
-                                operation.systemId = operation.systemIds[i];
-                                if (!operation.autoSysId) {
-                                    var sctIdRecord = getSyncSctidBySystemId.sync(null, operation.namespace, operation.systemId);
-                                    if (sctIdRecord != null) {
-                                        sctIdRecord.jobId = operation.jobId;
-                                        sctid.save.sync(null,sctIdRecord);
-                                        canContinue = false;
+            Sync(function () {
+
+                var sysIdInChunk = new sets.StringSet();
+                var insertedCount = 0;
+                for (var i = 1; i <= operation.quantity; i++) {
+
+                    sysIdInChunk.add(operation.systemIds[i - 1]);
+                    try {
+
+                        if (i % chunk == 0 || i == (operation.quantity )) {
+                            var diff;
+                            var sysIdToCreate = sysIdInChunk.array();
+
+                            if (!operation.autoSysId) {
+                                // Probably existing uuids
+
+                                var existingSysIds = sctid.findExistingSystemIds.sync(null, {
+                                    systemIds: sysIdToCreate,
+                                    namespace: operation.namespace
+                                });
+
+                                if (existingSysIds && existingSysIds.length > 0) {
+                                    console.log("update jobId field to existing sysIds");
+                                    //update jobId field to existing sysIds in order to can to retrieve ids with job
+
+                                    sctId.updateJobId.sync(null, existingSysIds, operation.jobId);
+
+                                    if (existingSysIds.length < sysIdInChunk.size()) {
+                                        var setExistSysId = new sets.StringSet(existingSysIds);
+
+                                        diff = sysIdInChunk.difference(setExistSysId).array();
+                                        insertedCount += setExistSysId.length;
+                                        console.log("insertedCount :" + insertedCount);
                                     }
+
                                 }
-                                if (canContinue) {
-                                    generateSctid.sync(null, operation, thisPartition);
-                                }
-                                cont++;
-                                if (operation.quantity == cont) {
-                                    thisPartition.save(function (err) {
-                                        if (err) {
-                                            callback(err);
-                                        } else {
-                                            callback(null);
-                                        }
-                                    });
-                                }
-                            } catch (e) {
-                                console.error("generateSctids error:" + e); // something went wrong
-                                callback(e);
+
                             }
+
+                            if (diff) {
+                                console.log("assigning diff to sysIdToCreate");
+                                sysIdToCreate = diff;
+                            }
+                            console.log("Preparing to create " + sysIdToCreate.length + " ids in partition:" + operation.partitionId + " and namespace:" + operation.namespace);
+                            //getPartition(key, function (err, data) {
+                            var data = getPartition.sync(null, key);
+                            //if (err) {
+                            //    callback(err);
+                            //} else {
+                            if (!data) {
+                                callback("Partition not found for key:" + JSON.stringify(key));
+                                return;
+                            }
+                            var seq = data.sequence;
+                            data.sequence += sysIdToCreate.length;
+                            data.save.sync(null);
+                            var records = [];
+                            var createAt = new Date();
+
+                            sysIdToCreate.forEach(function (systemId) {
+                                seq++;
+                                var record = [];
+                                //sctid
+                                var newSctId = computeSCTID(operation, seq);
+                                record[0] = newSctId;
+                                //sequence
+                                record[1] = seq;
+                                //namespace
+                                record[2] = parseInt(operation.namespace);
+                                //partitionId
+                                record[3] = operation.partitionId.toString();
+                                //checkDigit
+                                record[4] = sctIdHelper.getCheckDigit(newSctId);
+                                //systemId
+                                record[5] = systemId;
+                                //status
+                                record[6] = stateMachine.statuses.assigned;
+                                //author
+                                record[7] = operation.author;
+                                //software
+                                record[8] = operation.software;
+                                //expirationDate
+                                record[9] = operation.expirationDate;
+                                //comment
+                                record[10] = operation.comment;
+                                //jobId
+                                record[11] = operation.jobId;
+                                //created_at
+                                record[12] = createAt;
+
+                                records.push(record);
+
+                            });
+
+                            var t1 = new Date().getTime();
+                            sctid.bulkInsert.sync(null, records);
+
+                            var t2 = new Date().getTime();
+                            console.log("bulk insert of " + records.length + " records took " + (t2 - t1) + " millisecs.");
+                            insertedCount += records.length;
+
+                            //}
+                            //});
+                            sysIdInChunk = new sets.StringSet();
                         }
-                    });
+                    } catch (e) {
+                        console.error("generateSctids error:" + e); // something went wrong
+                        callback(e);
+                        return;
+                    }
+                }
+                if (insertedCount >= operation.quantity) {
+                    callback(null);
                 }
             });
         }

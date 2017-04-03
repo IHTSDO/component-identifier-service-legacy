@@ -2,8 +2,8 @@
  * Created by ar on 7/16/15.
  */
 
-var dbuser = "root";
-var dbpass = "root";
+var dbuser = "";
+var dbpass = "";
 var dbName="idservice";
 var host="localhost";
 

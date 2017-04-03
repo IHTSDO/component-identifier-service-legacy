@@ -41,7 +41,7 @@ var runner = function (){
 function processJob(record){
 
     var request=JSON.parse(record.request);
-
+    var t1=new Date().getTime();
     if (!request || !request.type || request.type==null){
         var lightJob={
             id:record.id,
@@ -69,6 +69,7 @@ function processJob(record){
                     arrayUuids.push(guid());
                 }
                 request.systemIds = arrayUuids;
+                request.autoSysId=true;
             }
             request.action = stateMachine.actions.generate;
 
@@ -89,7 +90,10 @@ function processJob(record){
                         console.log("Error-2 in back end service:" + err);
                         return;
                     } else {
+
                         console.log("End job " + record.name + " - id:" + record.id);
+                        var t2=new Date().getTime();
+                        console.log("Request to generate " + request.quantity + " ids took " + (t2-t1) + " millisecs.")
                     }
                 });
             });

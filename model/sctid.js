@@ -78,7 +78,7 @@ sctid.findBySystemIds=function(query,callback){
     {
         if (err) throw err;
 
-        var sql = "SELECT * FROM sctId WHERE systemId in (" + connection.escape(query.systemId) + ") and namespace=" + query.namespace  ;
+        var sql = "SELECT systemId FROM sctId WHERE systemId in (" + connection.escape(query.systemId) + ") and namespace=" + query.namespace  ;
         connection.query(sql, function(error, rows)
         {
 
@@ -96,6 +96,29 @@ sctid.findBySystemIds=function(query,callback){
     });
 };
 
+sctid.findExistingSystemIds=function(query,callback){
+
+    db.getDB(function (err,connection)
+    {
+        if (err) throw err;
+
+        var sql = "SELECT systemId FROM sctId WHERE systemId in (" + connection.escape(query.systemIds) + ") and namespace=" + query.namespace  ;
+        connection.query(sql, function(error, rows)
+        {
+
+            connection.release();
+            if(error)
+            {
+                callback(error, null);
+            }
+            else
+            {
+
+                callback(null, rows);
+            }
+        });
+    });
+};
 sctid.findByJobId=function(query,callback){
 
     db.getDB(function (err,connection)
@@ -212,6 +235,27 @@ sctid.save=function(sctIdRecord,callback){
     });
 };
 
+sctid.updateJobId=function(existingSystemId, jobId, callback){
+
+    db.getDB(function (err,connection)
+    {
+        if (err) {
+            throw err;
+        }else{
+            connection.query("UPDATE sctId SET JobId=" + conection.escape(jobId) + " ,modified_at=now() WHERE systemId in (" + conection.escape(existingSystemId) + ")", function (error) {
+                connection.release();
+                if (error) {
+                    callback (error,null);
+                }
+                else {
+
+                    callback(null, null);
+                }
+            });
+        }
+    });
+};
+
 sctid.create=function(sctIdRecord,callback){
 
     db.getDB(function (err,connection)
@@ -270,4 +314,28 @@ sctid.count=function(query,callback){
         });
     });
 };
+
+sctid.bulkInsert=function(records,callback){
+
+    db.getDB(function (err,connection)
+    {
+
+        if (err) throw err;
+
+        connection.query('INSERT INTO sctId (sctid,sequence,namespace,partitionId,checkDigit,systemId,status,author,software,expirationDate,comment,jobId,created_at) values ?', [records], function(error)
+        {
+            connection.release();
+            if(error)
+            {
+                callback (error,null);
+            }
+            else
+            {
+
+                callback(null, null);
+            }
+        });
+    });
+};
+
 module.exports=sctid;
