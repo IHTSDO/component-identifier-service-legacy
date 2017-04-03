@@ -504,7 +504,7 @@ var generateSctids=function (operation, callback) {
                         if (i % chunk == 0 || i == (operation.quantity )) {
                             var diff;
                             var sysIdToCreate = sysIdInChunk.array();
-
+                            var allExisting = false;
                             if (!operation.autoSysId) {
                                 // Probably existing uuids
 
@@ -528,77 +528,80 @@ var generateSctids=function (operation, callback) {
                                         diff = sysIdInChunk.difference(setExistSysId).array();
                                         insertedCount += setExistSysId.length;
                                         console.log("insertedCount :" + insertedCount);
+                                    } else {
+                                        insertedCount += existingSysIds.length;
+                                        allExisting = true;
                                     }
 
-                                }else{
+                                } else {
 
-                                    console.log("existingSysIds: false" );
+                                    console.log("existingSysIds: false");
                                 }
 
                             }
+                            if (!allExisting) {
+                                if (diff) {
+                                    console.log("assigning diff to sysIdToCreate");
+                                    sysIdToCreate = diff;
+                                }
+                                console.log("Preparing to create " + sysIdToCreate.length + " ids in partition:" + operation.partitionId + " and namespace:" + operation.namespace);
+                                //getPartition(key, function (err, data) {
+                                var data = getPartition.sync(null, key);
+                                //if (err) {
+                                //    callback(err);
+                                //} else {
+                                if (!data) {
+                                    callback("Partition not found for key:" + JSON.stringify(key));
+                                    return;
+                                }
+                                var seq = data.sequence;
+                                data.sequence += sysIdToCreate.length;
+                                data.save.sync(null);
+                                var records = [];
+                                var createAt = new Date();
 
-                            if (diff) {
-                                console.log("assigning diff to sysIdToCreate");
-                                sysIdToCreate = diff;
+                                sysIdToCreate.forEach(function (systemId) {
+                                    seq++;
+                                    var record = [];
+                                    //sctid
+                                    var newSctId = computeSCTID(operation, seq);
+                                    record[0] = newSctId;
+                                    //sequence
+                                    record[1] = seq;
+                                    //namespace
+                                    record[2] = parseInt(operation.namespace);
+                                    //partitionId
+                                    record[3] = operation.partitionId.toString();
+                                    //checkDigit
+                                    record[4] = sctIdHelper.getCheckDigit(newSctId);
+                                    //systemId
+                                    record[5] = systemId;
+                                    //status
+                                    record[6] = stateMachine.statuses.assigned;
+                                    //author
+                                    record[7] = operation.author;
+                                    //software
+                                    record[8] = operation.software;
+                                    //expirationDate
+                                    record[9] = operation.expirationDate;
+                                    //comment
+                                    record[10] = operation.comment;
+                                    //jobId
+                                    record[11] = operation.jobId;
+                                    //created_at
+                                    record[12] = createAt;
+
+                                    records.push(record);
+
+                                });
+
+                                var t1 = new Date().getTime();
+                                sctid.bulkInsert.sync(null, records);
+
+                                var t2 = new Date().getTime();
+                                console.log("bulk insert of " + records.length + " records took " + (t2 - t1) + " millisecs.");
+                                insertedCount += records.length;
                             }
-                            console.log("Preparing to create " + sysIdToCreate.length + " ids in partition:" + operation.partitionId + " and namespace:" + operation.namespace);
-                            //getPartition(key, function (err, data) {
-                            var data = getPartition.sync(null, key);
-                            //if (err) {
-                            //    callback(err);
-                            //} else {
-                            if (!data) {
-                                callback("Partition not found for key:" + JSON.stringify(key));
-                                return;
-                            }
-                            var seq = data.sequence;
-                            data.sequence += sysIdToCreate.length;
-                            data.save.sync(null);
-                            var records = [];
-                            var createAt = new Date();
-
-                            sysIdToCreate.forEach(function (systemId) {
-                                seq++;
-                                var record = [];
-                                //sctid
-                                var newSctId = computeSCTID(operation, seq);
-                                record[0] = newSctId;
-                                //sequence
-                                record[1] = seq;
-                                //namespace
-                                record[2] = parseInt(operation.namespace);
-                                //partitionId
-                                record[3] = operation.partitionId.toString();
-                                //checkDigit
-                                record[4] = sctIdHelper.getCheckDigit(newSctId);
-                                //systemId
-                                record[5] = systemId;
-                                //status
-                                record[6] = stateMachine.statuses.assigned;
-                                //author
-                                record[7] = operation.author;
-                                //software
-                                record[8] = operation.software;
-                                //expirationDate
-                                record[9] = operation.expirationDate;
-                                //comment
-                                record[10] = operation.comment;
-                                //jobId
-                                record[11] = operation.jobId;
-                                //created_at
-                                record[12] = createAt;
-
-                                records.push(record);
-
-                            });
-
-                            var t1 = new Date().getTime();
-                            sctid.bulkInsert.sync(null, records);
-
-                            var t2 = new Date().getTime();
-                            console.log("bulk insert of " + records.length + " records took " + (t2 - t1) + " millisecs.");
-                            insertedCount += records.length;
-
                             //}
                             //});
                             sysIdInChunk = new sets.StringSet();
