@@ -72,31 +72,55 @@ function processJob(record){
                 request.autoSysId=true;
             }
             request.action = stateMachine.actions.generate;
+            if (request.systemIds.length>10) {
+                idDM.generateSctids(request, function (err) {
 
-            idDM.generateSctids(request, function (err) {
-
-                if (err) {
-                    lightJob.status = "3";
-                    if (typeof err == "object") {
-                        lightJob.log = JSON.stringify(err);
-                    } else {
-                        lightJob.log = err;
-                    }
-                } else {
-                    lightJob.status = "2";
-                }
-                bulkJob.save(lightJob,function (err) {
                     if (err) {
-                        console.log("Error-2 in back end service:" + err);
-                        return;
+                        lightJob.status = "3";
+                        if (typeof err == "object") {
+                            lightJob.log = JSON.stringify(err);
+                        } else {
+                            lightJob.log = err;
+                        }
                     } else {
-
-                        console.log("End job " + record.name + " - id:" + record.id);
-                        var t2=new Date().getTime();
-                        console.log("Request to generate " + request.quantity + " ids took " + (t2-t1) + " millisecs.")
+                        lightJob.status = "2";
                     }
+                    bulkJob.save(lightJob, function (err) {
+                        if (err) {
+                            console.log("Error-2 in back end service:" + err);
+                            return;
+                        } else {
+
+                            console.log("End job " + record.name + " - id:" + record.id);
+                            var t2 = new Date().getTime();
+                            console.log("Request to generate " + request.quantity + " ids took " + (t2 - t1) + " millisecs.")
+                        }
+                    });
                 });
-            });
+            }else{
+                idDM.generateSctidsSmallRequest(request, function (err) {
+
+                    if (err) {
+                        lightJob.status = "3";
+                        if (typeof err == "object") {
+                            lightJob.log = JSON.stringify(err);
+                        } else {
+                            lightJob.log = err;
+                        }
+                    } else {
+                        lightJob.status = "2";
+                    }
+                    bulkJob.save(lightJob,function (err) {
+                        if (err) {
+                            console.log("Error-2 in back end service:" + err);
+                            return;
+                        } else {
+
+                            console.log("End job " + record.name + " - id:" + record.id);
+                        }
+                    });
+                });
+            }
         } else if (request.type == job.JOBTYPE.registerSctids) {
 
             idDM.registerSctids(request, function (err) {

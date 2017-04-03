@@ -610,8 +610,65 @@ var generateSctids=function (operation, callback) {
         }
     });
 };
+var generateSctidsSmallRequest=function (operation, callback) {
+    getModel(function (err) {
+        if (err) {
+            console.log("error model:" + err);
+            callback(err);
+        } else {
+            var cont = 0;
+            var key = [parseInt(operation.namespace), operation.partitionId.toString()];
+
+            getPartition(key, function (err, data) {
+                if (err) {
+                    callback(err);
+                } else {
+                    if (!data) {
+                        callback("Partition not found for key:" + JSON.stringify(key));
+                    }
+                    var thisPartition = data;
+                    Sync(function () {
+                        var canContinue;
+                        for (var i = 0; i < operation.quantity; i++) {
+                            canContinue = true;
+
+                            try {
+                                operation.systemId = operation.systemIds[i];
+                                if (!operation.autoSysId) {
+                                    var sctIdRecord = getSyncSctidBySystemId.sync(null, operation.namespace, operation.systemId);
+                                    if (sctIdRecord != null) {
+                                        sctIdRecord.jobId = operation.jobId;
+                                        sctid.save.sync(null,sctIdRecord);
+                                        canContinue = false;
+                                    }
+                                }
+                                if (canContinue) {
+                                    generateSctid.sync(null, operation, thisPartition);
+                                }
+                                cont++;
+                                if (operation.quantity == cont) {
+                                    thisPartition.save(function (err) {
+                                        if (err) {
+                                            callback(err);
+                                        } else {
+                                            callback(null);
+                                        }
+                                    });
+                                }
+                            } catch (e) {
+                                console.error("generateSctids error:" + e); // something went wrong
+                                callback(e);
+                            }
+                        }
+                    });
+                }
+            });
+        }
+    });
+};
 
 module.exports.generateSctids=generateSctids;
+module.exports.generateSctidsSmallRequest=generateSctidsSmallRequest;
 module.exports.registerSctids=registerSctids;
 module.exports.getSctidBySystemIds=getSctidBySystemIds;
 module.exports.getSctids=getSctids;
