@@ -517,7 +517,7 @@ var generateSctids=function (operation, callback) {
                                     console.log("update jobId field to existing sysIds");
                                     //update jobId field to existing sysIds in order to can to retrieve ids with job
 
-                                    sctId.updateJobId.sync(null, existingSysIds, operation.jobId);
+                                    sctid.updateJobId.sync(null, existingSysIds, operation.jobId);
 
                                     if (existingSysIds.length < sysIdInChunk.size()) {
                                         var setExistSysId = new sets.StringSet(existingSysIds);
