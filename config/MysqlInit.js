@@ -13,6 +13,7 @@ var pool      =    mysql.createPool({
 });
 
 var getDB=function (callback ) {
+
     pool.getConnection(function (err, connection) {
         if (err) {
             connection.release();

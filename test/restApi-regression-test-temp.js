@@ -14,9 +14,10 @@ var _port="3000";
 var _root="/api";
 var baseUrl = "http://" + _host + ":" + _port + _root;
 
-var username = process.env.test_username;
-var password = process.env.test_password;
-console.log(username,password);
+//var username = process.env.test_username;
+//var password = process.env.test_password;
+var username = "arodriguez";
+var password = "snomed11";
 var token = "";
 
 var guid = (function() {
@@ -236,10 +237,12 @@ describe('SCTID  BULK', function() {
     it('Test bulk generate api for 100000 brand new SctIDs (BulkSctId_01)', function (done) {
         var sysId1 = guid();
         var sysId2 = guid();
+
+        var quantity=100000;
         var generationData = {
             "namespace": 0,
             "partitionId": "02",
-            "quantity": 100000,
+            "quantity": quantity,
             "systemIds": [],
             "software": "Mocha Supertest",
             "comment": "Testing REST API"
@@ -272,12 +275,12 @@ describe('SCTID  BULK', function() {
                                 if (err) return done(err);
                                 objJob.status.should.be.eql("2");
                                 res.body.should.not.be.null();
-                                // res.body.length.should.be.eql(2);
-                                res.body[0].jobId.should.be.eql(jobId);
-                                res.body[0].status.should.be.eql("Assigned");
+                                res.body.length.should.be.eql(quantity);
+                                //res.body[0].jobId.should.be.eql(jobId);
+                                //res.body[0].status.should.be.eql("Assigned");
                                 sctidArray.push(res.body[0].sctid);
                                 sctidArray.push(res.body[1].sctid);
-                                sysIds = res.body[0].systemId + "," + res.body[1].systemId;
+                                //sysIds = res.body[0].systemId + "," + res.body[1].systemId;
                                 res=null;
                                 done();
                             });
