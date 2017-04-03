@@ -482,7 +482,7 @@ function getPartition(key,callback) {
 };
 
 var generateSctids=function (operation, callback) {
-    var chunk = 10000;
+    var chunk = 1000;
     getModel(function (err) {
         if (err) {
             console.log("error model:" + err);
