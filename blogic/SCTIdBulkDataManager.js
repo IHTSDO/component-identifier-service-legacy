@@ -508,22 +508,15 @@ var generateSctids=function (operation, callback) {
                             if (!operation.autoSysId) {
                                 // Probably existing uuids
 
-                                console.log("before to find existing sysIds");
                                 var existingSysIds = sctid.findExistingSystemIds.sync(null, {
                                     systemIds: sysIdToCreate,
                                     namespace: operation.namespace
                                 });
 
                                 if (existingSysIds && existingSysIds.length > 0) {
-                                    console.log("existingSysIds: true, len:" + (existingSysIds.length));
-                                    console.log("update jobId field to existing sysIds");
-                                    //update jobId field to existing sysIds in order to can to retrieve ids with job
-                                    //var arrayExistIds=existingSysIds.toArray.sync(null);
-                                    //console.log("arrayExistIds: true, len:" + (arrayExistIds.length));
 
                                     sctid.updateJobId.sync(null, existingSysIds, operation.jobId);
 
-                                    console.log("updated !");
                                     if (existingSysIds.length < sysIdInChunk.size()) {
                                         var setExistSysId = new sets.StringSet(existingSysIds);
 
@@ -535,23 +528,14 @@ var generateSctids=function (operation, callback) {
                                         allExisting = true;
                                     }
 
-                                } else {
-
-                                    console.log("existingSysIds: false");
                                 }
 
                             }
                             if (!allExisting) {
                                 if (diff) {
-                                    console.log("assigning diff to sysIdToCreate");
                                     sysIdToCreate = diff;
                                 }
-                                console.log("Preparing to create " + sysIdToCreate.length + " ids in partition:" + operation.partitionId + " and namespace:" + operation.namespace);
-                                //getPartition(key, function (err, data) {
                                 var data = getPartition.sync(null, key);
-                                //if (err) {
-                                //    callback(err);
-                                //} else {
                                 if (!data) {
                                     callback("Partition not found for key:" + JSON.stringify(key));
                                     return;
@@ -604,8 +588,6 @@ var generateSctids=function (operation, callback) {
                                 console.log("bulk insert of " + records.length + " records took " + (t2 - t1) + " millisecs.");
                                 insertedCount += records.length;
                             }
-                            //}
-                            //});
                             sysIdInChunk = new sets.StringSet();
                         }
                     } catch (e) {
