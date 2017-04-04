@@ -150,7 +150,7 @@ function processJob(record){
                 request.systemIds = arrayUuids;
             }
             request.action = stateMachine.actions.reserve;
-            idDM.generateSctids(request, function (err) {
+            idDM.generateSctidsSmallRequest(request, function (err) {
 
                 if (err) {
                     lightJob.status = "3";
@@ -322,7 +322,7 @@ function processJob(record){
                 request.systemIds = arrayUuids;
             }
             request.action = stateMachine.actions.reserve;
-            sIdDM.generateSchemeIds(request, function (err) {
+            sIdDM.generateSchemeIdSmallRequest(request, function (err) {
                 if (err) {
                     lightJob.status = "3";
                     if (typeof err == "object") {
