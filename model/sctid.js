@@ -113,8 +113,11 @@ sctid.findExistingSystemIds=function(query,callback){
             }
             else
             {
-
-                callback(null, rows);
+                var ids = [];
+                rows.forEach(function(row) {
+                    ids.push(row.systemId);
+                });
+                callback(null, ids);
             }
         });
     });
