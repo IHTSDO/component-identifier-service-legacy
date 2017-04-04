@@ -237,6 +237,7 @@ sctid.save=function(sctIdRecord,callback){
 
 sctid.updateJobId=function(existingSystemId, jobId, callback){
 
+    console.log(JSON.stringify(existingSystemId));
     db.getDB(function (err,connection)
     {
         if (err) {
