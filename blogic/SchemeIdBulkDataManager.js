@@ -12,6 +12,8 @@ var path=require('path');
 var schemes=[];
 var generators_path = __dirname + '/SchemeIdGenerator';
 
+var chunk = 1000;
+
 fs.readdirSync(generators_path).forEach(function (file) {
     if (~file.indexOf('.js')) {
         var schemeName=path.basename(file, '.js');
@@ -442,6 +444,119 @@ var generateSchemeIds=function ( operation, callback) {
             console.log("error model:" + err);
             callback(err);
         } else {
+            var key = operation.scheme;
+
+            Sync(function () {
+
+                var sysIdInChunk = new sets.StringSet();
+                var insertedCount = 0;
+                for (var i = 1; i <= operation.quantity; i++) {
+
+                    sysIdInChunk.add(operation.systemIds[i - 1]);
+                    try {
+
+                        if (i % chunk == 0 || i == (operation.quantity )) {
+                            var diff;
+                            var sysIdToCreate = sysIdInChunk.array();
+                            var allExisting = false;
+
+                            if (!operation.autoSysId) {
+                                // Probably existing uuids
+
+                                var existingSysIds = schemeid.findExistingSystemIds.sync(null, {
+                                    systemIds: sysIdToCreate,
+                                    scheme: operation.scheme
+                                });
+
+                                if (existingSysIds && existingSysIds.length > 0) {
+                                    schemeid.updateJobId.sync(null, existingSysIds,operation.scheme, operation.jobId);
+
+                                    if (existingSysIds.length < sysIdInChunk.size()) {
+                                        var setExistSysId = new sets.StringSet(existingSysIds);
+
+                                        diff = sysIdInChunk.difference(setExistSysId).array();
+                                        insertedCount += setExistSysId.size();
+                                    } else {
+                                        insertedCount += existingSysIds.length;
+                                        allExisting = true;
+                                    }
+
+                                }
+
+                            }
+                            if (!allExisting) {
+                                if (diff) {
+                                    sysIdToCreate = diff;
+                                }
+                                var data = getScheme.sync(null, key);
+                                if (!data) {
+                                    callback("Scheme not found for key:" + JSON.stringify(key));
+                                    return;
+                                }
+
+                                var previousCode=data.idBase;
+                                var records = [];
+                                var createAt = new Date();
+
+                                sysIdToCreate.forEach(function (systemId) {
+                                    var record = [];
+                                    //scheme
+                                    var newSchemeId=schemes[operation.scheme.toUpperCase()].getNextId(previousCode);
+                                    record[0] = operation.scheme;
+                                    //schemeId
+                                    record[1] = newSchemeId;
+                                    //sequence
+                                    record[2] = schemes[operation.scheme.toUpperCase()].getSequence(newSchemeId);
+                                    //checkDigit
+                                    record[3] = schemes[operation.scheme.toUpperCase()].getCheckDigit(newSchemeId);
+                                    //systemId
+                                    record[4] = systemId;
+                                    //status
+                                    record[5] = stateMachine.statuses.assigned;
+                                    //author
+                                    record[6] = operation.author;
+                                    //software
+                                    record[7] = operation.software;
+                                    //expirationDate
+                                    record[8] = operation.expirationDate;
+                                    //comment
+                                    record[9] = operation.comment;
+                                    //jobId
+                                    record[10] = operation.jobId;
+                                    //created_at
+                                    record[11] = createAt;
+
+                                    records.push(record);
+                                    previousCode=newSchemeId;
+                                });
+                                data.idBase=previousCode;
+                                data.save.sync(null);
+                                schemeid.bulkInsert.sync(null, records);
+                                insertedCount += records.length;
+                            }
+                            sysIdInChunk = new sets.StringSet();
+                        }
+                    } catch (e) {
+                        console.error("generateSchemeIds error:" + e); // something went wrong
+                        callback(e);
+                        return;
+                    }
+                }
+                if (insertedCount >= operation.quantity) {
+                    callback(null);
+                }
+            });
+
+        }
+    });
+};
+
+var generateSchemeIdSmallRequest=function ( operation, callback) {
+    getModel(function (err) {
+        if (err) {
+            console.log("error model:" + err);
+            callback(err);
+        } else {
             var cont = 0;
             var key = operation.scheme;
 
@@ -483,7 +598,7 @@ var generateSchemeIds=function ( operation, callback) {
                                     });
                                 }
                             } catch (e) {
-                                console.error("generateSchemeIds error:" + e); // something went wrong
+                                console.error("generateSchemeIdsSmallRequest error:" + e); // something went wrong
                                 callback(e);
                             }
                         }
@@ -496,6 +611,7 @@ var generateSchemeIds=function ( operation, callback) {
 };
 
 module.exports.generateSchemeIds=generateSchemeIds;
+module.exports.generateSchemeIdSmallRequest=generateSchemeIdSmallRequest;
 module.exports.registerSchemeIds=registerSchemeIds;
 module.exports.getSchemeIdBySystemIds=getSchemeIdBySystemIds;
 module.exports.getSchemeIds=getSchemeIds;

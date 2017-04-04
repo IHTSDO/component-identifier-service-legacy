@@ -9,6 +9,7 @@ var sctid=require("../model/sctid");
 var sets=require('simplesets');
 var Sync = require('sync');
 
+var chunk = 1000;
 
 function getModel(callback) {
     if (model) {
@@ -482,13 +483,11 @@ function getPartition(key,callback) {
 };
 
 var generateSctids=function (operation, callback) {
-    var chunk = 1000;
     getModel(function (err) {
         if (err) {
             console.log("error model:" + err);
             callback(err);
         } else {
-            var cont = 0;
             var key = [parseInt(operation.namespace), operation.partitionId.toString()];
 
 
@@ -521,8 +520,7 @@ var generateSctids=function (operation, callback) {
                                         var setExistSysId = new sets.StringSet(existingSysIds);
 
                                         diff = sysIdInChunk.difference(setExistSysId).array();
-                                        insertedCount += setExistSysId.length;
-                                        console.log("insertedCount :" + insertedCount);
+                                        insertedCount += setExistSysId.size();
                                     } else {
                                         insertedCount += existingSysIds.length;
                                         allExisting = true;
@@ -581,11 +579,7 @@ var generateSctids=function (operation, callback) {
 
                                 });
 
-                                var t1 = new Date().getTime();
                                 sctid.bulkInsert.sync(null, records);
-
-                                var t2 = new Date().getTime();
-                                console.log("bulk insert of " + records.length + " records took " + (t2 - t1) + " millisecs.");
                                 insertedCount += records.length;
                             }
                             sysIdInChunk = new sets.StringSet();
@@ -649,7 +643,7 @@ var generateSctidsSmallRequest=function (operation, callback) {
                                     });
                                 }
                             } catch (e) {
-                                console.error("generateSctids error:" + e); // something went wrong
+                                console.error("generateSctidsSmallRequest error:" + e); // something went wrong
                                 callback(e);
                             }
                         }
