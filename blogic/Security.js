@@ -3,24 +3,14 @@
  */
 var AtlassianCrowd = require('atlassian-crowd');
 
-//var options = {
-//	    "crowd": {
-//	        "base": process.env.CROWD_URL
-//	     },
-//	     "application": {
-//	         "name": process.env.CROWD_APP_NAME,
-//	         "password": process.env.CROWD_APP_PASSWORD
-//	     }
-//};
-
 var options = {
-    "crowd": {
-        "base": "https://dev-crowd.ihtsdotools.org/crowd/"
-    },
-    "application": {
-        "name": "component-id-service",
-        "password": "CwUCP39QmZ7Qx7QDZBbVAMyW"
-    }
+	    "crowd": {
+	        "base": process.env.CROWD_URL
+	     },
+	     "application": {
+	         "name": process.env.CROWD_APP_NAME,
+	         "password": process.env.CROWD_APP_PASSWORD
+	     }
 };
 
 var authenticationCache = {};
@@ -28,15 +18,6 @@ module.exports.admins = [];
 module.exports.users = [];
 
 var crowd = new AtlassianCrowd(options);
-
-//crowd.ping(function (err, res) {
-//    if(err) {
-//        throw err;
-//    }
-//    else {
-//        console.log(res)
-//    }
-//});
 
 module.exports.createSession = function createSession (username, password, callback) {
     crowd.session.create(username, password, function (err, token) {
