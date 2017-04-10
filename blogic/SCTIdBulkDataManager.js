@@ -495,9 +495,14 @@ var generateSctids=function (operation, callback) {
 
                 var sysIdInChunk = new sets.StringSet();
                 var insertedCount = 0;
+                var quantityToCreate=operation.quantity;
                 for (var i = 1; i <= operation.quantity; i++) {
 
-                    sysIdInChunk.add(operation.systemIds[i - 1]);
+                    if (sysIdInChunk.has(operation.systemIds[i - 1])){
+                        quantityToCreate--;
+                    }else {
+                        sysIdInChunk.add(operation.systemIds[i - 1]);
+                    }
                     try {
 
                         if (i % chunk == 0 || i == (operation.quantity )) {
@@ -578,9 +583,11 @@ var generateSctids=function (operation, callback) {
                                     records.push(record);
 
                                 });
-
-                                sctid.bulkInsert.sync(null, records);
                                 insertedCount += records.length;
+                                var ret=insertRecords.sync(null, records, operation);
+                                if (ret){
+                                    throw ret;
+                                }
                             }
                             sysIdInChunk = new sets.StringSet();
                         }
@@ -590,13 +597,112 @@ var generateSctids=function (operation, callback) {
                         return;
                     }
                 }
-                if (insertedCount >= operation.quantity) {
+                if (insertedCount >= quantityToCreate) {
                     callback(null);
                 }
             });
         }
     });
 };
+
+var insertRecords=function(records, operation, callback) {
+    Sync(function () {
+        var err;
+        try {
+            sctid.bulkInsert.sync(null, records);
+        } catch (e) {
+            err = e.toString();
+            console.error("sctid insertRecords :" + err); // something went wrong
+        }
+        if (err) {
+            if (err.indexOf("ER_DUP_ENTRY") > -1 ) {
+                if (err.indexOf("'PRIMARY'") > -1) {
+                    console.log("Trying to solve the primary key error");
+
+                    var regEx = new RegExp(" '[0-9]*' ");
+                    var res = err.match(regEx);
+
+                    if (res) {
+                        var code = res[0].substring(2, res[0].length - 2);
+                        var i;
+                        for (i = 0; i < records.length; i++) {
+                            if (records[i][0] == code) {
+                                break;
+                            }
+                        }
+                        if (i > -1 && i < records.length) {
+                            console.log("pos i:" + i);
+
+                            var key = [parseInt(operation.namespace), operation.partitionId.toString()];
+                            var data = getPartition.sync(null, key);
+                            if (!data) {
+                                callback("Partition not found for key:" + JSON.stringify(key));
+                                return;
+                            }
+
+                            data.sequence++;
+                            var seq = data.sequence;
+                            data.save.sync(null);
+
+                            var newSctId = computeSCTID(operation, seq);
+
+                            records[i][0] = newSctId;
+                            //sequence
+                            records[i][1] = seq;
+                            //checkDigit
+                            records[i][4] = sctIdHelper.getCheckDigit(newSctId);
+                            if (i > 0) {
+                                records.splice(0, i);
+                            }
+                            insertRecords.sync(null, records, operation);
+                            callback(null);
+                        } else {
+                            callback(err);
+                        }
+                    } else {
+                        callback(err);
+                    }
+                }else if (err.indexOf("'sysid'") > -1 && operation.autoSysId
+                    && !(operation.generateLegacyIds && operation.generateLegacyIds.toUpperCase()=="TRUE" )) {
+                    console.log("Trying to solve the sysid key error");
+
+                    var regEx = new RegExp("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}");
+                    var res = err.match(regEx);
+                    if (res) {
+                        var syscode = res[0];
+                        var i = -1;
+                        for (i = 0; i < records.length; i++) {
+                            if (records[i][5] == syscode) {
+                                break;
+                            }
+                        }
+                        if (i > -1 && i < records.length) {
+
+                            records[i][5] = guid();
+                            if (i > 0) {
+                                records.splice(0, i);
+                            }
+                            insertRecords.sync(null, records, operation);
+                            callback(null);
+                        } else {
+                            callback(err);
+                        }
+                    } else {
+                        callback(err);
+                    }
+                }else {
+                    callback(err);
+                }
+
+            } else {
+                callback(err);
+            }
+        }else{
+            callback(null);
+        }
+    });
+};
+
 var generateSctidsSmallRequest=function (operation, callback) {
     getModel(function (err) {
         if (err) {
