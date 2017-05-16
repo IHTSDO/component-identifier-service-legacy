@@ -120,27 +120,52 @@ function processJob(record){
             }
         } else if (request.type == job.JOBTYPE.registerSctids) {
 
-            idDM.registerSctids(request, function (err) {
+            if (request.records.length > 10) {
+                idDM.registerSctids(request, function (err) {
 
-                if (err) {
-                    lightJob.status = "3";
-                    if (typeof err == "object") {
-                        lightJob.log = JSON.stringify(err);
-                    } else {
-                        lightJob.log = err;
-                    }
-                } else {
-                    lightJob.status = "2";
-                }
-                bulkJob.save(lightJob,function (err) {
                     if (err) {
-                        console.log("Error-3 in back end service:" + JSON.stringify(err));
-                        return;
+                        lightJob.status = "3";
+                        if (typeof err == "object") {
+                            lightJob.log = JSON.stringify(err);
+                        } else {
+                            lightJob.log = err;
+                        }
                     } else {
-                        console.log("End job " + record.name + " - id:" + record.id);
+                        lightJob.status = "2";
                     }
+                    bulkJob.save(lightJob, function (err) {
+                        if (err) {
+                            console.log("Error-3 in back end service:" + JSON.stringify(err));
+                            return;
+                        } else {
+                            console.log("End job " + record.name + " - id:" + record.id);
+                        }
+                    });
                 });
-            });
+            } else {
+
+                idDM.registerSctidsSmallRequest(request, function (err) {
+
+                    if (err) {
+                        lightJob.status = "3";
+                        if (typeof err == "object") {
+                            lightJob.log = JSON.stringify(err);
+                        } else {
+                            lightJob.log = err;
+                        }
+                    } else {
+                        lightJob.status = "2";
+                    }
+                    bulkJob.save(lightJob, function (err) {
+                        if (err) {
+                            console.log("Error-3 in back end service:" + JSON.stringify(err));
+                            return;
+                        } else {
+                            console.log("End job " + record.name + " - id:" + record.id);
+                        }
+                    });
+                });
+            }
         } else if (request.type == job.JOBTYPE.reserveSctids) {
             if (!request.systemIds || request.systemIds.length == 0) {
                 var arrayUuids = [];
@@ -150,27 +175,52 @@ function processJob(record){
                 request.systemIds = arrayUuids;
             }
             request.action = stateMachine.actions.reserve;
-            idDM.generateSctidsSmallRequest(request, function (err) {
+            if (request.systemIds.length>10) {
+                idDM.generateSctids(request, function (err) {
 
-                if (err) {
-                    lightJob.status = "3";
-                    if (typeof err == "object") {
-                        lightJob.log = JSON.stringify(err);
-                    } else {
-                        lightJob.log = err;
-                    }
-                } else {
-                    lightJob.status = "2";
-                }
-                bulkJob.save(lightJob,function (err) {
                     if (err) {
-                        console.log("Error-4 in back end service:" + err);
-                        return;
+                        lightJob.status = "3";
+                        if (typeof err == "object") {
+                            lightJob.log = JSON.stringify(err);
+                        } else {
+                            lightJob.log = err;
+                        }
                     } else {
-                        console.log("End job " + record.name + " - id:" + record.id);
+                        lightJob.status = "2";
                     }
+                    bulkJob.save(lightJob, function (err) {
+                        if (err) {
+                            console.log("Error-2 in back end service:" + err);
+                            return;
+                        } else {
+
+                            console.log("End job " + record.name + " - id:" + record.id);
+                        }
+                    });
                 });
-            });
+            }else {
+                idDM.generateSctidsSmallRequest(request, function (err) {
+
+                    if (err) {
+                        lightJob.status = "3";
+                        if (typeof err == "object") {
+                            lightJob.log = JSON.stringify(err);
+                        } else {
+                            lightJob.log = err;
+                        }
+                    } else {
+                        lightJob.status = "2";
+                    }
+                    bulkJob.save(lightJob, function (err) {
+                        if (err) {
+                            console.log("Error-4 in back end service:" + err);
+                            return;
+                        } else {
+                            console.log("End job " + record.name + " - id:" + record.id);
+                        }
+                    });
+                });
+            }
         } else if (request.type == job.JOBTYPE.deprecateSctids) {
             request.action = stateMachine.actions.deprecate;
             idDM.updateSctids(request, function (err) {

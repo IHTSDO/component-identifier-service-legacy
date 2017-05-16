@@ -96,6 +96,32 @@ sctid.findBySystemIds=function(query,callback){
     });
 };
 
+sctid.findExistingSctIds=function(query,callback){
+
+    db.getDB(function (err,connection)
+    {
+        if (err) throw err;
+
+        var sql = "SELECT sctid FROM sctId WHERE sctid in (" + connection.escape(query.sctIds) + ")"  ;
+        connection.query(sql, function(error, rows)
+        {
+
+            connection.release();
+            if(error)
+            {
+                callback(error, null);
+            }
+            else
+            {
+                var ids = [];
+                rows.forEach(function(row) {
+                    ids.push(row.sctid);
+                });
+                callback(null, ids);
+            }
+        });
+    });
+};
 sctid.findExistingSystemIds=function(query,callback){
 
     db.getDB(function (err,connection)
@@ -246,6 +272,29 @@ sctid.updateJobId=function(existingSystemId, jobId, callback){
             throw err;
         }else{
             connection.query("UPDATE sctId SET JobId=" + connection.escape(jobId) + " ,modified_at=now() WHERE systemId in (" + connection.escape(existingSystemId) + ")", function (error) {
+                connection.release();
+                if (error) {
+                    callback (error,null);
+                }
+                else {
+
+                    callback(null, null);
+                }
+            });
+        }
+    });
+};
+sctid.updateRegisterStatusAndJobId=function(existingSctId, jobId, callback){
+
+    db.getDB(function (err,connection)
+    {
+        if (err) {
+            throw err;
+        }else{
+            var sql="UPDATE sctId SET JobId=" + connection.escape(jobId) + " ,modified_at=now()," +
+                " status=(case status when 'Available' then 'Assigned' when 'Reserved' then 'Assigned' else status end)" +
+                " WHERE sctid in (" + connection.escape(existingSctId) + ")";
+            connection.query(sql , function (error) {
                 connection.release();
                 if (error) {
                     callback (error,null);
