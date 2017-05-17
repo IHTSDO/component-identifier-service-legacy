@@ -55,6 +55,15 @@ module.exports.getNamespaces = function getNamespaces (req, res, next) {
         if (err)
             return next(err.message);
         else{
+            if (namespaces) {
+                namespaces.sort(function(a,b) {
+                    if (a.namespace < b.namespace)
+                        return -1;
+                    if (a.namespace > b.namespace)
+                        return 1;
+                    return 0;
+                });
+            }
             res.setHeader('Content-Type', 'application/json');
             res.end(JSON.stringify(namespaces));
         }
@@ -82,6 +91,15 @@ module.exports.getNamespacesForUser = function getNamespacesForUser (req, res, n
                     if (err)
                         return next(err.message);
                     else{
+                        if (namespaces) {
+                            namespaces.sort(function(a,b) {
+                                if (a.namespace < b.namespace)
+                                    return -1;
+                                if (a.namespace > b.namespace)
+                                    return 1;
+                                return 0;
+                            });
+                        }
                         res.setHeader('Content-Type', 'application/json');
                         res.end(JSON.stringify(namespaces));
                     }

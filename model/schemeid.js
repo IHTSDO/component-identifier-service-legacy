@@ -95,6 +95,32 @@ schemeid.findBySystemIds=function(query,callback){
         });
     });
 };
+schemeid.findExistingSystemIds=function(query,callback){
+
+    db.getDB(function (err,connection)
+    {
+        if (err) throw err;
+
+        var sql = "SELECT systemId FROM schemeId WHERE systemId in (" + connection.escape(query.systemIds) + ") and scheme=" + connection.escape(query.scheme) ;
+        connection.query(sql, function(error, rows)
+        {
+
+            connection.release();
+            if(error)
+            {
+                callback(error, null);
+            }
+            else
+            {
+                var ids = [];
+                rows.forEach(function(row) {
+                    ids.push(row.systemId);
+                });
+                callback(null, ids);
+            }
+        });
+    });
+};
 
 schemeid.findByJobId=function(query,callback){
 
@@ -231,5 +257,48 @@ schemeid.create=function(schemeIdRecord,callback){
         });
     });
 };
+schemeid.updateJobId=function(existingSystemId, scheme, jobId, callback){
 
+    db.getDB(function (err,connection)
+    {
+        if (err) {
+            throw err;
+        }else{
+            connection.query("UPDATE schemeId SET JobId=" + connection.escape(jobId) + " ,modified_at=now() WHERE systemId in (" + connection.escape(existingSystemId) + ") and scheme=" + connection.escape(scheme), function (error) {
+                connection.release();
+                if (error) {
+                    callback (error,null);
+                }
+                else {
+
+                    callback(null, null);
+                }
+            });
+        }
+    });
+};
+
+
+schemeid.bulkInsert=function(records,callback){
+
+    db.getDB(function (err,connection)
+    {
+
+        if (err) throw err;
+
+        connection.query('INSERT INTO schemeId (scheme,schemeId,sequence,checkDigit,systemId,status,author,software,expirationDate,comment,jobId,created_at) values ?', [records], function(error)
+        {
+            connection.release();
+            if(error)
+            {
+                callback (error,null);
+            }
+            else
+            {
+
+                callback(null, null);
+            }
+        });
+    });
+};
 module.exports=schemeid;

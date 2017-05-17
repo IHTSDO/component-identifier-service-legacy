@@ -101,6 +101,106 @@ var cleanUpExpiredIds = function (callback){
                 return;
             }
         });
+    //db.driver.execQuery("Delete from auxConcept where modified_at < (now() - interval 2 hour)",null,
+    //    function (err, data) {
+    //        if (err) {
+    //            var str="\n[Error] in clean up auxConcept table : "+ JSON.stringify(err);
+    //            console.log(str);
+    //            if (callback){
+    //                strErr+= str;
+    //                step++;
+    //                if (step>4) {
+    //                    strMsg=strErr + strData;
+    //                    callback(strMsg, null);
+    //                }
+    //            }
+    //            return;
+    //        }else{
+    //            var strD="\nAuxConcept table clean up process:" + JSON.stringify(data);
+    //            console.log(strD);
+    //            if (callback){
+    //                strData+=strD;
+    //                arrMsg.push(data);
+    //                step++;
+    //                if (step>4) {
+    //                    if (strErr=="") {
+    //                        callback( null,arrMsg);
+    //                    }else{
+    //                        strMsg=strErr + strData;
+    //                        callback(strMsg, null);
+    //                    }
+    //                }
+    //            }
+    //            return;
+    //        }
+    //    });
+    //
+    //db.driver.execQuery("Delete from auxDescription where modified_at < (now() - interval 2 hour)",null,
+    //    function (err, data) {
+    //        if (err) {
+    //            var str="\n[Error] in clean up auxDescription table : "+ JSON.stringify(err);
+    //            console.log(str);
+    //            if (callback){
+    //                strErr+= str;
+    //                step++;
+    //                if (step>4) {
+    //                    strMsg=strErr + strData;
+    //                    callback(strMsg, null);
+    //                }
+    //            }
+    //            return;
+    //        }else{
+    //            var strD="\nauxDescription table clean up process:" + JSON.stringify(data);
+    //            console.log(strD);
+    //            if (callback){
+    //                strData+=strD;
+    //                arrMsg.push(data);
+    //                step++;
+    //                if (step>4) {
+    //                    if (strErr=="") {
+    //                        callback( null,arrMsg);
+    //                    }else{
+    //                        strMsg=strErr + strData;
+    //                        callback(strMsg, null);
+    //                    }
+    //                }
+    //            }
+    //            return;
+    //        }
+    //    });
+    //db.driver.execQuery("Delete from auxRelationship where modified_at < (now() - interval 2 hour)",null,
+    //    function (err, data) {
+    //        if (err) {
+    //            var str="\n[Error] in clean up auxRelationship table : "+ JSON.stringify(err);
+    //            console.log(str);
+    //            if (callback){
+    //                strErr+= str;
+    //                step++;
+    //                if (step>4) {
+    //                    strMsg=strErr + strData;
+    //                    callback(strMsg, null);
+    //                }
+    //            }
+    //            return;
+    //        }else{
+    //            var strD="\nauxRelationship table clean up process:" + JSON.stringify(data);
+    //            console.log(strD);
+    //            if (callback){
+    //                strData+=strD;
+    //                arrMsg.push(data);
+    //                step++;
+    //                if (step>4) {
+    //                    if (strErr=="") {
+    //                        callback( null,arrMsg);
+    //                    }else{
+    //                        strMsg=strErr + strData;
+    //                        callback(strMsg, null);
+    //                    }
+    //                }
+    //            }
+    //            return;
+    //        }
+    //    });
 };
 
 setInterval(cleanUpExpiredIds,86400000);

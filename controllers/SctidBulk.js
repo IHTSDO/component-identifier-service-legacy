@@ -193,7 +193,6 @@ module.exports.generateSctids = function generateSctids (req, res, next) {
 
                         return next(err.message);
                     }
-
                     if (generationData.generateLegacyIds && generationData.generateLegacyIds.toUpperCase()=="TRUE" &&
                         generationData.partitionId.substr(1,1)=="0") {
 

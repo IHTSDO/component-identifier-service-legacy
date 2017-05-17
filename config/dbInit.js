@@ -28,12 +28,18 @@ var getDBForDirect=function (callback ) {
     }
 
 };
+var define=false;
 var dbDefine=function(db, callback ){
 
+    if (define){
+        callback(null,db);
+        return;
+    }
+    define=true;
     try {
         db.use(modts, dbmodel.mUse);
 
-        var model = dbmodel.model;
+        gModel = dbmodel.model;
         for (var table in dbmodel.model) {
             if (dbmodel.model.hasOwnProperty(table)) {
                 if (dbmodel.model[table].features) {
@@ -47,32 +53,33 @@ var dbDefine=function(db, callback ){
                         dbmodel.model[table].fields
                     );
                 }
-                model[table] = record;
+                gModel[table] = record;
             }
         }
-        callback(null,db, model);
+        callback(null,db);
     }catch(e){
         callback(e,null,null);
     }
 };
-
 var getDB=function (callback ) {
 
     if (gModel!=null){
+
         callback(null, gdb, gModel);
     }else {
         orm.connect(params.database.connectionURL, function (err, db) {
             if (err) {
                 callback(err, null, null);
             }
-            dbDefine(db, function (err, dbr, model) {
+            dbDefine(db, function (err, dbr) {
 
                 if (err) {
                     callback(err, null, null);
                 } else {
 
-                    gModel = model;
+                    //gModel = model;
                     gdb = dbr;
+
                     callback(null, gdb, gModel);
                 }
             });

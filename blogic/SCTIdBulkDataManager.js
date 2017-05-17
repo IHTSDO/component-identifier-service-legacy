@@ -9,6 +9,8 @@ var sctid=require("../model/sctid");
 var sets=require('simplesets');
 var Sync = require('sync');
 
+var chunk = 1000;
+
 function getModel(callback) {
     if (model) {
         callback(null);
@@ -17,7 +19,6 @@ function getModel(callback) {
             if (err) {
                 callback(err);
             } else {
-
                 model = podel1;
                 callback(null);
             }
@@ -91,6 +92,20 @@ function getFreeRecord(sctId, systemId, callback){
         }
     });
 }
+function insertAssignedRecord(sctId, systemId, callback){
+    Sync(function() {
+        try {
+            var sctIdRecord = getNewRecord(sctId, systemId);
+            sctIdRecord.status = stateMachine.statuses.assigned;
+            var newRecord = insertSCTIDRecord.sync(null, sctIdRecord);
+
+
+            callback(null, newRecord);
+        }catch (e){
+            callback(e,null);
+        }
+    });
+}
 
 function getNewRecord(sctId, systemId){
     var sctIdRecord= {
@@ -135,6 +150,118 @@ var getSyncSctidBySystemId=function (namespaceId,systemId, callback) {
 };
 
 var registerSctids=function (operation, callback) {
+    getModel(function (err) {
+        if (err) {
+            console.log("error model:" + err);
+            callback(err);
+        } else {
+
+            var newStatus = stateMachine.getNewStatus(stateMachine.statuses.available, operation.action);
+
+            Sync(function () {
+
+                var sctIdInChunk = new sets.StringSet();
+                var insertedCount = 0;
+                var quantityToRegister=operation.records.length;
+                var uuidsMap={};
+                for (var i = 1; i <= operation.records.length; i++) {
+                    var sctId=operation.records[i - 1].sctid;
+                    if (sctIdInChunk.has(sctId)){
+                        quantityToRegister--;
+                    }else {
+                        sctIdInChunk.add(sctId);
+                        uuidsMap[sctId]=operation.records[i-1].systemId;
+                    }
+                    try {
+
+                        if (i % chunk == 0 || i == (operation.records.length )) {
+                            var diff;
+                            var sctIdToRegister = sctIdInChunk.array();
+                            var allExisting = false;
+                                // Probably existing sctIds
+
+                                var existingSctIds = sctid.findExistingSctIds.sync(null, {
+                                    sctIds: sctIdToRegister
+                                });
+
+                                if (existingSctIds && existingSctIds.length > 0) {
+
+                                    sctid.updateRegisterStatusAndJobId.sync(null, existingSctIds, operation.jobId);
+
+                                    if (existingSctIds.length < sctIdInChunk.size()) {
+                                        var setExistSctId = new sets.StringSet(existingSctIds);
+
+                                        diff = sctIdInChunk.difference(setExistSctId).array();
+                                        insertedCount += setExistSctId.size();
+                                    } else {
+                                        insertedCount += existingSctIds.length;
+                                        allExisting = true;
+                                    }
+
+                                }
+                            if (!allExisting) {
+                                if (diff) {
+                                    sctIdToRegister = diff;
+                                }
+                                var records = [];
+                                var createAt = new Date();
+
+                                sctIdToRegister.forEach(function (newSctId) {
+                                     //sctid
+                                    record[0] = newSctId;
+                                    //sequence
+                                    record[1] = sctIdHelper.getSequence(newSctId);
+                                    //namespace
+                                    record[2] = parseInt(operation.namespace);
+                                    //partitionId
+                                    record[3] = operation.partitionId.toString();
+                                    //checkDigit
+                                    record[4] = sctIdHelper.getCheckDigit(newSctId);
+                                    //systemId
+                                    record[5] = uuidsMap[newSctId];
+                                    //status
+                                    record[6] = newStatus;
+                                    //author
+                                    record[7] = operation.author;
+                                    //software
+                                    record[8] = operation.software;
+                                    //expirationDate
+                                    record[9] = operation.expirationDate;
+                                    //comment
+                                    record[10] = operation.comment;
+                                    //jobId
+                                    record[11] = operation.jobId;
+                                    //created_at
+                                    record[12] = createAt;
+
+                                    records.push(record);
+
+                                });
+                                insertedCount += records.length;
+                                var ret=insertRecords.sync(null, records, operation);
+                                if (ret){
+                                    throw ret;
+                                }
+                            }
+                            sctIdInChunk = new sets.StringSet();
+                            uuidsMap={};
+                        }
+                    } catch (e) {
+                        console.error("generateSctids error:" + e); // something went wrong
+                        callback(e);
+                        return;
+                    }
+                }
+                if (insertedCount >= quantityToRegister) {
+                    callback(null);
+                }
+            });
+        }
+    });
+};
+
+var registerSctidsSmallRequest=function (operation, callback) {
+
     Sync(function () {
         try {
             var cont = 0;
@@ -150,51 +277,51 @@ var registerSctids=function (operation, callback) {
                 if (error) {
                     return;
                 }
-                    if (sctIdRecord.sctid == sctId && sctIdRecord.systemId != systemId) {
-                        sctIdRecord.systemId=systemId;
-                    }
-                    var newStatus;
-                    if (sctIdRecord.status==stateMachine.statuses.assigned){
-                        newStatus=stateMachine.statuses.assigned;
-                    }else {
-                        newStatus = stateMachine.getNewStatus(sctIdRecord.status, stateMachine.actions.register);
-                    }
-                    if (newStatus) {
+                if (sctIdRecord.sctid == sctId && sctIdRecord.systemId != systemId) {
+                    sctIdRecord.systemId=systemId;
+                }
+                var newStatus;
+                if (sctIdRecord.status==stateMachine.statuses.assigned){
+                    newStatus=stateMachine.statuses.assigned;
+                }else {
+                    newStatus = stateMachine.getNewStatus(sctIdRecord.status, stateMachine.actions.register);
+                }
+                if (newStatus) {
 
-                        sctIdRecord.status = newStatus;
-                        sctIdRecord.author = operation.author;
-                        sctIdRecord.software = operation.software;
-                        sctIdRecord.expirationDate = operation.expirationDate;
-                        sctIdRecord.comment = operation.comment;
-                        sctIdRecord.jobId = operation.jobId;
+                    sctIdRecord.status = newStatus;
+                    sctIdRecord.author = operation.author;
+                    sctIdRecord.software = operation.software;
+                    sctIdRecord.expirationDate = operation.expirationDate;
+                    sctIdRecord.comment = operation.comment;
+                    sctIdRecord.jobId = operation.jobId;
 
-                        records.push(sctIdRecord);
-                        cont++;
-                        if (cont == operation.records.length) {
-                            cont = 0;
-                            for (var j = 0; j < records.length; j++) {
+                    records.push(sctIdRecord);
+                    cont++;
+                    if (cont == operation.records.length) {
+                        cont = 0;
+                        for (var j = 0; j < records.length; j++) {
 
-                                sctid.save(records[j], function (err) {
-                                    if (err) {
-                                        error = true;
-                                        callback(err);
-                                        return;
-                                    }
-                                    cont++;
-                                    if (cont == records.length) {
-                                        callback(null);
-                                        return;
+                            sctid.save(records[j], function (err) {
+                                if (err) {
+                                    error = true;
+                                    callback(err);
+                                    return;
+                                }
+                                cont++;
+                                if (cont == records.length) {
+                                    callback(null);
+                                    return;
 
-                                    }
+                                }
 
-                                });
-                            }
+                            });
                         }
-                    } else {
-                        error = true;
-                        callback("Cannot register SCTID:" + sctIdRecord.sctid + ", current status: " + sctIdRecord.status);
-                        return;
                     }
+                } else {
+                    error = true;
+                    callback("Cannot register SCTID:" + sctIdRecord.sctid + ", current status: " + sctIdRecord.status);
+                    return;
+                }
             }
         }catch(e){
             callback(e.message);
@@ -296,7 +423,38 @@ function insertSCTIDRecord(newSctidRecord, callback){
         }
     });
 }
-
+//function insertAuxConceptRecord(newSctidRecord, callback){
+//    Sync(function() {
+//        try {
+//            var newSctidRecord2 = auxConcept.create.sync(null, newSctidRecord);
+//            callback(null, newSctidRecord2);
+//        }catch(e){
+//            callback(e,null);
+//        }
+//    });
+//}
+//
+//function insertAuxDescriptionRecord(newSctidRecord, callback){
+//    Sync(function() {
+//        try {
+//            var newSctidRecord2 = auxDescription.create.sync(null, newSctidRecord);
+//            callback(null, newSctidRecord2);
+//        }catch(e){
+//            callback(e,null);
+//        }
+//    });
+//}
+//
+//function insertAuxRelationshipRecord(newSctidRecord, callback){
+//    Sync(function() {
+//        try {
+//            var newSctidRecord2 = auxRelationship.create.sync(null, newSctidRecord);
+//            callback(null, newSctidRecord2);
+//        }catch(e){
+//            callback(e,null);
+//        }
+//    });
+//}
 
 function computeSCTID(operation,seq){
 
@@ -428,7 +586,7 @@ function getPartition(key,callback) {
             callback(err, null);
         } else {
             if (!partitions) {
-                callback("Partition not found for key:" + JSON.stringify(key), null);
+                callback("Partition sequence not found for key:" + JSON.stringify(key), null);
             } else {
                 callback(null, partitions);
             }
@@ -437,6 +595,227 @@ function getPartition(key,callback) {
 };
 
 var generateSctids=function (operation, callback) {
+    getModel(function (err) {
+        if (err) {
+            console.log("error model:" + err);
+            callback(err);
+        } else {
+            var key = [parseInt(operation.namespace), operation.partitionId.toString()];
+            var newStatus = stateMachine.getNewStatus(stateMachine.statuses.available, operation.action);
+
+            Sync(function () {
+
+                var sysIdInChunk = new sets.StringSet();
+                var insertedCount = 0;
+                var quantityToCreate=operation.quantity;
+                for (var i = 1; i <= operation.quantity; i++) {
+
+                    if (sysIdInChunk.has(operation.systemIds[i - 1])){
+                        quantityToCreate--;
+                    }else {
+                        sysIdInChunk.add(operation.systemIds[i - 1]);
+                    }
+                    try {
+
+                        if (i % chunk == 0 || i == (operation.quantity )) {
+                            var diff;
+                            var sysIdToCreate = sysIdInChunk.array();
+                            var allExisting = false;
+                            if (!operation.autoSysId) {
+                                // Probably existing uuids
+
+                                var existingSysIds = sctid.findExistingSystemIds.sync(null, {
+                                    systemIds: sysIdToCreate,
+                                    namespace: operation.namespace
+                                });
+
+                                if (existingSysIds && existingSysIds.length > 0) {
+
+                                    sctid.updateJobId.sync(null, existingSysIds, operation.jobId);
+
+                                    if (existingSysIds.length < sysIdInChunk.size()) {
+                                        var setExistSysId = new sets.StringSet(existingSysIds);
+
+                                        diff = sysIdInChunk.difference(setExistSysId).array();
+                                        insertedCount += setExistSysId.size();
+                                    } else {
+                                        insertedCount += existingSysIds.length;
+                                        allExisting = true;
+                                    }
+
+                                }
+
+                            }
+                            if (!allExisting) {
+                                if (diff) {
+                                    sysIdToCreate = diff;
+                                }
+                                var data = getPartition.sync(null, key);
+                                if (!data) {
+                                    callback("Partition not found for key:" + JSON.stringify(key));
+                                    return;
+                                }
+                                var seq = data.sequence;
+                                data.sequence += sysIdToCreate.length;
+                                data.save.sync(null);
+                                var records = [];
+                                var createAt = new Date();
+
+                                sysIdToCreate.forEach(function (systemId) {
+                                    seq++;
+                                    var record = [];
+                                    //sctid
+                                    var newSctId = computeSCTID(operation, seq);
+                                    record[0] = newSctId;
+                                    //sequence
+                                    record[1] = seq;
+                                    //namespace
+                                    record[2] = parseInt(operation.namespace);
+                                    //partitionId
+                                    record[3] = operation.partitionId.toString();
+                                    //checkDigit
+                                    record[4] = sctIdHelper.getCheckDigit(newSctId);
+                                    //systemId
+                                    record[5] = systemId;
+                                    //status
+                                    record[6] = newStatus;
+                                    //author
+                                    record[7] = operation.author;
+                                    //software
+                                    record[8] = operation.software;
+                                    //expirationDate
+                                    record[9] = operation.expirationDate;
+                                    //comment
+                                    record[10] = operation.comment;
+                                    //jobId
+                                    record[11] = operation.jobId;
+                                    //created_at
+                                    record[12] = createAt;
+
+                                    records.push(record);
+
+                                });
+                                insertedCount += records.length;
+                                var ret=insertRecords.sync(null, records, operation);
+                                if (ret){
+                                    throw ret;
+                                }
+                            }
+                            sysIdInChunk = new sets.StringSet();
+                        }
+                    } catch (e) {
+                        console.error("generateSctids error:" + e); // something went wrong
+                        callback(e);
+                        return;
+                    }
+                }
+                if (insertedCount >= quantityToCreate) {
+                    callback(null);
+                }
+            });
+        }
+    });
+};
+
+var insertRecords=function(records, operation, callback) {
+    Sync(function () {
+        var err;
+        try {
+            sctid.bulkInsert.sync(null, records);
+        } catch (e) {
+            err = e.toString();
+            console.error("sctid insertRecords :" + err); // something went wrong
+        }
+        if (err) {
+            if (err.indexOf("ER_DUP_ENTRY") > -1 ) {
+                if (err.indexOf("'PRIMARY'") > -1) {
+                    console.log("Trying to solve the primary key error");
+
+                    var regEx = new RegExp(" '[0-9]*' ");
+                    var res = err.match(regEx);
+
+                    if (res) {
+                        var code = res[0].substring(2, res[0].length - 2);
+                        var i;
+                        for (i = 0; i < records.length; i++) {
+                            if (records[i][0] == code) {
+                                break;
+                            }
+                        }
+                        if (i > -1 && i < records.length) {
+                            console.log("pos i:" + i);
+
+                            var key = [parseInt(operation.namespace), operation.partitionId.toString()];
+                            var data = getPartition.sync(null, key);
+                            if (!data) {
+                                callback("Partition not found for key:" + JSON.stringify(key));
+                                return;
+                            }
+
+                            data.sequence++;
+                            var seq = data.sequence;
+                            data.save.sync(null);
+
+                            var newSctId = computeSCTID(operation, seq);
+
+                            records[i][0] = newSctId;
+                            //sequence
+                            records[i][1] = seq;
+                            //checkDigit
+                            records[i][4] = sctIdHelper.getCheckDigit(newSctId);
+                            if (i > 0) {
+                                records.splice(0, i);
+                            }
+                            insertRecords.sync(null, records, operation);
+                            callback(null);
+                        } else {
+                            callback(err);
+                        }
+                    } else {
+                        callback(err);
+                    }
+                }else if (err.indexOf("'sysid'") > -1 && operation.autoSysId
+                    && !(operation.generateLegacyIds && operation.generateLegacyIds.toUpperCase()=="TRUE" )) {
+                    console.log("Trying to solve the sysid key error");
+
+                    var regEx = new RegExp("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}");
+                    var res = err.match(regEx);
+                    if (res) {
+                        var syscode = res[0];
+                        var i = -1;
+                        for (i = 0; i < records.length; i++) {
+                            if (records[i][5] == syscode) {
+                                break;
+                            }
+                        }
+                        if (i > -1 && i < records.length) {
+
+                            records[i][5] = guid();
+                            if (i > 0) {
+                                records.splice(0, i);
+                            }
+                            insertRecords.sync(null, records, operation);
+                            callback(null);
+                        } else {
+                            callback(err);
+                        }
+                    } else {
+                        callback(err);
+                    }
+                }else {
+                    callback(err);
+                }
+
+            } else {
+                callback(err);
+            }
+        }else{
+            callback(null);
+        }
+    });
+};
+
+var generateSctidsSmallRequest=function (operation, callback) {
     getModel(function (err) {
         if (err) {
             console.log("error model:" + err);
@@ -482,7 +861,7 @@ var generateSctids=function (operation, callback) {
                                     });
                                 }
                             } catch (e) {
-                                console.error("generateSctids error:" + e); // something went wrong
+                                console.error("generateSctidsSmallRequest error:" + e); // something went wrong
                                 callback(e);
                             }
                         }
@@ -494,7 +873,12 @@ var generateSctids=function (operation, callback) {
 };
 
 module.exports.generateSctids=generateSctids;
+module.exports.generateSctidsSmallRequest=generateSctidsSmallRequest;
 module.exports.registerSctids=registerSctids;
+module.exports.registerSctidsSmallRequest=registerSctidsSmallRequest;
 module.exports.getSctidBySystemIds=getSctidBySystemIds;
 module.exports.getSctids=getSctids;
 module.exports.updateSctids=updateSctids;
+module.exports.getPartition=getPartition;
+module.exports.getModel=getModel;
+module.exports.insertAssignedRecord=insertAssignedRecord;

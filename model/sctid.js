@@ -78,7 +78,7 @@ sctid.findBySystemIds=function(query,callback){
     {
         if (err) throw err;
 
-        var sql = "SELECT * FROM sctId WHERE systemId in (" + connection.escape(query.systemId) + ") and namespace=" + query.namespace  ;
+        var sql = "SELECT systemId FROM sctId WHERE systemId in (" + connection.escape(query.systemId) + ") and namespace=" + query.namespace  ;
         connection.query(sql, function(error, rows)
         {
 
@@ -96,6 +96,58 @@ sctid.findBySystemIds=function(query,callback){
     });
 };
 
+sctid.findExistingSctIds=function(query,callback){
+
+    db.getDB(function (err,connection)
+    {
+        if (err) throw err;
+
+        var sql = "SELECT sctid FROM sctId WHERE sctid in (" + connection.escape(query.sctIds) + ")"  ;
+        connection.query(sql, function(error, rows)
+        {
+
+            connection.release();
+            if(error)
+            {
+                callback(error, null);
+            }
+            else
+            {
+                var ids = [];
+                rows.forEach(function(row) {
+                    ids.push(row.sctid);
+                });
+                callback(null, ids);
+            }
+        });
+    });
+};
+sctid.findExistingSystemIds=function(query,callback){
+
+    db.getDB(function (err,connection)
+    {
+        if (err) throw err;
+
+        var sql = "SELECT systemId FROM sctId WHERE systemId in (" + connection.escape(query.systemIds) + ") and namespace=" + query.namespace  ;
+        connection.query(sql, function(error, rows)
+        {
+
+            connection.release();
+            if(error)
+            {
+                callback(error, null);
+            }
+            else
+            {
+                var ids = [];
+                rows.forEach(function(row) {
+                    ids.push(row.systemId);
+                });
+                callback(null, ids);
+            }
+        });
+    });
+};
 sctid.findByJobId=function(query,callback){
 
     db.getDB(function (err,connection)
@@ -143,9 +195,12 @@ sctid.find=function(query, limit, skip, callback){
         }
         var sql;
         if (limit && limit>0 && (!skip || skip==0)) {
-            sql = "SELECT * FROM sctId" + swhere + " limit " + limit;
+            //sql = "SELECT * FROM sctId" + swhere + " order by sctid limit " + limit;
+
+            sql = "SELECT * FROM sctId USE INDEX (nam_par_st)" + swhere + " order by sctid limit " + limit;
         }else{
-            sql = "SELECT * FROM sctId" + swhere;
+            //sql = "SELECT * FROM sctId" + swhere + " order by sctid";
+            sql = "SELECT * FROM sctId USE INDEX (nam_par_st)" + swhere + " order by sctid";
         }
         connection.query(sql, function(error, rows)
         {
@@ -209,6 +264,50 @@ sctid.save=function(sctIdRecord,callback){
     });
 };
 
+sctid.updateJobId=function(existingSystemId, jobId, callback){
+
+    db.getDB(function (err,connection)
+    {
+        if (err) {
+            throw err;
+        }else{
+            connection.query("UPDATE sctId SET JobId=" + connection.escape(jobId) + " ,modified_at=now() WHERE systemId in (" + connection.escape(existingSystemId) + ")", function (error) {
+                connection.release();
+                if (error) {
+                    callback (error,null);
+                }
+                else {
+
+                    callback(null, null);
+                }
+            });
+        }
+    });
+};
+sctid.updateRegisterStatusAndJobId=function(existingSctId, jobId, callback){
+
+    db.getDB(function (err,connection)
+    {
+        if (err) {
+            throw err;
+        }else{
+            var sql="UPDATE sctId SET JobId=" + connection.escape(jobId) + " ,modified_at=now()," +
+                " status=(case status when 'Available' then 'Assigned' when 'Reserved' then 'Assigned' else status end)" +
+                " WHERE sctid in (" + connection.escape(existingSctId) + ")";
+            connection.query(sql , function (error) {
+                connection.release();
+                if (error) {
+                    callback (error,null);
+                }
+                else {
+
+                    callback(null, null);
+                }
+            });
+        }
+    });
+};
+
 sctid.create=function(sctIdRecord,callback){
 
     db.getDB(function (err,connection)
@@ -267,4 +366,28 @@ sctid.count=function(query,callback){
         });
     });
 };
+
+sctid.bulkInsert=function(records,callback){
+
+    db.getDB(function (err,connection)
+    {
+
+        if (err) throw err;
+
+        connection.query('INSERT INTO sctId (sctid,sequence,namespace,partitionId,checkDigit,systemId,status,author,software,expirationDate,comment,jobId,created_at) values ?', [records], function(error)
+        {
+            connection.release();
+            if(error)
+            {
+                callback (error,null);
+            }
+            else
+            {
+
+                callback(null, null);
+            }
+        });
+    });
+};
+
 module.exports=sctid;

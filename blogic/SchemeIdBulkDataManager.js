@@ -12,6 +12,8 @@ var path=require('path');
 var schemes=[];
 var generators_path = __dirname + '/SchemeIdGenerator';
 
+var chunk = 1000;
+
 fs.readdirSync(generators_path).forEach(function (file) {
     if (~file.indexOf('.js')) {
         var schemeName=path.basename(file, '.js');
@@ -73,7 +75,7 @@ var getSchemeIds=function (scheme, schemeIdArray, callback) {
             var cont = 0;
             diff.forEach(function (schemeId) {
 
-                getFreeRecord(scheme, schemeId, null, function (err, record) {
+                getFreeRecord(scheme, schemeId, null, true, function (err, record) {
                     if (err) {
                         callback(err, null);
                     } else {
@@ -92,12 +94,12 @@ var getSchemeIds=function (scheme, schemeIdArray, callback) {
     });
 };
 
-function getFreeRecord(scheme, schemeId, systemId, callback){
+function getFreeRecord(scheme, schemeId, systemId, autoSysId, callback){
     Sync(function() {
         try {
             var schemeIdRecord = getNewRecord(scheme, schemeId, systemId);
             schemeIdRecord.status = stateMachine.statuses.available;
-            var newRecord = insertSchemeIdRecord.sync(null, schemeIdRecord);
+            var newRecord = insertSchemeIdRecord.sync(null, schemeIdRecord, autoSysId);
 
             callback(null, newRecord);
         }catch(e){
@@ -159,7 +161,7 @@ var registerSchemeIds=function ( operation, callback) {
                 if (error) {
                     break;
                 }
-                var schemeIdRecord = getSchemeId.sync(null, scheme, schemeId, systemId);
+                var schemeIdRecord = getSchemeId.sync(null, scheme, schemeId, systemId, operation.autoSysId);
 
                 if (error) {
                     return;
@@ -228,7 +230,7 @@ var updateSchemeIds=function ( operation, callback){
         if (error) {
             break;
         }
-        getSchemeId(scheme, SchemeId, null, function (err, schemeIdRecord) {
+        getSchemeId(scheme, SchemeId, null , true, function (err, schemeIdRecord) {
             if (error) {
                 return;
             }
@@ -279,7 +281,7 @@ var updateSchemeIds=function ( operation, callback){
     }
 };
 
-var getSchemeId=function (scheme, schemeId, systemId, callback) {
+var getSchemeId=function (scheme, schemeId, systemId, autoSysId, callback) {
     Sync(function () {
         if (!schemes[scheme.toUpperCase()].validSchemeId(schemeId)){
 
@@ -290,7 +292,7 @@ var getSchemeId=function (scheme, schemeId, systemId, callback) {
         var schemeIdRecord = schemeid.findById.sync(null, objQuery);
         if (!schemeIdRecord) {
             try {
-                var record = getFreeRecord.sync(null, scheme, schemeId, systemId);
+                var record = getFreeRecord.sync(null, scheme, schemeId, systemId, autoSysId);
 
                 callback(null, record);
             }catch(e){
@@ -304,13 +306,56 @@ var getSchemeId=function (scheme, schemeId, systemId, callback) {
 };
 
 
-function insertSchemeIdRecord(newSchemeIdRecord, callback){
+function insertSchemeIdRecord(newSchemeIdRecord, autoSysId, callback){
     Sync(function() {
+        var err;
+        var newSchemeIdRecord2;
         try {
-            var newSchemeIdRecord2 = schemeid.create.sync(null, newSchemeIdRecord);
+            newSchemeIdRecord2 = schemeid.create.sync(null, newSchemeIdRecord);
             callback(null, newSchemeIdRecord2);
         }catch(e){
-            callback(e,null);
+            err = e.toString();
+            console.error("insertRecords :" + err); // something went wrong
+        }
+        if (err) {
+            if (err.indexOf("ER_DUP_ENTRY") > -1 ) {
+                if (err.indexOf(newSchemeIdRecord.scheme + "-") > -1 && err.indexOf("'PRIMARY'") > -1) {
+                    console.log("Trying to solve the primary key error");
+
+                    var key = newSchemeIdRecord.scheme;
+                    var data = getScheme.sync(null, key);
+                    if (!data) {
+                        callback("Scheme not found for key:" + JSON.stringify(key), null);
+                        return;
+                    }
+
+                    var previousCode = data.idBase;
+                    var newSchemeId = schemes[newSchemeIdRecord.scheme].getNextId(previousCode);
+
+                    data.idBase = newSchemeId;
+                    data.save.sync(null);
+                    newSchemeIdRecord.schemeId = newSchemeId;
+
+                    newSchemeIdRecord2=insertSchemeIdRecord.sync(null, newSchemeIdRecord, autoSysId);
+                    callback(null, newSchemeIdRecord2);
+
+                } else if (err.indexOf("-" + newSchemeIdRecord.scheme ) > -1 && err.indexOf("'sysId'") > -1 && autoSysId) {
+                    console.log("Trying to solve the sysId key error");
+
+                    newSchemeIdRecord.systemId = guid();
+
+                    newSchemeIdRecord2=insertSchemeIdRecord.sync(null, newSchemeIdRecord, autoSysId);
+                    callback(null,newSchemeIdRecord2);
+
+                }else{
+                    callback(err,null);
+                }
+
+            } else {
+                callback(err,null);
+            }
+        }else{
+            callback(null,newSchemeIdRecord2);
         }
     });
 }
@@ -396,8 +441,7 @@ function setNewSchemeIdRecord(operation, thisScheme, callback) {
             if (operation.systemId && operation.systemId.trim() != "") {
                 systemId = operation.systemId;
             }
-            var schemeIdRecord = getSchemeId.sync(null, scheme, newSchemeId,systemId);
-
+            var schemeIdRecord = getSchemeId.sync(null, scheme, newSchemeId,systemId, operation.autoSysId);
 
             var newStatus = stateMachine.getNewStatus(schemeIdRecord.status, action);
             if (newStatus) {
@@ -442,6 +486,188 @@ var generateSchemeIds=function ( operation, callback) {
             console.log("error model:" + err);
             callback(err);
         } else {
+            var key = operation.scheme;
+
+            Sync(function () {
+
+                var sysIdInChunk = new sets.StringSet();
+                var insertedCount = 0;
+                var quantityToCreate=operation.quantity;
+                for (var i = 1; i <= operation.quantity; i++) {
+                    if (sysIdInChunk.has(operation.systemIds[i - 1])){
+                        quantityToCreate--;
+                    }else {
+                        sysIdInChunk.add(operation.systemIds[i - 1]);
+                    }
+                    try {
+
+                        if (i % chunk == 0 || i == (operation.quantity )) {
+                            var diff;
+                            var sysIdToCreate = sysIdInChunk.array();
+                            var allExisting = false;
+
+                            if (!operation.autoSysId) {
+                                // Probably existing uuids
+
+                                var existingSysIds = schemeid.findExistingSystemIds.sync(null, {
+                                    systemIds: sysIdToCreate,
+                                    scheme: operation.scheme
+                                });
+
+                                if (existingSysIds && existingSysIds.length > 0) {
+                                    schemeid.updateJobId.sync(null, existingSysIds,operation.scheme, operation.jobId);
+
+                                    if (existingSysIds.length < sysIdInChunk.size()) {
+                                        var setExistSysId = new sets.StringSet(existingSysIds);
+
+                                        diff = sysIdInChunk.difference(setExistSysId).array();
+                                        insertedCount += setExistSysId.size();
+                                    } else {
+                                        insertedCount += existingSysIds.length;
+                                        allExisting = true;
+                                    }
+
+                                }
+
+                            }
+                            if (!allExisting) {
+                                if (diff) {
+                                    sysIdToCreate = diff;
+                                }
+                                var data = getScheme.sync(null, key);
+                                if (!data) {
+                                    callback("Scheme not found for key:" + JSON.stringify(key));
+                                    return;
+                                }
+
+                                var previousCode=data.idBase;
+                                var records = [];
+                                var createAt = new Date();
+
+                                sysIdToCreate.forEach(function (systemId) {
+                                    var record = [];
+                                    //scheme
+                                    var newSchemeId=schemes[operation.scheme.toUpperCase()].getNextId(previousCode);
+                                    record[0] = operation.scheme;
+                                    //schemeId
+                                    record[1] = newSchemeId;
+                                    //sequence
+                                    record[2] = schemes[operation.scheme.toUpperCase()].getSequence(newSchemeId);
+                                    //checkDigit
+                                    record[3] = schemes[operation.scheme.toUpperCase()].getCheckDigit(newSchemeId);
+                                    //systemId
+                                    record[4] = systemId;
+                                    //status
+                                    record[5] = stateMachine.statuses.assigned;
+                                    //author
+                                    record[6] = operation.author;
+                                    //software
+                                    record[7] = operation.software;
+                                    //expirationDate
+                                    record[8] = operation.expirationDate;
+                                    //comment
+                                    record[9] = operation.comment;
+                                    //jobId
+                                    record[10] = operation.jobId;
+                                    //created_at
+                                    record[11] = createAt;
+
+                                    records.push(record);
+                                    previousCode=newSchemeId;
+                                });
+                                data.idBase=previousCode;
+                                data.save.sync(null);
+                                insertedCount += records.length;
+                                var ret=insertRecords.sync(null, records,operation.scheme.toUpperCase(), key,operation.autoSysId);
+                                if (ret){
+                                    throw ret;
+                                }
+                            }
+                            sysIdInChunk = new sets.StringSet();
+                        }
+                    } catch (e) {
+                        console.error("generateSchemeIds error:" + e); // something went wrong
+                        callback(e);
+                        return;
+                    }
+                }
+                if (insertedCount >= quantityToCreate) {
+                    callback(null);
+                }
+            });
+
+        }
+    });
+};
+
+var insertRecords=function(records, scheme, key, autoSysId, callback) {
+    Sync(function () {
+        var err;
+        try {
+            schemeid.bulkInsert.sync(null, records);
+        } catch (e) {
+            err = e.toString();
+            console.error("insertRecords :" + err); // something went wrong
+        }
+        if (err) {
+            if (err.indexOf("ER_DUP_ENTRY") > -1 ) {
+                if (err.indexOf(scheme + "-") > -1 && err.indexOf("'PRIMARY'") > -1) {
+                    console.log("Trying to solve the primary key error");
+
+                    var regEx = new RegExp("\-.*' ");
+                    var res = err.match(regEx);
+
+                    if (res) {
+                        var code = res[0].substring(1, res[0].length - 2);
+                        var i;
+                        for (i = 0; i < records.length; i++) {
+                            if (records[i][1] == code) {
+                                break;
+                            }
+                        }
+                        if (i > -1 && i < records.length) {
+                            console.log("pos i:" + i);
+                            var data = getScheme.sync(null, key);
+                            if (!data) {
+                                callback("Scheme not found for key:" + JSON.stringify(key));
+                                return;
+                            }
+
+                            var previousCode = data.idBase;
+                            var newSchemeId = schemes[scheme].getNextId(previousCode);
+
+                            data.idBase = newSchemeId;
+                            data.save.sync(null);
+                            records[i][1] = newSchemeId;
+                            if (i > 0) {
+                                records.splice(0, i);
+                            }
+                            insertRecords.sync(null, records, scheme, key, autoSysId);
+                            callback(null);
+                        } else {
+                            callback(err);
+                        }
+                    } else {
+                        callback(err);
+                    }
+                }
+
+            } else {
+                callback(err);
+            }
+        }else{
+            callback(null);
+        }
+    });
+
+};
+
+var generateSchemeIdSmallRequest=function ( operation, callback) {
+    getModel(function (err) {
+        if (err) {
+            console.log("error model:" + err);
+            callback(err);
+        } else {
             var cont = 0;
             var key = operation.scheme;
 
@@ -473,6 +699,7 @@ var generateSchemeIds=function ( operation, callback) {
                                     generateSchemeId.sync(null, operation, thisScheme);
                                 }
                                 cont++;
+
                                 if (operation.quantity == cont) {
                                     thisScheme.save(function (err) {
                                         if (err) {
@@ -483,7 +710,7 @@ var generateSchemeIds=function ( operation, callback) {
                                     });
                                 }
                             } catch (e) {
-                                console.error("generateSchemeIds error:" + e); // something went wrong
+                                console.error("generateSchemeIdsSmallRequest error:" + e); // something went wrong
                                 callback(e);
                             }
                         }
@@ -496,6 +723,7 @@ var generateSchemeIds=function ( operation, callback) {
 };
 
 module.exports.generateSchemeIds=generateSchemeIds;
+module.exports.generateSchemeIdSmallRequest=generateSchemeIdSmallRequest;
 module.exports.registerSchemeIds=registerSchemeIds;
 module.exports.getSchemeIdBySystemIds=getSchemeIdBySystemIds;
 module.exports.getSchemeIds=getSchemeIds;

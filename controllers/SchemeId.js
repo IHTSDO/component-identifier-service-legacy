@@ -143,7 +143,7 @@ module.exports.generateSchemeId = function generateSchemeId (req, res, next) {
                     if (err) {
                         return next(err.message);
                     }
-                    console.log("[" + new Date() + "] End single method called: generateSchemeId, params: " + JSON.stringify(generationMetadata) );
+                    //console.log("[" + new Date() + "] End single method called: generateSchemeId, params: " + JSON.stringify(generationMetadata) );
                     res.setHeader('Content-Type', 'application/json');
                     res.end(JSON.stringify(SchemeIdRecord));
                 });
@@ -168,7 +168,7 @@ module.exports.reserveSchemeId = function reserveSchemeId (req, res, next) {
                     if (err) {
                         return next(err.message);
                     }
-                    console.log("[" + new Date() + "] End single method called: reserveSchemeId, params: " + JSON.stringify(reservationMetadata) );
+                    //console.log("[" + new Date() + "] End single method called: reserveSchemeId, params: " + JSON.stringify(reservationMetadata) );
                     res.setHeader('Content-Type', 'application/json');
                     res.end(JSON.stringify(SchemeIdRecord));
                 });
@@ -196,7 +196,7 @@ module.exports.registerSchemeId = function registerSchemeId (req, res, next) {
                     if (err) {
                         return next(err.message);
                     }
-                    console.log("[" + new Date() + "] End single method called: registerSchemeId, params: " + JSON.stringify(registrationMetadata) );
+                    //console.log("[" + new Date() + "] End single method called: registerSchemeId, params: " + JSON.stringify(registrationMetadata) );
                     res.setHeader('Content-Type', 'application/json');
                     res.end(JSON.stringify(SchemeIdRecord));
                 });
@@ -221,7 +221,7 @@ module.exports.deprecateSchemeId = function deprecateSchemeId (req, res, next) {
                     if (err) {
                         return next(err.message);
                     }
-                    console.log("[" + new Date() + "] End single method called: deprecateSchemeId, params: " + JSON.stringify(deprecationMetadata) );
+                    //console.log("[" + new Date() + "] End single method called: deprecateSchemeId, params: " + JSON.stringify(deprecationMetadata) );
                     res.setHeader('Content-Type', 'application/json');
                     res.end(JSON.stringify(SchemeIdRecord));
                 });
@@ -246,7 +246,7 @@ module.exports.releaseSchemeId = function releaseSchemeId (req, res, next) {
                     if (err) {
                         return next(err.message);
                     }
-                    console.log("[" + new Date() + "] End single method called: releaseSchemeId, params: " + JSON.stringify(releaseMetadata) );
+                    //console.log("[" + new Date() + "] End single method called: releaseSchemeId, params: " + JSON.stringify(releaseMetadata) );
                     res.setHeader('Content-Type', 'application/json');
                     res.end(JSON.stringify(SchemeIdRecord));
                 });
@@ -271,7 +271,7 @@ module.exports.publishSchemeId = function publishSchemeId (req, res, next) {
                     if (err) {
                         return next(err.message);
                     }
-                    console.log("[" + new Date() + "] End single method called: publishSchemeId, params: " + JSON.stringify(publicationMetadata) );
+                    //console.log("[" + new Date() + "] End single method called: publishSchemeId, params: " + JSON.stringify(publicationMetadata) );
                     res.setHeader('Content-Type', 'application/json');
                     res.end(JSON.stringify(SchemeIdRecord));
                 });

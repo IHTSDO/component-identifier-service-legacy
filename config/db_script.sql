@@ -91,6 +91,7 @@ CREATE TABLE `namespace` (
   `dateIssued` datetime DEFAULT NULL,
   `email` varchar(255) DEFAULT NULL,
   `notes` varchar(2000) DEFAULT NULL,
+  `idPregenerate` varchar(1) DEFAULT NULL,
   PRIMARY KEY (`namespace`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -409,6 +410,45 @@ CREATE TABLE `partitions` (
   PRIMARY KEY (`namespace`,`partitionId`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+DROP TABLE IF EXISTS `auxConcept`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+
+CREATE TABLE `auxConcept` (
+  `sctid` varchar(18) NOT NULL DEFAULT '',
+  `systemId` varchar(36) NOT NULL DEFAULT '',
+  `namespace` int(11) NOT NULL,
+  `modified_at` datetime DEFAULT NULL,
+  KEY `modified_atKey` (`modified_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+DROP TABLE IF EXISTS `auxDescription`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+
+CREATE TABLE `auxDescription` (
+  `sctid` varchar(18) NOT NULL DEFAULT '',
+  `systemId` varchar(36) NOT NULL DEFAULT '',
+  `namespace` int(11) NOT NULL,
+  `modified_at` datetime DEFAULT NULL,
+  KEY `modified_atKey` (`modified_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+DROP TABLE IF EXISTS `auxRelationship`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `auxRelationship` (
+  `sctid` varchar(18) NOT NULL DEFAULT '',
+  `systemId` varchar(36) NOT NULL DEFAULT '',
+  `namespace` int(11) NOT NULL,
+  `modified_at` datetime DEFAULT NULL,
+  KEY `modified_atKey` (`modified_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
 
 --
 -- Dumping events for database 'idservice'
