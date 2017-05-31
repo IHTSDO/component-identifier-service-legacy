@@ -2,8 +2,8 @@
  * Created by ar on 7/16/15.
  */
 
-var dbuser = "root";
-var dbpass = "root";
+var dbuser = "";
+var dbpass = "";
 var dbName="idservice";
 var host="localhost";
 
@@ -13,6 +13,10 @@ process.argv.forEach(function (val, index, array) {
         dbuser = parts[1];
     } else if (parts[0] == "dbpass") {
         dbpass = parts[1];
+    } else if (parts[0] == "host") {
+        host = parts[1];
+    } else if (parts[0] == "dbName") {
+        dbName = parts[1];
     }
 });
 

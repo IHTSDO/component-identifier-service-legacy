@@ -6,6 +6,7 @@ var job=require("../model/JobType");
 var sctid=require("../model/sctid");
 var schemeid=require("../model/schemeid");
 var bulkJob=require("../model/job");
+var idBulk = require("./../blogic/BulkIdCreation");
 
 function saveJob(operation, type, callback) {
     var obj = getNewBulkJobObject(operation, type);
@@ -74,20 +75,70 @@ function getJobRecords(jobId, callback) {
                     return;
                 });
             } else {
-                sctid.findByJobId({jobId: parseInt(jobId)}, function (err, sctids) {
-                    if (err) {
-                        callback(err, null);
-                        return;
-                    }
-                    if (!sctids || sctids.length == 0) {
+                //if (jobRecord.request.type == job.JOBTYPE.generateSctids) {
+                    //
+                    ////var t2 = new Date().getTime();
+                    //sctid.recordExists({jobId: parseInt(jobId)}, function(err,exists) {
+                    //
+                    //    if (err) {
+                    //        callback(err, null);
+                    //        return;
+                    //    }
+                    //    if (!exists) {
+                    //        console.log("generating records for jobId: " + jobId);
+                    //        jobRecord.request.jobId = jobId;
+                    //        idBulk.idsRetrieve(jobRecord.request, function (err, sctids) {
+                    //            if (err) {
+                    //                callback({message:err,number:404}, null);
+                    //                return;
+                    //            }
+                    //            if (!sctids || sctids.length == 0) {
+                    //
+                    //                callback(null, null);
+                    //                return;
+                    //            }
+                    //            callback(null, sctids);
+                    //            //var t3 = new Date().getTime();
+                    //            //console.log("retrieving job records took: " + (t3 - t2) + " milisecs");
+                    //            return;
+                    //
+                    //        });
+                    //    } else {
+                    //        console.log("already exists jobId: " + jobId);
 
-                        callback(null, null);
-                        return;
-                    }
-                    callback(null, sctids);
-                    return;
-                });
 
+                            //sctid.findJustSctIdByJobId({jobId: parseInt(jobId)}, function (err, sctids) {
+                            //    if (err) {
+                            //        callback(err, null);
+                            //        return;
+                            //    }
+                            //    if (!sctids || sctids.length == 0) {
+                            //
+                            //        callback(null, null);
+                            //        return;
+                            //    }
+                            //    callback(null, sctids);
+                            //    //var t3 = new Date().getTime();
+                            //    //console.log("getting existent job records took: " + (t3 - t2) + " milisecs");
+                            //    return;
+                            //});
+                    //    }
+                    //});
+                //}else {
+                    sctid.findByJobId({jobId: parseInt(jobId)}, function (err, sctids) {
+                        if (err) {
+                            callback(err, null);
+                            return;
+                        }
+                        if (!sctids || sctids.length == 0) {
+
+                            callback(null, null);
+                            return;
+                        }
+                        callback(null, sctids);
+                        return;
+                    });
+                //}
             }
         }
     });

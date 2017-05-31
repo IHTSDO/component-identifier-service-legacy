@@ -82,7 +82,6 @@ var getCheckDigit=function(sctid){
             return null;
         }
         var tmp=sctid.toString();
-        tmp.substr(tmp.length-1,1);
 
         return  parseInt(tmp.substr(tmp.length-1,1));
     }
