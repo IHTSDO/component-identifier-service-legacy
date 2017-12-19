@@ -320,7 +320,7 @@ function insertSchemeIdRecord(newSchemeIdRecord, autoSysId, callback){
         if (err) {
             if (err.indexOf("ER_DUP_ENTRY") > -1 ) {
                 if (err.indexOf(newSchemeIdRecord.scheme + "-") > -1 && err.indexOf("'PRIMARY'") > -1) {
-                    console.log("Trying to solve the primary key error");
+                    console.log("Trying to solve the primary key error during scheme id insert.");
 
                     var key = newSchemeIdRecord.scheme;
                     var data = getScheme.sync(null, key);
@@ -612,7 +612,7 @@ var insertRecords=function(records, scheme, key, autoSysId, callback) {
         if (err) {
             if (err.indexOf("ER_DUP_ENTRY") > -1 ) {
                 if (err.indexOf(scheme + "-") > -1 && err.indexOf("'PRIMARY'") > -1) {
-                    console.log("Trying to solve the primary key error");
+                    console.log("Trying to solve the primary key error during record insert.");
 
                     var regEx = new RegExp("\-.*' ");
                     var res = err.match(regEx);
