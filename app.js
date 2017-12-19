@@ -9,9 +9,13 @@ var backEndJobService = require('./blogic/BackEndJobService');
 var CleanService = require('./blogic/CleanService');
 var cors = require('cors');
 
+//add timestamps in front of log messages
+var consoleStamp = require('console-stamp')(console, 'yyyy-mm-dd HH:MM:ss.l');
+
 var bodyParser = require('body-parser');
 app.use(bodyParser.json({limit: '50mb'}));
 app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
+
 
 var serverPort = 3000;
 console.log("dir:" + __dirname);

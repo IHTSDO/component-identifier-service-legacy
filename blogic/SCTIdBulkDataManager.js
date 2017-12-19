@@ -729,7 +729,7 @@ var insertRecords=function(records, operation, callback) {
         if (err) {
             if (err.indexOf("ER_DUP_ENTRY") > -1 ) {
                 if (err.indexOf("'PRIMARY'") > -1) {
-                    console.log("Trying to solve the primary key error");
+                    console.log("Trying to solve the primary key error during bulk record insert.");
 
                     var regEx = new RegExp(" '[0-9]*' ");
                     var res = err.match(regEx);
@@ -757,6 +757,7 @@ var insertRecords=function(records, operation, callback) {
                             data.save.sync(null);
 
                             var newSctId = computeSCTID(operation, seq);
+                            console.log("Attempting to use next available SCTID: " + newSctId);
 
                             records[i][0] = newSctId;
                             //sequence

@@ -3,6 +3,7 @@ npm-debug.log
 .idea
 .DS_Store
 /target/
+/temp/
 .classpath
 .project
 .settings/
