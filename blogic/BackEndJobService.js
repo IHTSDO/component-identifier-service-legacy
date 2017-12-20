@@ -73,9 +73,7 @@ function processJob(record){
             request.action = stateMachine.actions.generate;
 
             if (true) { // previously request.systemIds.length>10
-
                 console.log("Start job " + record.name + " - id:" + record.id);
-
                 idDM.generateSctids(request, function (err) {
 
                     if (err) {
