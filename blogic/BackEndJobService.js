@@ -72,8 +72,8 @@ function processJob(record){
             }
             request.action = stateMachine.actions.generate;
 
-            if (true) { // previously request.systemIds.length>10
-                console.log("Start job " + record.name + " - id:" + record.id);
+            console.log("Start job " + record.name + " - id:" + record.id);
+            if (request.systemIds.length>10) {
                 idDM.generateSctids(request, function (err) {
 
                     if (err) {
@@ -122,7 +122,7 @@ function processJob(record){
             }
         } else if (request.type == job.JOBTYPE.registerSctids) {
 
-            if (true) { // previously request.records.length > 10
+            if (request.records.length > 10) {
                 idDM.registerSctids(request, function (err) {
 
                     if (err) {
@@ -177,7 +177,7 @@ function processJob(record){
                 request.systemIds = arrayUuids;
             }
             request.action = stateMachine.actions.reserve;
-            if (true) { // previously request.systemIds.length>10
+            if (request.systemIds.length>10) {
                 idDM.generateSctids(request, function (err) {
 
                     if (err) {
@@ -300,7 +300,7 @@ function processJob(record){
                 request.autoSysId=true;
             }
             request.action = stateMachine.actions.generate;
-            if (true) { // previously request.systemIds.length>10
+            if (request.systemIds.length>10) {
                 sIdDM.generateSchemeIds(request, function (err) {
                     if (err) {
                         lightJob.status = "3";
