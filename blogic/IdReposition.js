@@ -31,11 +31,7 @@ var idBulkCreation = function (auxTable, namespace, partitionId, idsTotal, callb
                                     return;
                                 }
                                 var seq = thisPartition.sequence;
-                                //thisPartition.sequence = thisPartition.sequence + quant;
-                                partitionLockManager.lockedOperation(key, function() {
-                                	thisPartition.sequence = thisPartition.sequence + quant;
-                                });
-                                data.sequence += sysIdToCreate.length;
+                                thisPartition.sequence = thisPartition.sequence + quant;
                                 thisPartition.save(function (err) {
                                     if (err) {
                                         callback(err);

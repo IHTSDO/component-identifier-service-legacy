@@ -8,7 +8,6 @@ var model;
 var sctid=require("../model/sctid");
 var sets=require('simplesets');
 var Sync = require('sync');
-var partitionLockManager = require ("./PartitionLockManager");
 
 var chunk = 1000;
 
@@ -545,11 +544,8 @@ function setAvailableSCTIDRecord2NewStatus(operation, callback){
 function setNewSCTIdRecord(operation,thisPartition,callback) {
     Sync(function () {
         try {
-            //thisPartition.sequence = thisPartition.sequence + 1;
-            var key = [parseInt(thisPartition.namespace), thisPartition.partitionId.toString()];
-            partitionLockManager.lockedOperation(key, function() {
-                thisPartition.sequence = thisPartition.sequence + 1;
-            });
+
+            thisPartition.sequence = thisPartition.sequence + 1;
             var seq = thisPartition.sequence;
             var newSCTId = computeSCTID(operation, seq);
             var systemId ;
@@ -660,10 +656,7 @@ var generateSctids=function (operation, callback) {
                                     return;
                                 }
                                 var seq = data.sequence;
-                                //data.sequence += sysIdToCreate.length;
-                                partitionLockManager.lockedOperation(key, function() {
-                                   data.sequence += sysIdToCreate.length;
-                                });
+                                data.sequence += sysIdToCreate.length;
                                 data.save.sync(null);
                                 var records = [];
                                 var createAt = new Date();
