@@ -598,26 +598,28 @@ function counterMode(operation, action, callback){
 }
 
 function getNextNumber( operation, callback) {
+    console.log("getNextNumber " + operation.namespace + "," + operation.partitionId);
     getModel(function(err) {
         if (err) {
             callback(err, null);
 
         } else {
             var key = [parseInt(operation.namespace), operation.partitionId.toString()];
-            model.partitions.get(key, function (err, partition) {
-
-                if (err) {
-                    callback(throwErrMessage("error getting partition:" + operation.partitionId.toString() + " for namespace:" + operation.namespace + ", err: " + JSON.stringify(err)), null);
-                    return;
-                }
-                //partition.sequence++;
-                partitionLockManager.lockedOperation(key, function() {
+            partitionLockManager.lockedOperationManualRelease(key, function(releaseLockCallback) {
+                model.partitions.get(key, function (err, partition) {
+                    if (err) {
+                        releaseLockCallback();
+                        callback(throwErrMessage("error getting partition:" + operation.partitionId.toString() + " for namespace:" + operation.namespace + ", err: " + JSON.stringify(err)), null);
+                        return;
+                    }
                     partition.sequence++;
                     var nextNumber = partition.sequence;
                     partition.save(function (err) {
                         if (err) {
+                            releaseLockCallback();
                             callback(err, null);
                         } else {
+                            releaseLockCallback();
                             callback(null, nextNumber);
                         }
                     })
