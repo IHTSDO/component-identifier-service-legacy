@@ -861,21 +861,19 @@ var generateSctidsSmallRequest=function (operation, callback) {
 	                                        canContinue = false;
 	                                    }
 	                                }
-	                                partitionLockManager.lockedOperation(key, function() {
-	                                    if (canContinue) {
-	                                        generateSctid.sync(null, operation, thisPartition);
-	                                    }
-	                                    cont++;
-	                                    if (operation.quantity == cont) {
-	                                        thisPartition.save(function (err) {
-	                                            if (err) {
-	                                                callback(err);
-	                                            } else {
-	                                                callback(null);
-	                                            }
-	                                        });
-	                                    }
-	                                });
+                                    if (canContinue) {
+                                        generateSctid.sync(null, operation, thisPartition);
+                                    }
+                                    cont++;
+                                    if (operation.quantity == cont) {
+                                        thisPartition.save(function (err) {
+                                            if (err) {
+                                                callback(err);
+                                            } else {
+                                                callback(null);
+                                            }
+                                        });
+                                    }
 	
 	                            } catch (e) {
 	                                console.error("generateSctidsSmallRequest error:" + e); // something went wrong
