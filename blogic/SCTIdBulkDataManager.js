@@ -649,18 +649,21 @@ var generateSctids=function (operation, callback) {
                                 if (diff) {
                                     sysIdToCreate = diff;
                                 }
-                                var data = getPartition.sync(null, key);
-                                if (!data) {
+                                var seq = null;
+                                partitionLockManager.lockedOperation(key, function() {
+	                                var data = getPartition.sync(null, key);
+	                                if (!data) {
+	                                    callback("Partition not found for key:" + JSON.stringify(key));
+	                                    return;
+	                                }
+	                                seq = data.sequence;
+                                    data.sequence += sysIdToCreate.length;
+                                    data.save.sync(null);
+                                });
+                                if (seq == null) {
                                     callback("Partition not found for key:" + JSON.stringify(key));
                                     return;
                                 }
-                                var seq = data.sequence;
-                                //data.sequence += sysIdToCreate.length;
-                                partitionLockManager.lockedOperation(key, function() {
-                                   data.sequence += sysIdToCreate.length;
-                                   data.save.sync(null);
-                                });
-
                                 var records = [];
                                 var createAt = new Date();
 
@@ -749,20 +752,22 @@ var insertRecords=function(records, operation, callback) {
                             console.log("pos i:" + i);
 
                             var key = [parseInt(operation.namespace), operation.partitionId.toString()];
-                            var data = getPartition.sync(null, key);
-                            if (!data) {
-                                callback("Partition not found for key:" + JSON.stringify(key));
-                                return;
-                            }
-
-                            //data.sequence++;
                             var seq = null;
                             partitionLockManager.lockedOperation(key, function() {
+                                var data = getPartition.sync(null, key);
+	                            if (!data) {
+	                                callback("Partition not found for key:" + JSON.stringify(key));
+	                                return;
+	                            }
                                 data.sequence++;
                                 seq = data.sequence;
                                 data.save.sync(null);
-                             });
-
+                            });
+                            
+                            if (seq == null) {
+                                callback("Partition not found for key:" + JSON.stringify(key));
+                                return;
+                            }
                             var newSctId = computeSCTID(operation, seq);
                             console.log("Attempting to use next available SCTID: " + newSctId);
 
@@ -824,6 +829,7 @@ var insertRecords=function(records, operation, callback) {
 };
 
 var generateSctidsSmallRequest=function (operation, callback) {
+	console.log ("Unexpected call to generateSctidsSmallRequest");
     getModel(function (err) {
         if (err) {
             console.log("error model:" + err);
