@@ -613,16 +613,15 @@ function getNextNumber( operation, callback) {
                 //partition.sequence++;
                 partitionLockManager.lockedOperation(key, function() {
                     partition.sequence++;
+                    var nextNumber = partition.sequence;
+                    partition.save(function (err) {
+                        if (err) {
+                            callback(err, null);
+                        } else {
+                            callback(null, nextNumber);
+                        }
+                    })
                  });
-
-                var nextNumber = partition.sequence;
-                partition.save(function (err) {
-                    if (err) {
-                        callback(err, null);
-                    } else {
-                        callback(null, nextNumber);
-                    }
-                })
             });
         }
     });
