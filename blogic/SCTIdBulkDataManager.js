@@ -8,7 +8,6 @@ var model;
 var sctid=require("../model/sctid");
 var sets=require('simplesets');
 var Sync = require('sync');
-var partitionLockManager = require ("./PartitionLockManager");
 
 var chunk = 1000;
 
@@ -487,6 +486,7 @@ function generateSctid(operation, thisPartition, callback){
         try{
             var rec=setAvailableSCTIDRecord2NewStatus.sync(null, operation);
             if (!rec) {
+
                 setNewSCTIdRecord.sync(null, operation, thisPartition);
             }
             callback(null);
@@ -544,9 +544,7 @@ function setAvailableSCTIDRecord2NewStatus(operation, callback){
 function setNewSCTIdRecord(operation,thisPartition,callback) {
     Sync(function () {
         try {
-            //The transaction around the partition sequence number increment 
-            //(and subsequent save to database) is covered
-            //by the calling function - generateSctidsSmallRequest
+
             thisPartition.sequence = thisPartition.sequence + 1;
             var seq = thisPartition.sequence;
             var newSCTId = computeSCTID(operation, seq);
@@ -557,14 +555,17 @@ function setNewSCTIdRecord(operation,thisPartition,callback) {
             }
             var sctIdRecord = getSctid.sync(null, newSCTId,systemId);
 
+
             var newStatus = stateMachine.getNewStatus(sctIdRecord.status, action);
             if (newStatus) {
+
                 sctIdRecord.status = newStatus;
                 sctIdRecord.author = operation.author;
                 sctIdRecord.software = operation.software;
                 sctIdRecord.expirationDate = operation.expirationDate;
                 sctIdRecord.comment = operation.comment;
                 sctIdRecord.jobId=operation.jobId;
+                //sctIdRecord.save.sync(null);
                 sctid.save.sync(null,sctIdRecord);
                 callback(null);
             } else {
@@ -655,12 +656,8 @@ var generateSctids=function (operation, callback) {
                                     return;
                                 }
                                 var seq = data.sequence;
-                                //data.sequence += sysIdToCreate.length;
-                                partitionLockManager.lockedOperation(key, function() {
-                                   data.sequence += sysIdToCreate.length;
-                                   data.save.sync(null);
-                                });
-
+                                data.sequence += sysIdToCreate.length;
+                                data.save.sync(null);
                                 var records = [];
                                 var createAt = new Date();
 
@@ -755,13 +752,9 @@ var insertRecords=function(records, operation, callback) {
                                 return;
                             }
 
-                            //data.sequence++;
-                            var seq = null;
-                            partitionLockManager.lockedOperation(key, function() {
-                                data.sequence++;
-                                seq = data.sequence;
-                                data.save.sync(null);
-                             });
+                            data.sequence++;
+                            var seq = data.sequence;
+                            data.save.sync(null);
 
                             var newSctId = computeSCTID(operation, seq);
                             console.log("Attempting to use next available SCTID: " + newSctId);
@@ -855,22 +848,19 @@ var generateSctidsSmallRequest=function (operation, callback) {
                                         canContinue = false;
                                     }
                                 }
-                                partitionLockManager.lockedOperation(key, function() {
-                                    if (canContinue) {
-                                        generateSctid.sync(null, operation, thisPartition);
-                                    }
-                                    cont++;
-                                    if (operation.quantity == cont) {
-                                        thisPartition.save(function (err) {
-                                            if (err) {
-                                                callback(err);
-                                            } else {
-                                                callback(null);
-                                            }
-                                        });
-                                    }
-                                });
-
+                                if (canContinue) {
+                                    generateSctid.sync(null, operation, thisPartition);
+                                }
+                                cont++;
+                                if (operation.quantity == cont) {
+                                    thisPartition.save(function (err) {
+                                        if (err) {
+                                            callback(err);
+                                        } else {
+                                            callback(null);
+                                        }
+                                    });
+                                }
                             } catch (e) {
                                 console.error("generateSctidsSmallRequest error:" + e); // something went wrong
                                 callback(e);

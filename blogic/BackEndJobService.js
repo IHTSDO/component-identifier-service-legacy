@@ -71,6 +71,7 @@ function processJob(record){
                 request.autoSysId=true;
             }
             request.action = stateMachine.actions.generate;
+
             if (true) { // previously request.systemIds.length>10
 
                 console.log("Start job " + record.name + " - id:" + record.id);
