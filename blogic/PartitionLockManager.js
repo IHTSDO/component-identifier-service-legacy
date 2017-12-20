@@ -28,10 +28,8 @@ module.exports.lockedOperation = function lockedOperation (key, callback) {
   
   if (keyLock != null) {
      keyLock.timedLock(timeoutSeconds * 1000, function (error) {
-       console.log("Locked partition " + keyStr);
        callback();
        keyLock.unlock();
-       console.log("Unlocked partition " + keyStr);
      });
   }
 };
