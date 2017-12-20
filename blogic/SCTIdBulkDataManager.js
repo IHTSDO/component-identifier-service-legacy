@@ -759,7 +759,10 @@ var insertRecords=function(records, operation, callback) {
                                 return;
                             }
 
-                            data.sequence++;
+                            //data.sequence++;
+                            partitionLockManager.lockedOperation(key, function() {
+                                data.sequence++;
+                             });
                             var seq = data.sequence;
                             data.save.sync(null);
 
