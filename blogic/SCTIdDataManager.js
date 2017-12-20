@@ -5,7 +5,6 @@ var dbInit=require("../config/dbInit");
 var stateMachine=require("../model/StateMachine");
 var sctid=require("../model/sctid");
 var sctIdHelper=require("../utils/SctIdHelper");
-var partitionLockManager = require ("./PartitionLockManager");
 var model;
 
 function getModel(callback){
@@ -610,10 +609,7 @@ function getNextNumber( operation, callback) {
                     callback(throwErrMessage("error getting partition:" + operation.partitionId.toString() + " for namespace:" + operation.namespace + ", err: " + JSON.stringify(err)), null);
                     return;
                 }
-                //partition.sequence++;
-                partitionLockManager.lockedOperation(key, function() {
-                    partition.sequence++;
-                 });
+                partition.sequence++;
 
                 var nextNumber = partition.sequence;
                 partition.save(function (err) {
