@@ -348,6 +348,7 @@ function insertSchemeIdRecord(newSchemeIdRecord, autoSysId, callback){
                     callback(null,newSchemeIdRecord2);
 
                 }else{
+                    console.log("Unable to attempt to solve error");
                     callback(err,null);
                 }
 
@@ -648,6 +649,7 @@ var insertRecords=function(records, scheme, key, autoSysId, callback) {
                             callback(err);
                         }
                     } else {
+                        console.log("Unable to attempt to solve record insert error");
                         callback(err);
                     }
                 }
