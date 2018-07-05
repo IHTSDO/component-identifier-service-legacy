@@ -193,4 +193,10 @@ public class CISClient {
 		return calendar.getTime();
 	}
 
+	public List<CISNamespace> getNamespaces() {
+		authenticate();
+		ResponseEntity<List<CISNamespace>> namespaces = restTemplate.exchange("/sct/namespaces?token={token}", HttpMethod.GET, null, PARAMETERIZED_TYPE_NAMESPACES, token);
+		return namespaces.getBody();
+	}
+
 }
