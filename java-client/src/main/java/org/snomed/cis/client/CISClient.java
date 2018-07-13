@@ -10,6 +10,8 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.ClientHttpRequestFactory;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.util.StopWatch;
@@ -64,7 +66,7 @@ public class CISClient {
 						.errorHandler(new ExpressiveErrorHandler())
 						.build();
 		//Set timeouts
-		SimpleClientHttpRequestFactory restFactory = (SimpleClientHttpRequestFactory) restTemplate.getRequestFactory();
+		HttpComponentsClientHttpRequestFactory restFactory = (HttpComponentsClientHttpRequestFactory) restTemplate.getRequestFactory();
 		restFactory.setReadTimeout(timeout * 1000);
 		restFactory.setConnectTimeout(timeout * 1000);
 		authenticate();// Fail fast
