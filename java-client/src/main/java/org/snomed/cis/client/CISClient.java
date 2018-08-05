@@ -10,6 +10,8 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.ClientHttpRequestFactory;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.util.StopWatch;
@@ -63,10 +65,17 @@ public class CISClient {
 						.additionalMessageConverters(new MappingJackson2HttpMessageConverter())
 						.errorHandler(new ExpressiveErrorHandler())
 						.build();
-		//Set timeouts
-		SimpleClientHttpRequestFactory restFactory = (SimpleClientHttpRequestFactory) restTemplate.getRequestFactory();
-		restFactory.setReadTimeout(timeout * 1000);
-		restFactory.setConnectTimeout(timeout * 1000);
+		//Set timeouts via two possible instance classes, depending on other libraries present.
+		ClientHttpRequestFactory requestFactory = restTemplate.getRequestFactory();
+		if (requestFactory instanceof SimpleClientHttpRequestFactory) {
+			SimpleClientHttpRequestFactory restFactory = (SimpleClientHttpRequestFactory) requestFactory;
+			restFactory.setReadTimeout(timeout * 1000);
+			restFactory.setConnectTimeout(timeout * 1000);
+		} else if (requestFactory instanceof HttpComponentsClientHttpRequestFactory) {
+			HttpComponentsClientHttpRequestFactory httpRequestFactory = (HttpComponentsClientHttpRequestFactory) requestFactory;
+			httpRequestFactory.setReadTimeout(timeout * 1000);
+			httpRequestFactory.setConnectTimeout(timeout * 1000);
+		}
 		authenticate();// Fail fast
 	}
 
