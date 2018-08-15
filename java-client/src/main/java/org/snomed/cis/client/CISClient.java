@@ -76,6 +76,7 @@ public class CISClient {
 			httpRequestFactory.setReadTimeout(timeout * 1000);
 			httpRequestFactory.setConnectTimeout(timeout * 1000);
 		}
+		login();
 		authenticate();// Fail fast
 	}
 
