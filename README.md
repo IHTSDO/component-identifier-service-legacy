@@ -33,9 +33,9 @@ Update /config/params.js to provide the necesary information for the database co
 
 Setup Crowd credentials for the application in system variables with the following variable names:
 
-- Crowd URL: crowd_url
-- Crowd Application Name: app_name
-- Crowd Application Password: app_password
+- Crowd URL: CROWD_URL
+- Crowd Application Name: CROWD_APP_NAME
+- Crowd Application Password: CROWD_APP_PASSWORD
 
 Start the Service providing the database information:
 
