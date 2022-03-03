@@ -5,7 +5,7 @@
 
 	<groupId>org.snomed.cis</groupId>
 	<artifactId>cis-client</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.1-SNAPSHOT</version>
 
 	<name>CIS Client</name>
 	<description>Java Client for the Component Identifier Service</description>
