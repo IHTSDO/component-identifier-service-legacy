@@ -11,7 +11,7 @@
     "connect": "3.4.0",
     "console-stamp": "0.2.6",
     "cors": "2.8.1",
-    "express": "4.13.1",
+    "express": "4.19.2",
     "fibers": "1.0.15",
     "locks": "0.2.2",
     "mysql": "2.8.0",
